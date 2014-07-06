@@ -212,88 +212,81 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
-        template <typename Sig, typename F>
-        struct _visit;
+        template <typename F, typename Sig>
+        struct visitor;
 
-        template <typename R, typename ...Args, typename F>
-        struct _visit<R(Args...), F>
+        template <typename F, typename R, typename ...Args>
+        struct visitor<F, R(Args...)>
         {
-            using result_type = R;
-
             template <typename ...Ts>
-            static R call(std::size_t which, Args&&... args)
+            R operator()(pack<Ts...>, std::size_t which, Args&&... args) const
             {
                 using fun_ptr = R(*)(Args...);
                 static constexpr fun_ptr table[] = {&F::template call<Ts>...};
 
                 return table[which](std::forward<Args>(args)...);
             }
-        };
 
-        template <typename Sig, typename F, typename ...Ts, typename ...Args>
-        static typename _visit<Sig, F>::result_type
-        visit(pack<Ts...>, std::size_t which, Args&&... args)
-        {
-            return _visit<Sig, F>::template call<Ts...>(
-                which, std::forward<Args>(args)...);
-        }
+            R operator()(pack<>, std::size_t /*which*/, Args&&... /*args*/) const
+            {}
+        };
 
         ///////////////////////////////////////////////////////////////////////
         struct copy_construct
+          : visitor<copy_construct, void(void*, void const*)>
         {
             template <typename T>
             static void call(void* ptr, void const* other)
-                noexcept(std::is_nothrow_copy_constructible<T>::value)
             {
                 new (ptr) T(*static_cast<T const*>(other));
             }
         };
 
         struct move_construct
+          : visitor<move_construct, void(void*, void*)>
         {
             template <typename T>
             static void call(void* ptr, void* other)
-                noexcept(std::is_nothrow_move_constructible<T>::value)
             {
                 new (ptr) T(std::move(*static_cast<T*>(other)));
             }
         };
 
         struct copy_assign
+          : visitor<copy_assign, void(void*, void const*)>
         {
             template <typename T>
             static void call(void* ptr, void const* other)
-                noexcept(std::is_nothrow_copy_assignable<T>::value)
             {
                 *static_cast<T*>(ptr) = *static_cast<T const*>(other);
             }
         };
 
         struct move_assign
+          : visitor<move_assign, void(void*, void*)>
         {
             template <typename T>
             static void call(void* ptr, void* other)
-                noexcept(std::is_nothrow_move_assignable<T>::value)
             {
                 *static_cast<T*>(ptr) = std::move(*static_cast<T*>(other));
             }
         };
 
         struct destroy
+          : visitor<destroy, void(void*)>
         {
             template <typename T>
             static void call(void* ptr)
-                noexcept(std::is_nothrow_destructible<T>::value)
             {
                 static_cast<T*>(ptr)->~T();
             }
         };
 
         struct swap
+          : visitor<swap, void(void*, void*)>
         {
             template <typename T>
             static void call(void* ptr, void* other)
-                noexcept(detail::is_nothrow_swappable<T>::value)
             {
                 using std::swap;
                 swap(*static_cast<T*>(ptr), *static_cast<T*>(other));
@@ -301,6 +294,7 @@ namespace eggs { namespace variants
         };
 
         struct hash
+          : visitor<hash, std::size_t(void const*)>
         {
             template <typename T>
             static std::size_t call(void const* ptr)
@@ -311,11 +305,12 @@ namespace eggs { namespace variants
         };
 
         struct type_id
+          : visitor<type_id, std::type_info const&()>
         {
             template <typename T>
-            static std::type_info const& call() noexcept
+            static std::type_info const& call()
             {
-                return std::is_same<T, empty>::value ? typeid(void) : typeid(T);
+                return typeid(T);
             }
         };
 
@@ -370,7 +365,9 @@ namespace eggs { namespace variants
         };
 
         template <typename R, typename F>
-        struct applier
+        struct apply
+          : visitor<apply<R, F>, R(void*, F&&)>
+          , visitor<apply<R, F>, R(void const*, F&&)>
         {
             template <typename T>
             static R call(void* ptr, F&& f)
@@ -447,7 +444,7 @@ namespace eggs { namespace variants
                 >>::value)
           : _which{other._which}
         {
-            detail::visit<void(void*, void const*), detail::copy_construct>(
+            detail::copy_construct{}(
                 detail::pack<detail::empty, Ts...>{}, _which
               , &_storage, &other._storage
             );
@@ -460,7 +457,7 @@ namespace eggs { namespace variants
                 >>::value)
           : _which{other._which}
         {
-            detail::visit<void(void*, void*), detail::move_construct>(
+            detail::move_construct{}(
                 detail::pack<detail::empty, Ts...>{}, _which
               , &_storage, &other._storage
             );
@@ -468,7 +465,7 @@ namespace eggs { namespace variants
 
         ~variant()
         {
-            detail::visit<void(void*), detail::destroy>(
+            detail::destroy{}(
                 detail::pack<detail::empty, Ts...>{}, _which
               , &_storage
             );
@@ -483,18 +480,18 @@ namespace eggs { namespace variants
         {
             if (_which == other._which)
             {
-                detail::visit<void(void*, void const*), detail::copy_assign>(
+                detail::copy_assign{}(
                     detail::pack<detail::empty, Ts...>{}, _which
                   , &_storage, &other._storage
                 );
             } else {
-                detail::visit<void(void*), detail::destroy>(
+                detail::destroy{}(
                     detail::pack<detail::empty, Ts...>{}, _which
                   , &_storage
                 );
                 _which = 0;
 
-                detail::visit<void(void*, void const*), detail::copy_construct>(
+                detail::copy_construct{}(
                     detail::pack<detail::empty, Ts...>{}, other._which
                   , &_storage, &other._storage
                 );
@@ -512,18 +509,18 @@ namespace eggs { namespace variants
         {
             if (_which == other._which)
             {
-                detail::visit<void(void*, void*), detail::move_assign>(
+                detail::move_assign{}(
                     detail::pack<detail::empty, Ts...>{}, _which
                   , &_storage, &other._storage
                 );
             } else {
-                detail::visit<void(void*), detail::destroy>(
+                detail::destroy{}(
                     detail::pack<detail::empty, Ts...>{}, _which
                   , &_storage
                 );
                 _which = 0;
 
-                detail::visit<void(void*, void*), detail::move_construct>(
+                detail::move_construct{}(
                     detail::pack<detail::empty, Ts...>{}, other._which
                   , &_storage, &other._storage
                 );
@@ -537,7 +534,7 @@ namespace eggs { namespace variants
             noexcept(
                 std::is_nothrow_constructible<T, Args&&...>::value)
         {
-            detail::visit<void(void*), detail::destroy>(
+            detail::destroy{}(
                 detail::pack<detail::empty, Ts...>{}, _which
               , &_storage
             );
@@ -559,7 +556,7 @@ namespace eggs { namespace variants
                 std::is_nothrow_constructible<T,
                     std::initializer_list<U>&, Args&&...>::value)
         {
-            detail::visit<void(void*), detail::destroy>(
+            detail::destroy{}(
                 detail::pack<detail::empty, Ts...>{}, _which
               , &_storage
             );
@@ -578,7 +575,7 @@ namespace eggs { namespace variants
         {
             if (_which == other._which)
             {
-                detail::visit<void(void*, void*), detail::swap>(
+                detail::swap{}(
                     detail::pack<detail::empty, Ts...>{}, _which
                   , &_storage, &other._storage
                 );
@@ -611,7 +608,7 @@ namespace eggs { namespace variants
         std::size_t hash() const
         {
             return _which != 0
-              ? detail::visit<std::size_t(void const*), detail::hash>(
+              ? detail::hash{}(
                     detail::pack<Ts...>{}, _which - 1
                   , &_storage
                 )
@@ -620,9 +617,11 @@ namespace eggs { namespace variants
 
         std::type_info const& target_type() const noexcept
         {
-            return detail::visit<std::type_info const&(), detail::type_id>(
-                detail::pack<detail::empty, Ts...>{}, _which
-            );
+            return _which != 0
+              ? detail::type_id{}(
+                    detail::pack<Ts...>{}, _which - 1
+                )
+              : typeid(void);
         }
 
         template <typename T>
@@ -650,7 +649,7 @@ namespace eggs { namespace variants
     R apply(F&& f, variant<Ts...>& v)
     {
         return v._which != 0
-          ? detail::visit<R(void*, F&&), detail::applier<R, F>>(
+          ? detail::apply<R, F>{}(
                 detail::pack<Ts&...>{}, v._which - 1
               , &v._storage, std::forward<F>(f)
             )
@@ -670,7 +669,7 @@ namespace eggs { namespace variants
     R apply(F&& f, variant<Ts...> const& v)
     {
         return v._which != 0
-          ? detail::visit<R(void const*, F&&), detail::applier<R, F>>(
+          ? detail::apply<R, F>{}(
                 detail::pack<Ts const&...>{}, v._which - 1
               , &v._storage, std::forward<F>(f)
             )
@@ -690,7 +689,7 @@ namespace eggs { namespace variants
     R apply(F&& f, variant<Ts...>&& v)
     {
         return v._which != 0
-          ? detail::visit<R(void*, F&&), detail::applier<R, F>>(
+          ? detail::apply<R, F>{}(
                 detail::pack<Ts&&...>{}, v._which - 1
               , &v._storage, std::forward<F>(f)
             )
