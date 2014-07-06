@@ -293,14 +293,23 @@ namespace eggs { namespace variants
             }
         };
 
-        struct hash
-          : visitor<hash, std::size_t(void const*)>
+        struct equal_to
+          : visitor<equal_to, bool(void const*, void const*)>
         {
             template <typename T>
-            static std::size_t call(void const* ptr)
+            static bool call(void const* ptr, void const* other)
             {
-                std::hash<std::decay_t<T>> hash;
-                return hash(*static_cast<T const*>(ptr));
+                return *static_cast<T const*>(ptr) == *static_cast<T const*>(other);
+            }
+        };
+
+        struct less
+          : visitor<less, bool(void const*, void const*)>
+        {
+            template <typename T>
+            static bool call(void const* ptr, void const* other)
+            {
+                return *static_cast<T const*>(ptr) < *static_cast<T const*>(other);
             }
         };
 
@@ -385,6 +394,18 @@ namespace eggs { namespace variants
                 return _void_guard<R>{}, _invoke(
                     std::forward<F>(f)
                   , std::forward<T>(*static_cast<value_type*>(ptr)));
+            }
+        };
+
+        ///////////////////////////////////////////////////////////////////////
+        struct hash
+        {
+            using result_type = std::size_t;
+
+            template <typename T>
+            std::size_t operator()(T const& v) const
+            {
+                return std::hash<T>{}(v);
             }
         };
     }
@@ -596,23 +617,44 @@ namespace eggs { namespace variants
             return _which != 0 ? _which - 1 : npos;
         }
 
-        template <typename R, typename F, typename ...Us>
-        friend R apply(F&& f, variant<Us...>& v);
-
-        template <typename R, typename F, typename ...Us>
-        friend R apply(F&& f, variant<Us...> const& v);
-
-        template <typename R, typename F, typename ...Us>
-        friend R apply(F&& f, variant<Us...>&& v);
-
-        std::size_t hash() const
+        friend bool operator==(variant const& left, variant const& right)
         {
-            return _which != 0
-              ? detail::hash{}(
-                    detail::pack<Ts...>{}, _which - 1
-                  , &_storage
+            return left._which == right._which
+              ? left._which == 0 || detail::equal_to{}(
+                    detail::pack<Ts...>{}, left._which - 1
+                  , &left._storage, &right._storage
                 )
-              : 0u;
+              : false;
+        }
+
+        friend bool operator!=(variant const& left, variant const& right)
+        {
+            return !(left == right);
+        }
+
+        friend bool operator<(variant const& left, variant const& right)
+        {
+            return left._which == right._which
+              ? detail::less{}(
+                    detail::pack<Ts...>{}, left._which - 1
+                  , &left._storage, &right._storage
+                )
+              : left._which < right._which;
+        }
+
+        friend bool operator<=(variant const& left, variant const& right)
+        {
+            return !(right < left);
+        }
+
+        friend bool operator>(variant const& left, variant const& right)
+        {
+            return right < left;
+        }
+
+        friend bool operator>=(variant const& left, variant const& right)
+        {
+            return !(left < right);
         }
 
         std::type_info const& target_type() const noexcept
@@ -639,6 +681,15 @@ namespace eggs { namespace variants
               ? static_cast<T const*>(static_cast<void const*>(&_storage))
               : nullptr;
         }
+
+        template <typename R, typename F, typename ...Us>
+        friend R apply(F&& f, variant<Us...>& v);
+
+        template <typename R, typename F, typename ...Us>
+        friend R apply(F&& f, variant<Us...> const& v);
+
+        template <typename R, typename F, typename ...Us>
+        friend R apply(F&& f, variant<Us...>&& v);
 
     private:
         std::size_t _which;
@@ -722,9 +773,11 @@ namespace std
         using result_type = std::size_t;
 
         std::size_t operator()(::eggs::variants::variant<Ts...> const& v) const
-            noexcept(noexcept(v.hash()))
         {
-            return v.hash();
+            return bool(v)
+              ? ::eggs::variants::apply<std::size_t>(
+                    ::eggs::variants::detail::hash{}, v)
+              : 0u;
         }
     };
 }
