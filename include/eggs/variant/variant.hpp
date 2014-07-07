@@ -715,6 +715,79 @@ namespace eggs { namespace variants
         std::aligned_union_t<0, Ts...> _storage;
     };
 
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename T>
+    struct variant_size; // undefined
+
+    template <typename ...Ts>
+    struct variant_size<variant<Ts...>>
+      : std::integral_constant<std::size_t, sizeof...(Ts)>
+    {};
+
+    template <typename T>
+    constexpr std::size_t variant_size_v = variant_size<T>::value;
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <std::size_t I, typename T>
+    struct variant_element; // undefined
+
+    template <std::size_t I, typename ...Ts>
+    struct variant_element<I, variant<Ts...>>
+      : detail::at_index<I, detail::pack<Ts...>>
+    {};
+
+    template <std::size_t I, typename T>
+    using variant_element_t =  typename variant_element<I, T>::type;
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <std::size_t I, typename ...Ts>
+    variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v)
+    {
+        using value_type = variant_element_t<I, variant<Ts...>>;
+        if (value_type* value = v.template target<value_type>())
+            return *value;
+        throw bad_variant_access{};
+    }
+
+    template <std::size_t I, typename ...Ts>
+    variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v)
+    {
+        using value_type = variant_element_t<I, variant<Ts...>> const;
+        if (value_type const* value = v.template target<value_type>())
+            return *value;
+        throw bad_variant_access{};
+    }
+
+    template <std::size_t I, typename ...Ts>
+    variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v)
+    {
+        using value_type = variant_element_t<I, variant<Ts...>>;
+        return std::forward<value_type>(get<I>(v));
+    }
+
+    template <typename T, typename ...Ts>
+    T& get(variant<Ts...>& v)
+    {
+        if (T* value = v.template target<T>())
+            return *value;
+        throw bad_variant_access{};
+    }
+
+    template <typename T, typename ...Ts>
+    T const& get(variant<Ts...> const& v)
+    {
+        if (T const* value = v.template target<T>())
+            return *value;
+        throw bad_variant_access{};
+    }
+
+    template <typename T, typename ...Ts>
+    T&& get(variant<Ts...>&& v)
+    {
+        return std::forward<T>(get<T>(v));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...>& v)
     {
@@ -775,6 +848,7 @@ namespace eggs { namespace variants
         return apply<R>(std::forward<F>(f), std::move(v));
     }
 
+    ///////////////////////////////////////////////////////////////////////////
     template <typename ...Ts>
     void swap(variant<Ts...>& left, variant<Ts...>& right)
         noexcept(noexcept(left.swap(right)))
