@@ -199,7 +199,7 @@ namespace eggs { namespace variants
 
         template <std::size_t I, typename Ts>
         struct at_index
-          : decltype(_at_index(_indexer<Ts>{}))
+          : decltype(_at_index<I>(_indexer<Ts>{}))
         {};
 
         empty _index_of(...);
