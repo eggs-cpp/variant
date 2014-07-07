@@ -12,6 +12,7 @@
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
+#include <stdexcept>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -411,6 +412,24 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    class bad_variant_access
+      : public std::logic_error
+    {
+    public:
+        bad_variant_access()
+          : std::logic_error{"bad_variant_access"}
+        {};
+
+        explicit bad_variant_access(std::string const& what_arg)
+          : std::logic_error{what_arg}
+        {};
+
+        explicit bad_variant_access(char const* what_arg)
+          : std::logic_error{what_arg}
+        {};
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename ...Ts>
     class variant
     {
@@ -704,7 +723,7 @@ namespace eggs { namespace variants
                 detail::pack<Ts&...>{}, v._which - 1
               , &v._storage, std::forward<F>(f)
             )
-          : throw std::bad_cast();
+          : throw bad_variant_access{};
     }
 
     template <
@@ -724,7 +743,7 @@ namespace eggs { namespace variants
                 detail::pack<Ts const&...>{}, v._which - 1
               , &v._storage, std::forward<F>(f)
             )
-          : throw std::bad_cast();
+          : throw bad_variant_access{};
     }
 
     template <
@@ -744,7 +763,7 @@ namespace eggs { namespace variants
                 detail::pack<Ts&&...>{}, v._which - 1
               , &v._storage, std::forward<F>(f)
             )
-          : throw std::bad_cast();
+          : throw bad_variant_access{};
     }
 
     template <
