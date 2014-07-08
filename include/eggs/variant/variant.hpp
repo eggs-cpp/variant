@@ -412,24 +412,42 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! The class `bad_variant_access` defines the type of objects thrown as
+    //! exceptions to report the situation where an attempt is made to access
+    //! an inactive member of a `variant` object.
     class bad_variant_access
       : public std::logic_error
     {
     public:
+        //! \effects Constructs an object of class `bad_variant_access`.
+        //!  `what()` returns an implementation-defined NTBS.
         bad_variant_access()
           : std::logic_error{"bad_variant_access"}
         {};
 
+        //! \effects Constructs an object of class `bad_variant_access`.
+        //!  `strcmp(what(), what_arg.c_str()) == 0`.
         explicit bad_variant_access(std::string const& what_arg)
           : std::logic_error{what_arg}
         {};
 
+        //! \effects Constructs an object of class `bad_variant_access`.
+        //!  `strcmp(what(), what_arg) == 0`.
         explicit bad_variant_access(char const* what_arg)
           : std::logic_error{what_arg}
         {};
     };
 
     ///////////////////////////////////////////////////////////////////////////
+    //! In a `variant`, at most one of the members can be active at any time,
+    //! that is, the value of at most one of the members can be stored in a
+    //! `variant` at any time.  Implementations are not permitted to use
+    //! additional storage, such as dynamic memory, to allocate its contained
+    //! value. The contained value shall be allocated in a region of the
+    //! `variant<Ts...>` storage suitably aligned for the types `Ts...`.
+    //!
+    //! All `T` in `Ts...` shall be object types and shall satisfy the
+    //! requirements of `Destructible`.
     template <typename ...Ts>
     class variant
     {
@@ -454,13 +472,77 @@ namespace eggs { namespace variants
         using _index_of = detail::index_of<std::decay_t<T>, _types>;
 
     public:
-        static constexpr std::size_t npos = static_cast<std::size_t>(-1);
+        static constexpr std::size_t npos = std::size_t(-1);
 
     public:
+        //! \postconditions `*this` does not have an active member.
+        //!
+        //! \remarks No member is initialized.
         variant() noexcept
           : _which{0}
         {}
 
+        //! \requires `std::is_copy_constructible_v<T>` is `true` for all `T`
+        //!  in `Ts...`.
+        //!
+        //! \effects If `rhs` has an active member of type `T`, initializes
+        //!  the active member as if direct-non-list-initializing an object of
+        //!  type `T` with the expression `*rhs.target<T>()`.
+        //!
+        //! \postconditions `rhs.which() == this->which()`.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        variant(variant const& rhs)
+            noexcept(
+                detail::all_of<detail::pack<
+                    std::is_nothrow_copy_constructible<Ts>...
+                >>::value)
+          : _which{rhs._which}
+        {
+            detail::copy_construct{}(
+                detail::pack<detail::empty, Ts...>{}, _which
+              , &_storage, &rhs._storage
+            );
+        }
+
+        //! \requires `std::is_move_constructible_v<T>` is `true` for all `T`
+        //!  in `Ts...`.
+        //!
+        //! \effects If `rhs` has an active member of type `T`, initializes
+        //!  the active member as if direct-non-list-initializing an object of
+        //!  type `T` with the expression `std::move(*rhs.target<T>())`.
+        //!  `bool(rhs)` is unchanged.
+        //!
+        //! \postconditions `rhs.which() == this->which()`.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        variant(variant&& rhs)
+            noexcept(
+                detail::all_of<detail::pack<
+                    std::is_nothrow_move_constructible<Ts>...
+                >>::value)
+          : _which{rhs._which}
+        {
+            detail::move_construct{}(
+                detail::pack<detail::empty, Ts...>{}, _which
+              , &_storage, &rhs._storage
+            );
+        }
+
+        //! \requires `std::is_constructible_v<std::remove_cv_t<
+        //!  std::remove_reference_t<T>>, T&&>` is `true`.
+        //!
+        //! \effects Initializes the active member as if direct-non-list-
+        //!  initializing an object of type `T` with the expression
+        //!  `std::forward<T>(v)`.
+        //!
+        //! \postconditions `*this` contains a value.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \remarks This constructor shall not participate in overload
+        //!  resolution unless `std::remove_cv_t<std::remove_reference_t<T>>`
+        //!  occurs in `Ts...`.
         template <
             typename T
           , typename Enable = std::enable_if_t<
@@ -469,40 +551,16 @@ namespace eggs { namespace variants
                   , detail::pack<std::remove_cv_t<Ts>...>
                 >::value
             >
-        > variant(T&& value)
+        > variant(T&& v)
             noexcept(
-                std::is_nothrow_constructible<std::decay_t<T>, T&&>::value)
+                std::is_nothrow_constructible<std::remove_cv_t<T>, T&&>::value)
           : _which{_index_of<T>::value}
         {
-            new (&_storage) T(std::forward<T>(value));
+            new (&_storage) T(std::forward<T>(v));
         }
 
-        variant(variant const& other)
-            noexcept(
-                detail::all_of<detail::pack<
-                    std::is_nothrow_copy_constructible<Ts>...
-                >>::value)
-          : _which{other._which}
-        {
-            detail::copy_construct{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage, &other._storage
-            );
-        }
-
-        variant(variant&& other)
-            noexcept(
-                detail::all_of<detail::pack<
-                    std::is_nothrow_move_constructible<Ts>...
-                >>::value)
-          : _which{other._which}
-        {
-            detail::move_construct{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage, &other._storage
-            );
-        }
-
+        //! \effects If `*this` has an active member of type `T`, destroys the
+        //!  active member by calling `T::~T()`.
         ~variant()
         {
             detail::destroy{}(
@@ -511,18 +569,41 @@ namespace eggs { namespace variants
             );
         }
 
-        variant& operator=(variant const& other)
+        //! \requires `std::is_copy_constructible_v<T>` and
+        //!  `std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`.
+        //!
+        //! \effects
+        //!  - If both `*this` and `rhs` have an active member of type `T`,
+        //!    assigns to the active member the expression `*rhs.target<T>()`;
+        //!
+        //!  - otherwise, if `*this` has an active member of type `To`,
+        //!    destroys the active member by calling `To::~To()`. Then, if
+        //!    `rhs` has an active member of type `Tn`, initializes the active
+        //!    member as if direct-non-list-initializing an object of type
+        //!    `Tn` with the expression `*rhs.target<Tn>()`.
+        //!
+        //! \returns `*this`.
+        //!
+        //! \postconditions `rhs.which() == this->which()`.
+        //!
+        //! \exceptionsafety If an exception is thrown during the call to
+        //!  `T`'s copy assignment, the state of the active member is as
+        //!  defined by the exception safety guarantee of `T`'s copy
+        //!  assignment. If an exception is thrown during the call to `Tn`'s
+        //!  copy constructor, `*this` has no active member, and the previous
+        //!  active member (if any) has been destroyed.
+        variant& operator=(variant const& rhs)
             noexcept(
                 detail::all_of<detail::pack<
                     std::is_nothrow_copy_assignable<Ts>...
                   , std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
         {
-            if (_which == other._which)
+            if (_which == rhs._which)
             {
                 detail::copy_assign{}(
                     detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage, &other._storage
+                  , &_storage, &rhs._storage
                 );
             } else {
                 detail::destroy{}(
@@ -532,26 +613,54 @@ namespace eggs { namespace variants
                 _which = 0;
 
                 detail::copy_construct{}(
-                    detail::pack<detail::empty, Ts...>{}, other._which
-                  , &_storage, &other._storage
+                    detail::pack<detail::empty, Ts...>{}, rhs._which
+                  , &_storage, &rhs._storage
                 );
-                _which = other._which;
+                _which = rhs._which;
             }
             return *this;
         }
 
-        variant& operator=(variant&& other)
+        //! \requires `std::is_move_constructible_v<T>` and
+        //!  `std::is_move_assignable_v<T>` is `true` for all `T` in `Ts...`.
+        //!
+        //! \effects
+        //!  - If both `*this` and `rhs` have an active member of type `T`,
+        //!    assigns to the active member the expression
+        //!    `std::move(*rhs.target<T>())`;
+        //!
+        //!  - otherwise, if `*this` has an active member of type `To`,
+        //!    destroys the active member by calling `To::~To()`. Then, if
+        //!    `rhs` has an active member of type `Tn`, initializes the active
+        //!    member as if direct-non-list-initializing an object of type
+        //!    `Tn` with the expression `std::move(*rhs.target<Tn>())`.
+        //!
+        //!  `bool(rhs)` is unchanged.
+        //!
+        //! \returns `*this`.
+        //!
+        //! \postconditions `rhs.which() == this->which()`.
+        //!
+        //! \exceptionsafety If an exception is thrown during the call to
+        //!  `T`'s move assignment, the state of both active members is
+        //!  determined by the exception safety guarantee of `T`'s move
+        //!  assignment. If an exception is thrown during the call to `Tn`'s
+        //!  move constructor, `*this` has no active member, the previous
+        //!  active member (if any) has been destroyed, and the state of the
+        //!  active member of `rhs` is determined by the exception safety
+        //!  guarantee of `Tn`'s move constructor.
+        variant& operator=(variant&& rhs)
             noexcept(
                 detail::all_of<detail::pack<
                     std::is_nothrow_move_assignable<Ts>...
                   , std::is_nothrow_move_constructible<Ts>...
                 >>::value)
         {
-            if (_which == other._which)
+            if (_which == rhs._which)
             {
                 detail::move_assign{}(
                     detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage, &other._storage
+                  , &_storage, &rhs._storage
                 );
             } else {
                 detail::destroy{}(
@@ -561,14 +670,29 @@ namespace eggs { namespace variants
                 _which = 0;
 
                 detail::move_construct{}(
-                    detail::pack<detail::empty, Ts...>{}, other._which
-                  , &_storage, &other._storage
+                    detail::pack<detail::empty, Ts...>{}, rhs._which
+                  , &_storage, &rhs._storage
                 );
-                _which = other._which;
+                _which = rhs._which;
             }
             return *this;
         }
 
+        //! \requires `std::is_constructible_v<T, Args&&...>` is `true` and
+        //!  `T` shall occur in `Ts...`.
+        //!
+        //! \effects If `*this` has an active member of type `To`, destroys
+        //!  the active member by calling `To::~To()`. Then, initializes the
+        //!  active member as if constructing an object of type `T` with the
+        //!  arguments `std::forward<Args>(args)...`.
+        //!
+        //! \postconditions `*this` has an active member of type `T`.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \exceptionsafety If an exception is thrown during the call to
+        //!  `T`'s constructor, `*this` has no active member, and the previous
+        //!  active member (if any) has been destroyed.
         template <typename T, typename ...Args>
         void emplace(Args&&... args)
             noexcept(
@@ -584,6 +708,25 @@ namespace eggs { namespace variants
             _which = _index_of<T>::value;
         }
 
+        //! \requires `std::is_constructible_v<T, initializer_list<U>&,
+        //!  Args&&...>` is `true` and `T` shall occur in `Ts...`.
+        //!
+        //! \effects If `*this` has an active member of type `To`, destroys
+        //!  the active member by calling `To::~To()`. Then, initializes the
+        //!  active member as if constructing an object of type `T` with the
+        //!  arguments `il, std::forward<Args>(args)...`.
+        //!
+        //! \postconditions `*this` has an active member of type `T`.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \exceptionsafety If an exception is thrown during the call to
+        //!  `T`'s constructor, `*this` has no active member, and the previous
+        //!  active member (if any) has been destroyed.
+        //!
+        //! \remarks This function shall not participate in overload resolution
+        //!  unless `is_constructible_v<T, initializer_list<U>&, Args&&...>`
+        //!  is `true`.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = std::enable_if_t<
@@ -606,76 +749,110 @@ namespace eggs { namespace variants
             _which = _index_of<T>::value;
         }
 
-        void swap(variant& other)
+        //! \requires Lvalues of `T` shall be swappable and
+        //!  `std::is_move_constructible_v<T>` is `true` for all `T` in
+        //!  `Ts...`.
+        //!
+        //! \effects
+        //!  - If both `*this` and `rhs` have an active member of type `T`,
+        //!    calls `swap(*this->target<T>(), *rhs.target<T>())`;
+        //!
+        //!  - otherwise, calls `std::swap(*this, rhs)`.
+        //!
+        //! \exceptionsafety If an exception is thrown during the call to
+        //!  function `swap` the state of the active members of type `T` is
+        //!  determined by the exception safety guarantee of `swap` for
+        //!  lvalues of `T`. If an exception is thrown during the call to
+        //!  a move constructor, the state of `*this` and `rhs` is
+        //!  unspecified.
+        void swap(variant& rhs)
             noexcept(
                 detail::all_of<detail::pack<
                     detail::is_nothrow_swappable<Ts>...
                   , std::is_nothrow_move_constructible<Ts>...
                 >>::value)
         {
-            if (_which == other._which)
+            if (_which == rhs._which)
             {
                 detail::swap{}(
                     detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage, &other._storage
+                  , &_storage, &rhs._storage
                 );
             } else {
-                variant tmp{std::move(other)};
-                other = std::move(*this);
-                *this = std::move(tmp);
+                std::swap(*this, rhs);
             }
         }
 
+        //! \returns `true` if and only if `*this` has an active member.
         explicit operator bool() const noexcept
         {
             return _which != 0;
         }
 
+        //! \returns The zero-based index of the active member if `*this` has
+        //!  one. Otherwise, returns `npos`.
         std::size_t which() const noexcept
         {
             return _which != 0 ? _which - 1 : npos;
         }
 
-        friend bool operator==(variant const& left, variant const& right)
+        //! \requires All `T` in `Ts...` shall meet the requirements of
+        //!  `EqualityComparable`.
+        //!
+        //! \returns If both `lhs` and `rhs` have an active member of type `T`,
+        //!  `*this->target<T>() == *rhs.target<T>()`; otherwise, `false`.
+        friend bool operator==(variant const& lhs, variant const& rhs)
         {
-            return left._which == right._which
-              ? left._which == 0 || detail::equal_to{}(
-                    detail::pack<Ts...>{}, left._which - 1
-                  , &left._storage, &right._storage
+            return lhs._which == rhs._which
+              ? lhs._which == 0 || detail::equal_to{}(
+                    detail::pack<Ts...>{}, lhs._which - 1
+                  , &lhs._storage, &rhs._storage
                 )
               : false;
         }
 
-        friend bool operator!=(variant const& left, variant const& right)
+        //! \returns `!(lhs == rhs)`.
+        friend bool operator!=(variant const& lhs, variant const& rhs)
         {
-            return !(left == right);
+            return !(lhs == rhs);
         }
 
-        friend bool operator<(variant const& left, variant const& right)
+        //! \requires All `T` in `Ts...` shall meet the requirements of
+        //!  `LessThanComparable`.
+        //!
+        //! \returns If both `lhs` and `rhs` have an active member of type `T`,
+        //!  `*this->target<T>() < *rhs.target<T>()`; otherwise,
+        //!  `lhs.which() < rhs.which()`.
+        friend bool operator<(variant const& lhs, variant const& rhs)
         {
-            return left._which == right._which
+            return lhs._which == rhs._which
               ? detail::less{}(
-                    detail::pack<Ts...>{}, left._which - 1
-                  , &left._storage, &right._storage
+                    detail::pack<Ts...>{}, lhs._which - 1
+                  , &lhs._storage, &rhs._storage
                 )
-              : left._which < right._which;
+              : lhs._which < rhs._which;
         }
 
-        friend bool operator<=(variant const& left, variant const& right)
+        //! \returns `rhs < lhs`.
+        friend bool operator>(variant const& lhs, variant const& rhs)
         {
-            return !(right < left);
+            return rhs < lhs;
         }
 
-        friend bool operator>(variant const& left, variant const& right)
+        //! \returns `!(rhs < lhs)`.
+        friend bool operator<=(variant const& lhs, variant const& rhs)
         {
-            return right < left;
+            return !(rhs < lhs);
         }
 
-        friend bool operator>=(variant const& left, variant const& right)
+        //! \returns `!(lhs < rhs)`.
+        friend bool operator>=(variant const& lhs, variant const& rhs)
         {
-            return !(left < right);
+            return !(lhs < rhs);
         }
 
+        //! \returns If `*this` has an active member of type `T`, `typeid(T)`;
+        //!  otherwise `typeid(void)`.
         std::type_info const& target_type() const noexcept
         {
             return _which != 0
@@ -685,6 +862,10 @@ namespace eggs { namespace variants
               : typeid(void);
         }
 
+        //! \requires `T` shall occur in `Ts...`.
+        //!
+        //! \returns If `*this` has an active member of type `T`, a pointer to
+        //!  the active member; otherwise a null pointer.
         template <typename T>
         T* target() noexcept
         {
@@ -693,6 +874,10 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
+        //! \requires `T` shall occur in `Ts...`.
+        //!
+        //! \returns If `*this` has an active member of type `T`, a pointer to
+        //!  the active member; otherwise a null pointer.
         template <typename T>
         T const* target() const noexcept
         {
@@ -701,6 +886,7 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
+    private:
         template <typename R, typename F, typename ...Us>
         friend R apply(F&& f, variant<Us...>& v);
 
@@ -716,30 +902,64 @@ namespace eggs { namespace variants
     };
 
     ///////////////////////////////////////////////////////////////////////////
+    //! \remarks All specializations of `variant_size<T>` shall meet the
+    //!  `UnaryTypeTrait` requirements with a `BaseCharacteristic` of
+    //!  `std::integral_constant<std::size_t, N>` for some `N`.
     template <typename T>
     struct variant_size; // undefined
 
+    //! \remarks Has a `BaseCharacteristic` of `std::integral_constant<
+    //!  std::size_t, sizeof...(Ts)>`.
     template <typename ...Ts>
     struct variant_size<variant<Ts...>>
       : std::integral_constant<std::size_t, sizeof...(Ts)>
+    {};
+
+    //! \remarks Let `VS` denote `variant_size<T>` of the cv-unqualified type
+    //!  `T`. Has a `BaseCharacteristic` of `std::integral_constant<
+    //!  std::size_t, VS::value>`
+    template <typename T>
+    struct variant_size<T const>
+      : variant_size<T>
     {};
 
     template <typename T>
     constexpr std::size_t variant_size_v = variant_size<T>::value;
 
     ///////////////////////////////////////////////////////////////////////////
+    //! \remarks All specializations of `variant_element<I, T>` shall meet the
+    //!  `TransformationTrait` requirements with a member typedef `type` that
+    //!  names the `I`th member of `T`, where indexing is zero-based.
     template <std::size_t I, typename T>
     struct variant_element; // undefined
 
+    //! \requires `I < sizeof...(Ts)`.
+    //!
+    //! \remarks The member typedef `type` shall name the type of the `I`th
+    //!  element of `Ts...`, where indexing is zero-based.
     template <std::size_t I, typename ...Ts>
     struct variant_element<I, variant<Ts...>>
       : detail::at_index<I, detail::pack<Ts...>>
+    {};
+
+    //! \remarks Let `VE` denote `variant_element<I, T>` of the cv-unqualified
+    //!  type `T`. The member typedef `type` names `std::add_const_t<
+    //!  typename VE::type>`.
+    template <std::size_t I, typename T>
+    struct variant_element<I, T const>
+      : std::add_const<typename variant_element<I, T>::type>
     {};
 
     template <std::size_t I, typename T>
     using variant_element_t =  typename variant_element<I, T>::type;
 
     ///////////////////////////////////////////////////////////////////////////
+    //! \requires `I < sizeof...(Ts)`.
+    //!
+    //! \returns A reference to the `I`th member of `v` if it is active, where
+    //!  indexing is zero-based.
+    //!
+    //! \throws `bad_variant_access` if the `I`th member of `v` is not active.
     template <std::size_t I, typename ...Ts>
     variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v)
     {
@@ -749,6 +969,12 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! \requires `I < sizeof...(Ts)`.
+    //!
+    //! \returns A const reference to the `I`th member of `v` if it is active,
+    //!  where indexing is zero-based.
+    //!
+    //! \throws `bad_variant_access` if the `I`th member of `v` is not active.
     template <std::size_t I, typename ...Ts>
     variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v)
     {
@@ -758,13 +984,21 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! \effects Equivalent to return `std::forward<variant_element_t<I,
+    //!  variant<Ts...>>&&>(get<I>(v))`.
     template <std::size_t I, typename ...Ts>
     variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v)
     {
         using value_type = variant_element_t<I, variant<Ts...>>;
-        return std::forward<value_type>(get<I>(v));
+        return std::forward<value_type&&>(get<I>(v));
     }
 
+    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //!
+    //! \returns A reference to the active member of `v` if it is of type `T`.
+    //!
+    //! \throws `bad_variant_access` if the active member of `v` is not of
+    //!  type `T`.
     template <typename T, typename ...Ts>
     T& get(variant<Ts...>& v)
     {
@@ -773,6 +1007,13 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //!
+    //! \returns A const reference to the active member of `v` if it is of
+    //!  type `T`.
+    //!
+    //! \throws `bad_variant_access` if the active member of `v` is not of
+    //!  type `T`.
     template <typename T, typename ...Ts>
     T const& get(variant<Ts...> const& v)
     {
@@ -781,13 +1022,21 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! \effects Equivalent to return `std::forward<T&&>(get<T>(v))`.
     template <typename T, typename ...Ts>
     T&& get(variant<Ts...>&& v)
     {
-        return std::forward<T>(get<T>(v));
+        return std::forward<T&&>(get<T>(v));
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! \requires `INVOKE(std::forward<F>(f), std::declval<T>(), R)` shall be
+    //!  a valid expression for all `T` in `Ts...`.
+    //!
+    //! \effects Equivalent to `INVOKE(std::forward<F>(f), *v.target<T>(), R)`
+    //!  if `v` has an active member of type `T`.
+    //!
+    //! \throws `bad_variant_access` if `v` has no active member.
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...>& v)
     {
@@ -799,6 +1048,11 @@ namespace eggs { namespace variants
           : throw bad_variant_access{};
     }
 
+    //! \effects Equivalent to `apply<R>(std::forward<F>(f), v)` where `R` is
+    //!  the weak result type of `F`.
+    //!
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless `F` has a weak result type.
     template <
         typename F, typename ...Ts
       , typename R = detail::weak_result<std::decay_t<F>>
@@ -808,6 +1062,13 @@ namespace eggs { namespace variants
         return apply<R>(std::forward<F>(f), v);
     }
 
+    //! \requires `INVOKE(std::forward<F>(f), std::declval<T const>(), R)`
+    //!  shall be a valid expression for all `T` in `Ts...`.
+    //!
+    //! \effects Equivalent to `INVOKE(std::forward<F>(f), *v.target<T>(), R)`
+    //!  if `v` has an active member of type `T`.
+    //!
+    //! \throws `bad_variant_access` if `v` has no active member.
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...> const& v)
     {
@@ -819,6 +1080,11 @@ namespace eggs { namespace variants
           : throw bad_variant_access{};
     }
 
+    //! \effects Equivalent to `apply<R>(std::forward<F>(f), v)` where `R` is
+    //!  the weak result type of `F`.
+    //!
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless `F` has a weak result type.
     template <
         typename F, typename ...Ts
       , typename R = detail::weak_result<std::decay_t<F>>
@@ -828,6 +1094,13 @@ namespace eggs { namespace variants
         return apply<R>(std::forward<F>(f), v);
     }
 
+    //! \requires `INVOKE(std::forward<F>(f), std::declval<T&&>(), R)` shall
+    //!  be a valid expression for all `T` in `Ts...`.
+    //!
+    //! \effects Equivalent to `INVOKE(std::forward<F>(f), std::move(
+    //!  *v.target<T>()), R)` if `v` has an active member of type `T`.
+    //!
+    //! \throws `bad_variant_access` if `v` has no active member.
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...>&& v)
     {
@@ -839,6 +1112,11 @@ namespace eggs { namespace variants
           : throw bad_variant_access{};
     }
 
+    //! \effects Equivalent to `apply<R>(std::forward<F>(f), std::move(v))`
+    //!  where `R` is the weak result type of `F`.
+    //!
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless `F` has a weak result type.
     template <
         typename F, typename ...Ts
       , typename R = detail::weak_result<std::decay_t<F>>
@@ -849,16 +1127,25 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! \effects Calls `x.swap(y)`.
     template <typename ...Ts>
-    void swap(variant<Ts...>& left, variant<Ts...>& right)
-        noexcept(noexcept(left.swap(right)))
+    void swap(variant<Ts...>& x, variant<Ts...>& y)
+        noexcept(noexcept(x.swap(y)))
     {
-        left.swap(right);
+        x.swap(y);
     }
 }}
 
 namespace std
 {
+    //! \requires The template specialization `std::hash<T>` shall meet the
+    //!  requirements of class template `std::hash` for all `T` in `Ts...`.
+    //!  The template specialization `std::hash<variant<Ts...>>` shall meet
+    //!  the requirements of class template `std::hash`. For an object `v` of
+    //!  type `variant<Ts...>`, if `v` has an active member of type `T`,
+    //!  `std::hash<variant<Ts...>>()(v)` shall evaluate to the same value as
+    //!  `std::hash<T>()(*v.target<T>())`; otherwise it evaluates to an
+    //!  unspecified value.
     template <typename ...Ts>
     struct hash<::eggs::variants::variant<Ts...>>
     {
