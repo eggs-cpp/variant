@@ -800,7 +800,8 @@ namespace eggs { namespace variants
         //!  `EqualityComparable`.
         //!
         //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-        //!  `*this->target<T>() == *rhs.target<T>()`; otherwise, `false`.
+        //!  `*this->target<T>() == *rhs.target<T>()`; otherwise, if
+        //!  `bool(lhs) == bool(rhs)`, `true`; otherwise, `false`.
         friend bool operator==(variant const& lhs, variant const& rhs)
         {
             return lhs._which == rhs._which
@@ -821,12 +822,13 @@ namespace eggs { namespace variants
         //!  `LessThanComparable`.
         //!
         //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-        //!  `*this->target<T>() < *rhs.target<T>()`; otherwise,
-        //!  `lhs.which() < rhs.which()`.
+        //!  `*this->target<T>() < *rhs.target<T>()`; otherwise, if
+        //!  `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`;
+        //!  otherwise, `lhs.which() < rhs.which()`.
         friend bool operator<(variant const& lhs, variant const& rhs)
         {
             return lhs._which == rhs._which
-              ? detail::less{}(
+              ? lhs._which != 0 && detail::less{}(
                     detail::pack<Ts...>{}, lhs._which - 1
                   , &lhs._storage, &rhs._storage
                 )
