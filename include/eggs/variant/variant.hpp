@@ -796,63 +796,6 @@ namespace eggs { namespace variants
             return _which != 0 ? _which - 1 : npos;
         }
 
-        //! \requires All `T` in `Ts...` shall meet the requirements of
-        //!  `EqualityComparable`.
-        //!
-        //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-        //!  `*this->target<T>() == *rhs.target<T>()`; otherwise, if
-        //!  `bool(lhs) == bool(rhs)`, `true`; otherwise, `false`.
-        friend bool operator==(variant const& lhs, variant const& rhs)
-        {
-            return lhs._which == rhs._which
-              ? lhs._which == 0 || detail::equal_to{}(
-                    detail::pack<Ts...>{}, lhs._which - 1
-                  , &lhs._storage, &rhs._storage
-                )
-              : false;
-        }
-
-        //! \returns `!(lhs == rhs)`.
-        friend bool operator!=(variant const& lhs, variant const& rhs)
-        {
-            return !(lhs == rhs);
-        }
-
-        //! \requires All `T` in `Ts...` shall meet the requirements of
-        //!  `LessThanComparable`.
-        //!
-        //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-        //!  `*this->target<T>() < *rhs.target<T>()`; otherwise, if
-        //!  `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`;
-        //!  otherwise, `lhs.which() < rhs.which()`.
-        friend bool operator<(variant const& lhs, variant const& rhs)
-        {
-            return lhs._which == rhs._which
-              ? lhs._which != 0 && detail::less{}(
-                    detail::pack<Ts...>{}, lhs._which - 1
-                  , &lhs._storage, &rhs._storage
-                )
-              : lhs._which < rhs._which;
-        }
-
-        //! \returns `rhs < lhs`.
-        friend bool operator>(variant const& lhs, variant const& rhs)
-        {
-            return rhs < lhs;
-        }
-
-        //! \returns `!(rhs < lhs)`.
-        friend bool operator<=(variant const& lhs, variant const& rhs)
-        {
-            return !(rhs < lhs);
-        }
-
-        //! \returns `!(lhs < rhs)`.
-        friend bool operator>=(variant const& lhs, variant const& rhs)
-        {
-            return !(lhs < rhs);
-        }
-
         //! \returns If `*this` has an active member of type `T`, `typeid(T)`;
         //!  otherwise `typeid(void)`.
         std::type_info const& target_type() const noexcept
@@ -889,6 +832,12 @@ namespace eggs { namespace variants
         }
 
     private:
+        template <typename ...Us>
+        friend bool operator==(variant<Us...> const& lhs, variant<Us...> const& rhs);
+
+        template <typename ...Us>
+        friend bool operator<(variant<Us...> const& lhs, variant<Us...> const& rhs);
+
         template <typename R, typename F, typename ...Us>
         friend R apply(F&& f, variant<Us...>& v);
 
@@ -1029,6 +978,70 @@ namespace eggs { namespace variants
     T&& get(variant<Ts...>&& v)
     {
         return std::forward<T&&>(get<T>(v));
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //! \requires All `T` in `Ts...` shall meet the requirements of
+    //!  `EqualityComparable`.
+    //!
+    //! \returns If both `lhs` and `rhs` have an active member of type `T`,
+    //!  `*this->target<T>() == *rhs.target<T>()`; otherwise, if
+    //!  `bool(lhs) == bool(rhs)`, `true`; otherwise, `false`.
+    template <typename ...Ts>
+    bool operator==(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return lhs._which == rhs._which
+          ? lhs._which == 0 || detail::equal_to{}(
+                detail::pack<Ts...>{}, lhs._which - 1
+              , &lhs._storage, &rhs._storage
+            )
+          : false;
+    }
+
+    //! \returns `!(lhs == rhs)`.
+    template <typename ...Ts>
+    bool operator!=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    //! \requires All `T` in `Ts...` shall meet the requirements of
+    //!  `LessThanComparable`.
+    //!
+    //! \returns If both `lhs` and `rhs` have an active member of type `T`,
+    //!  `*this->target<T>() < *rhs.target<T>()`; otherwise, if
+    //!  `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`; otherwise,
+    //!  `lhs.which() < rhs.which()`.
+    template <typename ...Ts>
+    bool operator<(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return lhs._which == rhs._which
+          ? lhs._which != 0 && detail::less{}(
+                detail::pack<Ts...>{}, lhs._which - 1
+              , &lhs._storage, &rhs._storage
+            )
+          : lhs._which < rhs._which;
+    }
+
+    //! \returns `rhs < lhs`.
+    template <typename ...Ts>
+    bool operator>(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    //! \returns `!(rhs < lhs)`.
+    template <typename ...Ts>
+    bool operator<=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    //! \returns `!(lhs < rhs)`.
+    template <typename ...Ts>
+    bool operator>=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(lhs < rhs);
     }
 
     ///////////////////////////////////////////////////////////////////////////
