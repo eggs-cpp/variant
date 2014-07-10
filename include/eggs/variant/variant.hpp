@@ -383,7 +383,7 @@ namespace eggs { namespace variants
             static R call(void* ptr, F&& f)
             {
                 using value_type = std::decay_t<T>;
-                return _void_guard<R>{}, _invoke(
+                return _void_guard<R>(), _invoke(
                     std::forward<F>(f)
                   , std::forward<T>(*static_cast<value_type*>(ptr)));
             }
@@ -392,10 +392,16 @@ namespace eggs { namespace variants
             static R call(void const* ptr, F&& f)
             {
                 using value_type = std::decay_t<T> const;
-                return _void_guard<R>{}, _invoke(
+                return _void_guard<R>(), _invoke(
                     std::forward<F>(f)
                   , std::forward<T>(*static_cast<value_type*>(ptr)));
             }
+
+            //~ workaround for gcc and msvc issues with multiple inherited operator()
+            //~ \see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61726
+            //~ \see https://connect.microsoft.com/VisualStudio/feedback/details/914574
+            using visitor<apply<R, F>, R(void*, F&&)>::operator();
+            using visitor<apply<R, F>, R(void const*, F&&)>::operator();
         };
 
         ///////////////////////////////////////////////////////////////////////
