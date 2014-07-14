@@ -18,5 +18,6 @@ TEST_CASE("variant<Ts...>::variant<Ts...>(T&&)", "[variant.cnstr]")
     REQUIRE(bool(v) == true);
     REQUIRE(v.which() == 0);
     REQUIRE(v.target_type() == typeid(int));
+    REQUIRE(v.target() == v.target<int>());
     REQUIRE(*v.target<int>() == 42);
 }

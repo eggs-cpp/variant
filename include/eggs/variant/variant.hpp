@@ -805,6 +805,24 @@ namespace eggs { namespace variants
               : typeid(void);
         }
 
+        //! \returns If `*this` has an active member, a pointer to the active
+        //!  member; otherwise a null pointer.
+        void* target() noexcept
+        {
+            return _which != 0
+              ? static_cast<void*>(&_storage)
+              : nullptr;
+        }
+
+        //! \returns If `*this` has an active member, a pointer to the active
+        //!  member; otherwise a null pointer.
+        void const* target() const noexcept
+        {
+            return _which != 0
+              ? static_cast<void const*>(&_storage)
+              : nullptr;
+        }
+
         //! \requires `T` shall occur in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
@@ -828,22 +846,6 @@ namespace eggs { namespace variants
               ? static_cast<T const*>(static_cast<void const*>(&_storage))
               : nullptr;
         }
-
-    private:
-        template <typename ...Us>
-        friend bool operator==(variant<Us...> const& lhs, variant<Us...> const& rhs);
-
-        template <typename ...Us>
-        friend bool operator<(variant<Us...> const& lhs, variant<Us...> const& rhs);
-
-        template <typename R, typename F, typename ...Us>
-        friend R apply(F&& f, variant<Us...>& v);
-
-        template <typename R, typename F, typename ...Us>
-        friend R apply(F&& f, variant<Us...> const& v);
-
-        template <typename R, typename F, typename ...Us>
-        friend R apply(F&& f, variant<Us...>&& v);
 
     private:
         std::size_t _which;
@@ -983,15 +985,15 @@ namespace eggs { namespace variants
     //!  `EqualityComparable`.
     //!
     //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-    //!  `*this->target<T>() == *rhs.target<T>()`; otherwise, if
+    //!  `*lhs.target<T>() == *rhs.target<T>()`; otherwise, if
     //!  `bool(lhs) == bool(rhs)`, `true`; otherwise, `false`.
     template <typename ...Ts>
     bool operator==(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
-        return lhs._which == rhs._which
-          ? lhs._which == 0 || detail::equal_to{}(
-                detail::pack<Ts...>{}, lhs._which - 1
-              , &lhs._storage, &rhs._storage
+        return lhs.which() == rhs.which()
+          ? !bool(lhs) || detail::equal_to{}(
+                detail::pack<Ts...>{}, lhs.which()
+              , lhs.target(), rhs.target()
             )
           : false;
     }
@@ -1007,18 +1009,18 @@ namespace eggs { namespace variants
     //!  `LessThanComparable`.
     //!
     //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-    //!  `*this->target<T>() < *rhs.target<T>()`; otherwise, if
+    //!  `*lhs.target<T>() < *rhs.target<T>()`; otherwise, if
     //!  `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`; otherwise,
     //!  `lhs.which() < rhs.which()`.
     template <typename ...Ts>
     bool operator<(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
-        return lhs._which == rhs._which
-          ? lhs._which != 0 && detail::less{}(
-                detail::pack<Ts...>{}, lhs._which - 1
-              , &lhs._storage, &rhs._storage
+        return lhs.which() == rhs.which()
+          ? bool(lhs) && detail::less{}(
+                detail::pack<Ts...>{}, lhs.which()
+              , lhs.target(), rhs.target()
             )
-          : lhs._which < rhs._which;
+          : bool(lhs) == bool(rhs) ? lhs.which() < rhs.which() : bool(rhs);
     }
 
     //! \returns `rhs < lhs`.
@@ -1053,10 +1055,10 @@ namespace eggs { namespace variants
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...>& v)
     {
-        return v._which != 0
+        return bool(v)
           ? detail::apply<R, F>{}(
-                detail::pack<Ts&...>{}, v._which - 1
-              , &v._storage, std::forward<F>(f)
+                detail::pack<Ts&...>{}, v.which()
+              , v.target(), std::forward<F>(f)
             )
           : throw bad_variant_access{};
     }
@@ -1085,10 +1087,10 @@ namespace eggs { namespace variants
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...> const& v)
     {
-        return v._which != 0
+        return bool(v)
           ? detail::apply<R, F>{}(
-                detail::pack<Ts const&...>{}, v._which - 1
-              , &v._storage, std::forward<F>(f)
+                detail::pack<Ts const&...>{}, v.which()
+              , v.target(), std::forward<F>(f)
             )
           : throw bad_variant_access{};
     }
@@ -1117,10 +1119,10 @@ namespace eggs { namespace variants
     template <typename R, typename F, typename ...Ts>
     R apply(F&& f, variant<Ts...>&& v)
     {
-        return v._which != 0
+        return bool(v)
           ? detail::apply<R, F>{}(
-                detail::pack<Ts&&...>{}, v._which - 1
-              , &v._storage, std::forward<F>(f)
+                detail::pack<Ts&&...>{}, v.which()
+              , v.target(), std::forward<F>(f)
             )
           : throw bad_variant_access{};
     }

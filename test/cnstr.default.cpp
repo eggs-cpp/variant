@@ -19,6 +19,7 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
 
     REQUIRE(bool(v) == false);
     REQUIRE(v.which() == npos);
+    REQUIRE(v.target() == nullptr);
     REQUIRE(v.target_type() == typeid(void));
 }
 
@@ -28,5 +29,6 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
 
     REQUIRE(bool(v) == false);
     REQUIRE(v.which() == npos);
+    REQUIRE(v.target() == nullptr);
     REQUIRE(v.target_type() == typeid(void));
 }
