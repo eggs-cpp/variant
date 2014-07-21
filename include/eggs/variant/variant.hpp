@@ -537,7 +537,7 @@ namespace eggs { namespace variants
         //!  initializing an object of type `T` with the expression
         //!  `std::forward<U>(v)`.
         //!
-        //! \postconditions `*this` contains a value.
+        //! \postconditions `*this` has an active member.
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
@@ -672,6 +672,64 @@ namespace eggs { namespace variants
                   , &_storage, &rhs._storage
                 );
                 _which = rhs._which;
+            }
+            return *this;
+        }
+
+        //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
+        //!
+        //! \requires `std::is_constructible_v<T, U&&>` and
+        //!  `std::is_assignable_v<T, U&&>` are `true`.
+        //!
+        //! \effects
+        //!  - If `*this` has an active member of type `T`, assigns to the
+        //!    active member the expression `std::forward<U>(v)`;
+        //!
+        //!  - otherwise, if `*this` has an active member of type `To`,
+        //!    destroys the active member by calling `To::~To()`. Then,
+        //!    initializes the active member as if direct-non-list-initializing
+        //!    an object of type `T` with the expression `std::forward<U>(v)`.
+        //!
+        //! \returns `*this`.
+        //!
+        //! \postconditions `*this` has an active member.
+        //!
+        //! \exceptionsafety If an exception is thrown during the call to
+        //!  `T`'s assignment, the state of the active member is as defined
+        //!  by the exception safety guarantee of `T`'s copy assignment. If
+        //!  an exception is thrown during the call to `T`'s constructor,
+        //!  `*this` has no active member, and the previous active member
+        //!  (if any) has been destroyed.
+        //!
+        //! \remarks This operator shall not participate in overload
+        //!  resolution unless `T` occurs in `Ts...`.
+        template <
+            typename U
+          , typename T = std::remove_cv_t<std::remove_reference_t<U>>
+          , typename Enable = std::enable_if_t<
+                detail::contains<T, _types>::value
+            >
+        >
+        variant& operator=(U&& v)
+            noexcept(
+                std::is_nothrow_assignable<T, U&&>::value
+             && std::is_nothrow_constructible<T, U&&>::value)
+        {
+            if (_which == detail::index_of<T, _types>::value)
+            {
+                T* active_member_ptr =
+                    static_cast<T*>(static_cast<void*>(&_storage));
+
+                *active_member_ptr = std::forward<U>(v);
+            } else {
+                detail::destroy{}(
+                    detail::pack<detail::empty, Ts...>{}, _which
+                  , &_storage
+                );
+                _which = 0;
+
+                new (&_storage) T(std::forward<U>(v));
+                _which = detail::index_of<T, _types>::value;
             }
             return *this;
         }
@@ -1005,6 +1063,74 @@ namespace eggs { namespace variants
         return !(lhs == rhs);
     }
 
+    //! \requires `T` shall meet the requirements of `EqualityComparable`.
+    //!
+    //! \returns If `lhs` has an active member of type `T`,
+    //!  `*lhs.target<T>() == rhs`; otherwise, `false`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename ...Ts, typename T
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator==(variant<Ts...> const& lhs, T const& rhs)
+    {
+        static constexpr std::size_t rhs_which =
+            detail::index_of<T, detail::pack<std::remove_cv_t<Ts>...>>::value;
+
+        return lhs.which() == rhs_which
+          ? *lhs.template target<T>() == rhs
+          : false;
+    }
+
+    //! \returns `rhs == lhs`
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename T, typename ...Ts
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator==(T const& lhs, variant<Ts...> const& rhs)
+    {
+        return rhs == lhs;
+    }
+
+    //! \returns `!(lhs == rhs)`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename ...Ts, typename T
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator!=(variant<Ts...> const& lhs, T const& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
+    //! \returns `!(lhs == rhs)`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename T, typename ...Ts
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator!=(T const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(lhs == rhs);
+    }
+
     //! \requires All `T` in `Ts...` shall meet the requirements of
     //!  `LessThanComparable`.
     //!
@@ -1040,6 +1166,146 @@ namespace eggs { namespace variants
     //! \returns `!(lhs < rhs)`.
     template <typename ...Ts>
     bool operator>=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(lhs < rhs);
+    }
+
+    //! \requires `T` shall meet the requirements of `LessThanComparable`.
+    //!
+    //! \returns If `lhs` has an active member of type `T`,
+    //!  `*lhs->target<T>() < rhs`; otherwise, if `lhs` has no active member
+    //!  or if `lhs` has an active member of type `Td` and `Td` occurs in
+    //!  `Ts...` before `T`, `true`; otherwise, `false`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename ...Ts, typename T
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator<(variant<Ts...> const& lhs, T const& rhs)
+    {
+        static constexpr std::size_t rhs_which =
+            detail::index_of<T, detail::pack<std::remove_cv_t<Ts>...>>::value;
+
+        return lhs.which() == rhs_which
+          ? *lhs.template target<T>() < rhs
+          : bool(lhs) ? lhs.which() < rhs_which : true;
+    }
+
+    //! \requires `T` shall meet the requirements of `LessThanComparable`.
+    //!
+    //! \returns If `rhs` has an active member of type `T`,
+    //!  `lhs < *rhs->target<T>(); otherwise, if `rhs` has an active member
+    //!  of type `Td` and `Td` occurs in `Ts...` after `T`, `true`;
+    //!  otherwise, `false`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename T, typename ...Ts
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator<(T const& lhs, variant<Ts...> const& rhs)
+    {
+        static constexpr std::size_t lhs_which =
+            detail::index_of<T, detail::pack<std::remove_cv_t<Ts>...>>::value;
+
+        return lhs_which == rhs.which()
+          ? lhs < *rhs.template target<T>()
+          : bool(rhs) ? lhs_which < rhs.which() : false;
+    }
+
+    //! \returns `rhs < lhs`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename ...Ts, typename T
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator>(variant<Ts...> const& lhs, T const& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    //! \returns `rhs < lhs`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename T, typename ...Ts
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator>(T const& lhs, variant<Ts...> const& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    //! \returns `!(rhs < lhs)`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename ...Ts, typename T
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator<=(variant<Ts...> const& lhs, T const& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    //! \returns `!(rhs < lhs)`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename T, typename ...Ts
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator<=(T const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    //! \returns `!(lhs < rhs)`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename ...Ts, typename T
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator>=(variant<Ts...> const& lhs, T const& rhs)
+    {
+        return !(lhs < rhs);
+    }
+
+    //! \returns `!(lhs < rhs)`.
+    //!
+    //! \remarks This operator shall not participate in overload resolution
+    //!  unless `T` occurs in `Ts...`.
+    template <
+        typename T, typename ...Ts
+      , typename Enable = std::enable_if_t<
+            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
+        >
+    >
+    bool operator>=(T const& lhs, variant<Ts...> const& rhs)
     {
         return !(lhs < rhs);
     }

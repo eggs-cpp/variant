@@ -112,4 +112,3 @@ TEST_CASE("variant<Ts...>::emplace(std::initializer_list<U>, Args&&...)", "[vari
         REQUIRE(*v.target<std::string>() == "42");
     }
 }
-

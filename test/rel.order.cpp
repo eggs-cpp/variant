@@ -60,6 +60,70 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
     }
 }
 
+TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
+{
+    SECTION("same members")
+    {
+        eggs::variant<int, std::string> v1(42);
+
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        REQUIRE(v1 < 43);
+    }
+
+    SECTION("empty member")
+    {
+        eggs::variant<int, std::string> v1;
+
+        REQUIRE(v1.which() == npos);
+
+        REQUIRE(v1 < 42);
+    }
+
+    SECTION("different members")
+    {
+        eggs::variant<int, std::string> v1(42);
+
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        REQUIRE(v1 < std::string{""});
+    }
+}
+
+TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
+{
+    SECTION("same members")
+    {
+        eggs::variant<int, std::string> v1(42);
+
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        REQUIRE(41 < v1);
+    }
+
+    SECTION("empty member")
+    {
+        eggs::variant<int, std::string> v1;
+
+        REQUIRE(v1.which() == npos);
+
+        REQUIRE((42 < v1) == false);
+    }
+
+    SECTION("different members")
+    {
+        eggs::variant<int, std::string> v1(std::string{""});
+
+        REQUIRE(v1.which() == 1);
+        REQUIRE(*v1.target<std::string>() == "");
+
+        REQUIRE(42 < v1);
+    }
+}
+
 TEST_CASE("operator<(variant<> const&, variant<> const&)", "[variant.rel]")
 {
     eggs::variant<> v1;
