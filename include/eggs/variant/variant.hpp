@@ -540,7 +540,8 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks This constructor shall not participate in overload
-        //!  resolution unless `T` occurs in `std::remove_cv_t<Ts>...`.
+        //!  resolution unless `T` occurs exactly once in
+        //!  `std::remove_cv_t<Ts>...`.
         template <
             typename U
           , typename T = std::remove_cv_t<std::remove_reference_t<U>>
@@ -701,7 +702,8 @@ namespace eggs { namespace variants
         //!  (if any) has been destroyed.
         //!
         //! \remarks This operator shall not participate in overload
-        //!  resolution unless `T` occurs in `std::remove_cv_t<Ts>...`.
+        //!  resolution unless `T` occurs exactly once in
+        //!  `std::remove_cv_t<Ts>...`.
         template <
             typename U
           , typename T = std::remove_cv_t<std::remove_reference_t<U>>
@@ -736,8 +738,10 @@ namespace eggs { namespace variants
             return *this;
         }
 
-        //! \requires `std::is_constructible_v<T, Args&&...>` is `true` and
-        //!  `T` shall occur in `Ts...`.
+        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //!
+        //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
+        //!  Args&&...>` is `true`.
         //!
         //! \effects If `*this` has an active member of type `To`, destroys
         //!  the active member by calling `To::~To()`. Then, initializes the
@@ -751,7 +755,11 @@ namespace eggs { namespace variants
         //! \exceptionsafety If an exception is thrown during the call to
         //!  `T`'s constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed.
-        template <typename T, typename ...Args>
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
+        >
         void emplace(Args&&... args)
             noexcept(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -763,11 +771,13 @@ namespace eggs { namespace variants
             _which = 0;
 
             new (&_storage) T(std::forward<Args>(args)...);
-            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
+            _which = I + 1;
         }
 
-        //! \requires `std::is_constructible_v<T, initializer_list<U>&,
-        //!  Args&&...>` is `true` and `T` shall occur in `Ts...`.
+        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //!
+        //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
+        //!  initializer_list<U>&, Args&&...>` is `true`.
         //!
         //! \effects If `*this` has an active member of type `To`, destroys
         //!  the active member by calling `To::~To()`. Then, initializes the
@@ -786,7 +796,9 @@ namespace eggs { namespace variants
         //!  unless `is_constructible_v<T, initializer_list<U>&, Args&&...>`
         //!  is `true`.
         template <
-            typename T, typename U, typename ...Args
+            std::size_t I, typename U, typename ...Args
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
           , typename Enable = std::enable_if_t<
                 std::is_constructible<T,
                     std::initializer_list<U>&, Args&&...>::value
@@ -804,7 +816,44 @@ namespace eggs { namespace variants
             _which = 0;
 
             new (&_storage) T(il, std::forward<Args>(args)...);
-            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
+            _which = I + 1;
+        }
+
+        //! \requires `T` shall occur exactly once in `Ts...`.
+        //!
+        //! \effects Equivalent to `emplace<I>(std::forward<Args>(args)...)`
+        //!  where `I` is the zero-based index of `T` in `Ts...`.
+        template <typename T, typename ...Args>
+        void emplace(Args&&... args)
+            noexcept(
+                std::is_nothrow_constructible<T, Args&&...>::value)
+        {
+            return emplace<detail::index_of<T, detail::pack<Ts...>>::value>(
+                std::forward<Args>(args)...);
+        }
+
+        //! \requires `T` shall occur exactly once in `Ts...`.
+        //!
+        //! \effects Equivalent to `emplace<I>(il, std::forward<Args>(args)...)`
+        //!  where `I` is the zero-based index of `T` in `Ts...`.
+        //!
+        //! \remarks This function shall not participate in overload resolution
+        //!  unless `is_constructible_v<T, initializer_list<U>&, Args&&...>`
+        //!  is `true`.
+        template <
+            typename T, typename U, typename ...Args
+          , typename Enable = std::enable_if_t<
+                std::is_constructible<T,
+                    std::initializer_list<U>&, Args&&...>::value
+            >
+        >
+        void emplace(std::initializer_list<U> il, Args&&... args)
+            noexcept(
+                std::is_nothrow_constructible<T,
+                    std::initializer_list<U>&, Args&&...>::value)
+        {
+            return emplace<detail::index_of<T, detail::pack<Ts...>>::value>(
+                il, std::forward<Args>(args)...);
         }
 
         //! \requires Lvalues of `T` shall be swappable and
@@ -883,7 +932,7 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
-        //! \requires `T` shall occur in `Ts...`.
+        //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
@@ -898,7 +947,7 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
-        //! \requires `T` shall occur in `Ts...`.
+        //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
@@ -1077,7 +1126,7 @@ namespace eggs { namespace variants
     //!  `*lhs.target<T>() == rhs`; otherwise, `false`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
       , typename Enable = std::enable_if_t<
@@ -1097,7 +1146,7 @@ namespace eggs { namespace variants
     //! \returns `rhs == lhs`
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
       , typename Enable = std::enable_if_t<
@@ -1112,7 +1161,7 @@ namespace eggs { namespace variants
     //! \returns `!(lhs == rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
       , typename Enable = std::enable_if_t<
@@ -1127,7 +1176,7 @@ namespace eggs { namespace variants
     //! \returns `!(lhs == rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
       , typename Enable = std::enable_if_t<
@@ -1186,7 +1235,7 @@ namespace eggs { namespace variants
     //!  `Ts...` before `T`, `true`; otherwise, `false`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
       , typename Enable = std::enable_if_t<
@@ -1211,7 +1260,7 @@ namespace eggs { namespace variants
     //!  otherwise, `false`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
       , typename Enable = std::enable_if_t<
@@ -1231,7 +1280,7 @@ namespace eggs { namespace variants
     //! \returns `rhs < lhs`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
       , typename Enable = std::enable_if_t<
@@ -1246,7 +1295,7 @@ namespace eggs { namespace variants
     //! \returns `rhs < lhs`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
       , typename Enable = std::enable_if_t<
@@ -1261,7 +1310,7 @@ namespace eggs { namespace variants
     //! \returns `!(rhs < lhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
       , typename Enable = std::enable_if_t<
@@ -1276,7 +1325,7 @@ namespace eggs { namespace variants
     //! \returns `!(rhs < lhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
       , typename Enable = std::enable_if_t<
@@ -1291,7 +1340,7 @@ namespace eggs { namespace variants
     //! \returns `!(lhs < rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
       , typename Enable = std::enable_if_t<
@@ -1306,7 +1355,7 @@ namespace eggs { namespace variants
     //! \returns `!(lhs < rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
-    //!  unless `T` occurs in `Ts...`.
+    //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
       , typename Enable = std::enable_if_t<
