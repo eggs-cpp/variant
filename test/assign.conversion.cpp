@@ -11,6 +11,8 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+using eggs::variants::nullvariant;
+
 constexpr std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
@@ -61,4 +63,53 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
+}
+
+TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
+{
+    SECTION("empty target")
+    {
+        eggs::variant<int, std::string> v;
+
+        REQUIRE(bool(v) == false);
+        REQUIRE(v.which() == npos);
+
+        v = nullvariant;
+
+        REQUIRE(bool(v) == false);
+        REQUIRE(v.which() == npos);
+        REQUIRE(v.target() == nullptr);
+        REQUIRE(v.target_type() == typeid(void));
+    }
+
+    SECTION("non-empty target")
+    {
+        eggs::variant<int, std::string> v(43);
+
+        REQUIRE(bool(v) == true);
+        REQUIRE(v.which() == 0);
+        REQUIRE(*v.target<int>() == 43);
+
+        v = nullvariant;
+
+        REQUIRE(bool(v) == false);
+        REQUIRE(v.which() == npos);
+        REQUIRE(v.target() == nullptr);
+        REQUIRE(v.target_type() == typeid(void));
+    }
+}
+
+TEST_CASE("variant<>::operator=(nullvariant_t)", "[variant.assign]")
+{
+    eggs::variant<> v;
+
+    REQUIRE(bool(v) == false);
+    REQUIRE(v.which() == npos);
+
+    v = nullvariant;
+
+    REQUIRE(bool(v) == false);
+    REQUIRE(v.which() == npos);
+    REQUIRE(v.target() == nullptr);
+    REQUIRE(v.target_type() == typeid(void));
 }

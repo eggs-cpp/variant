@@ -11,6 +11,8 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+using eggs::variants::nullvariant;
+
 constexpr std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.rel]")
@@ -121,6 +123,50 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(*v1.target<std::string>() == "");
 
         REQUIRE(42 != v1);
+    }
+}
+
+TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
+{
+    SECTION("empty member")
+    {
+        eggs::variant<int, std::string> v1;
+
+        REQUIRE(v1.which() == npos);
+
+        REQUIRE(v1 == nullvariant);
+    }
+    
+    SECTION("non-empty members")
+    {
+        eggs::variant<int, std::string> v1(42);
+
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        REQUIRE(v1 != nullvariant);
+    }
+}
+
+TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
+{
+    SECTION("empty member")
+    {
+        eggs::variant<int, std::string> v1;
+
+        REQUIRE(v1.which() == npos);
+
+        REQUIRE(nullvariant == v1);
+    }
+    
+    SECTION("non-empty members")
+    {
+        eggs::variant<int, std::string> v1(42);
+
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        REQUIRE(nullvariant != v1);
     }
 }
 

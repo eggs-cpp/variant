@@ -441,6 +441,25 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! The struct `nullvariant_t` is an empty structure type used as a unique
+    //! type to indicate the state of not having an active member for `variant`
+    //! objects. In particular, `variant<Ts...>` has a constructor with
+    //! `nullvariant_t` as a single argument; this indicates that a variant
+    //! object with no active member shall be constructed.
+    //!
+    //! Type `nullvariant_t` shall not have a default constructor. It shall be
+    //! a literal type. Constant `nullvariant` shall be initialized with an
+    //! argument of literal type.
+    struct nullvariant_t
+    {
+        nullvariant_t() = delete;
+
+        constexpr explicit nullvariant_t(detail::empty) {}
+    };
+
+    constexpr nullvariant_t nullvariant{{}};
+
+    ///////////////////////////////////////////////////////////////////////////
     //! The class `bad_variant_access` defines the type of objects thrown as
     //! exceptions to report the situation where an attempt is made to access
     //! an inactive member of a `variant` object.
@@ -481,16 +500,24 @@ namespace eggs { namespace variants
     class variant
     {
         static_assert(
-            !detail::any_of<detail::pack<std::is_function<Ts>...>>::value
+            !detail::any_of<detail::pack<
+                std::is_function<Ts>...>>::value
           , "variant member has function type");
 
         static_assert(
-            !detail::any_of<detail::pack<std::is_reference<Ts>...>>::value
+            !detail::any_of<detail::pack<
+                std::is_reference<Ts>...>>::value
           , "variant member has reference type");
 
         static_assert(
-            !detail::any_of<detail::pack<std::is_void<Ts>...>>::value
+            !detail::any_of<detail::pack<
+                std::is_void<Ts>...>>::value
           , "variant member has void type");
+
+        static_assert(
+            !detail::any_of<detail::pack<
+                std::is_same<std::remove_cv_t<Ts>, nullvariant_t>...>>::value
+          , "variant member has nullvariant_t type");
 
     public:
         static constexpr std::size_t npos = std::size_t(-1);
@@ -500,6 +527,13 @@ namespace eggs { namespace variants
         //!
         //! \remarks No member is initialized.
         variant() noexcept
+          : _which{0}
+        {}
+
+        //! \postconditions `*this` does not have an active member.
+        //!
+        //! \remarks No member is initialized.
+        variant(nullvariant_t) noexcept
           : _which{0}
         {}
 
@@ -702,6 +736,24 @@ namespace eggs { namespace variants
             );
         }
 
+        //! \effects If `*this` has an active member of type `T`, destroys the
+        //!  active member by calling `T::~T()`.
+        //!
+        //! \returns `*this`.
+        //!
+        //! \postconditions `*this` does not have an active member.
+        //!
+        variant& operator=(nullvariant_t) noexcept
+        {
+            detail::destroy{}(
+                detail::pack<detail::empty, Ts...>{}, _which
+              , &_storage
+            );
+            _which = 0;
+
+            return *this;
+        }
+
         //! \requires `std::is_copy_constructible_v<T>` and
         //!  `std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`.
         //!
@@ -709,11 +761,10 @@ namespace eggs { namespace variants
         //!  - If both `*this` and `rhs` have an active member of type `T`,
         //!    assigns to the active member the expression `*rhs.target<T>()`;
         //!
-        //!  - otherwise, if `*this` has an active member of type `To`,
-        //!    destroys the active member by calling `To::~To()`. Then, if
-        //!    `rhs` has an active member of type `Tn`, initializes the active
-        //!    member as if direct-non-list-initializing an object of type
-        //!    `Tn` with the expression `*rhs.target<Tn>()`.
+        //!  - otherwise, calls `*this = nullvariant`. Then, if `rhs` has an
+        //!    active member of type `T`, initializes the active member as if
+        //!    direct-non-list-initializing an object of type `T` with the
+        //!    expression `*rhs.target<T>()`.
         //!
         //! \returns `*this`.
         //!
@@ -722,7 +773,7 @@ namespace eggs { namespace variants
         //! \exceptionsafety If an exception is thrown during the call to
         //!  `T`'s copy assignment, the state of the active member is as
         //!  defined by the exception safety guarantee of `T`'s copy
-        //!  assignment. If an exception is thrown during the call to `Tn`'s
+        //!  assignment. If an exception is thrown during the call to `T`'s
         //!  copy constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed.
         variant& operator=(variant const& rhs)
@@ -739,11 +790,7 @@ namespace eggs { namespace variants
                   , &_storage, &rhs._storage
                 );
             } else {
-                detail::destroy{}(
-                    detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage
-                );
-                _which = 0;
+                *this = nullvariant;
 
                 detail::copy_construct{}(
                     detail::pack<detail::empty, Ts...>{}, rhs._which
@@ -762,11 +809,10 @@ namespace eggs { namespace variants
         //!    assigns to the active member the expression
         //!    `std::move(*rhs.target<T>())`;
         //!
-        //!  - otherwise, if `*this` has an active member of type `To`,
-        //!    destroys the active member by calling `To::~To()`. Then, if
-        //!    `rhs` has an active member of type `Tn`, initializes the active
-        //!    member as if direct-non-list-initializing an object of type
-        //!    `Tn` with the expression `std::move(*rhs.target<Tn>())`.
+        //!  - otherwise, calls `*this = nullvariant`. Then, if `rhs` has an
+        //!    active member of type `T`, initializes the active member as if
+        //!    direct-non-list-initializing an object of type `T` with the
+        //!    expression `std::move(*rhs.target<Tn>())`.
         //!
         //!  `bool(rhs)` is unchanged.
         //!
@@ -777,11 +823,11 @@ namespace eggs { namespace variants
         //! \exceptionsafety If an exception is thrown during the call to
         //!  `T`'s move assignment, the state of both active members is
         //!  determined by the exception safety guarantee of `T`'s move
-        //!  assignment. If an exception is thrown during the call to `Tn`'s
+        //!  assignment. If an exception is thrown during the call to `T`'s
         //!  move constructor, `*this` has no active member, the previous
         //!  active member (if any) has been destroyed, and the state of the
         //!  active member of `rhs` is determined by the exception safety
-        //!  guarantee of `Tn`'s move constructor.
+        //!  guarantee of `T`'s move constructor.
         variant& operator=(variant&& rhs)
             noexcept(
                 detail::all_of<detail::pack<
@@ -796,11 +842,7 @@ namespace eggs { namespace variants
                   , &_storage, &rhs._storage
                 );
             } else {
-                detail::destroy{}(
-                    detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage
-                );
-                _which = 0;
+                *this = nullvariant;
 
                 detail::move_construct{}(
                     detail::pack<detail::empty, Ts...>{}, rhs._which
@@ -820,10 +862,9 @@ namespace eggs { namespace variants
         //!  - If `*this` has an active member of type `T`, assigns to the
         //!    active member the expression `std::forward<U>(v)`;
         //!
-        //!  - otherwise, if `*this` has an active member of type `To`,
-        //!    destroys the active member by calling `To::~To()`. Then,
-        //!    initializes the active member as if direct-non-list-initializing
-        //!    an object of type `T` with the expression `std::forward<U>(v)`.
+        //!  - otherwise, calls `*this = nullvariant`. Then, initializes the
+        //!    active member as if direct-non-list-initializing an object of
+        //!    type `T` with the expression `std::forward<U>(v)`.
         //!
         //! \returns `*this`.
         //!
@@ -861,11 +902,7 @@ namespace eggs { namespace variants
 
                 *active_member_ptr = std::forward<U>(v);
             } else {
-                detail::destroy{}(
-                    detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage
-                );
-                _which = 0;
+                *this = nullvariant;
 
                 new (&_storage) T(std::forward<U>(v));
                 _which = t_which;
@@ -878,10 +915,9 @@ namespace eggs { namespace variants
         //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
         //!  Args&&...>` is `true`.
         //!
-        //! \effects If `*this` has an active member of type `To`, destroys
-        //!  the active member by calling `To::~To()`. Then, initializes the
-        //!  active member as if direct-non-list-initializing  an object of
-        //!  type `T` with the arguments `std::forward<Args>(args)...`.
+        //! \effects Calls `*this = nullvariant`. Then, initializes the active
+        //!  member as if direct-non-list-initializing  an object of type `T`
+        //!  with the arguments `std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
         //!
@@ -899,11 +935,7 @@ namespace eggs { namespace variants
             noexcept(
                 std::is_nothrow_constructible<T, Args&&...>::value)
         {
-            detail::destroy{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage
-            );
-            _which = 0;
+            *this = nullvariant;
 
             new (&_storage) T(std::forward<Args>(args)...);
             _which = I + 1;
@@ -914,10 +946,9 @@ namespace eggs { namespace variants
         //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
         //!  initializer_list<U>&, Args&&...>` is `true`.
         //!
-        //! \effects If `*this` has an active member of type `To`, destroys
-        //!  the active member by calling `To::~To()`. Then, initializes the
-        //!  active member as if direct-non-list-initializing an object of
-        //!  type `T` with the arguments `il, std::forward<Args>(args)...`.
+        //! \effects Calls `*this = nullvariant`. Then, initializes the active
+        //!  member as if direct-non-list-initializing an object of type `T`
+        //!  with the arguments `il, std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
         //!
@@ -944,11 +975,7 @@ namespace eggs { namespace variants
                 std::is_nothrow_constructible<T,
                     std::initializer_list<U>&, Args&&...>::value)
         {
-            detail::destroy{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage
-            );
-            _which = 0;
+            *this = nullvariant;
 
             new (&_storage) T(il, std::forward<Args>(args)...);
             _which = I + 1;
@@ -1323,6 +1350,34 @@ namespace eggs { namespace variants
         return !(lhs == rhs);
     }
 
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator==(variant<Ts...>& x, nullvariant_t) noexcept
+    {
+        return !x;
+    }
+
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator==(nullvariant_t, variant<Ts...>& x) noexcept
+    {
+        return !x;
+    }
+
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator!=(variant<Ts...>& x, nullvariant_t) noexcept
+    {
+        return bool(x);
+    }
+
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator!=(nullvariant_t, variant<Ts...>& x) noexcept
+    {
+        return bool(x);
+    }
+
     //! \requires All `T` in `Ts...` shall meet the requirements of
     //!  `LessThanComparable`.
     //!
@@ -1500,6 +1555,62 @@ namespace eggs { namespace variants
     bool operator>=(T const& lhs, variant<Ts...> const& rhs)
     {
         return !(lhs < rhs);
+    }
+
+    //! \returns `false`
+    template <typename ...Ts>
+    bool operator<(variant<Ts...>& /*x*/, nullvariant_t) noexcept
+    {
+        return false;
+    }
+
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator<(nullvariant_t, variant<Ts...>& x) noexcept
+    {
+        return bool(x);
+    }
+
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator>(variant<Ts...>& x, nullvariant_t) noexcept
+    {
+        return bool(x);
+    }
+
+    //! \returns `false`
+    template <typename ...Ts>
+    bool operator>(nullvariant_t, variant<Ts...>& /*x*/) noexcept
+    {
+        return false;
+    }
+
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator<=(variant<Ts...>& x, nullvariant_t) noexcept
+    {
+        return !x;
+    }
+
+    //! \returns `true`
+    template <typename ...Ts>
+    bool operator<=(nullvariant_t, variant<Ts...>& /*x*/) noexcept
+    {
+        return true;
+    }
+
+    //! \returns `true`
+    template <typename ...Ts>
+    bool operator>=(variant<Ts...>& /*x*/, nullvariant_t) noexcept
+    {
+        return true;
+    }
+
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator>=(nullvariant_t, variant<Ts...>& x) noexcept
+    {
+        return !x;
     }
 
     ///////////////////////////////////////////////////////////////////////////
