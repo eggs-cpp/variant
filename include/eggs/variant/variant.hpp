@@ -469,8 +469,6 @@ namespace eggs { namespace variants
             !detail::any_of<detail::pack<std::is_void<Ts>...>>::value
           , "variant member has void type");
 
-        using _types = detail::pack<detail::empty, std::remove_cv_t<Ts>...>;
-
     public:
         static constexpr std::size_t npos = std::size_t(-1);
 
@@ -542,19 +540,20 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks This constructor shall not participate in overload
-        //!  resolution unless `T` occurs in `Ts...`.
+        //!  resolution unless `T` occurs in `std::remove_cv_t<Ts>...`.
         template <
             typename U
           , typename T = std::remove_cv_t<std::remove_reference_t<U>>
           , typename Enable = std::enable_if_t<
-                detail::contains<T, _types>::value
+                detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
             >
         > variant(U&& v)
             noexcept(
                 std::is_nothrow_constructible<T, U&&>::value)
-          : _which{detail::index_of<T, _types>::value}
         {
             new (&_storage) T(std::forward<U>(v));
+            _which = detail::index_of<
+                T, detail::pack<std::remove_cv_t<Ts>...>>::value + 1;
         }
 
         //! \effects If `*this` has an active member of type `T`, destroys the
@@ -702,12 +701,12 @@ namespace eggs { namespace variants
         //!  (if any) has been destroyed.
         //!
         //! \remarks This operator shall not participate in overload
-        //!  resolution unless `T` occurs in `Ts...`.
+        //!  resolution unless `T` occurs in `std::remove_cv_t<Ts>...`.
         template <
             typename U
           , typename T = std::remove_cv_t<std::remove_reference_t<U>>
           , typename Enable = std::enable_if_t<
-                detail::contains<T, _types>::value
+                detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
             >
         >
         variant& operator=(U&& v)
@@ -715,7 +714,10 @@ namespace eggs { namespace variants
                 std::is_nothrow_assignable<T, U&&>::value
              && std::is_nothrow_constructible<T, U&&>::value)
         {
-            if (_which == detail::index_of<T, _types>::value)
+            static constexpr std::size_t t_which = detail::index_of<
+                T, detail::pack<std::remove_cv_t<Ts>...>>::value + 1;
+
+            if (_which == t_which)
             {
                 T* active_member_ptr =
                     static_cast<T*>(static_cast<void*>(&_storage));
@@ -729,7 +731,7 @@ namespace eggs { namespace variants
                 _which = 0;
 
                 new (&_storage) T(std::forward<U>(v));
-                _which = detail::index_of<T, _types>::value;
+                _which = t_which;
             }
             return *this;
         }
@@ -761,7 +763,7 @@ namespace eggs { namespace variants
             _which = 0;
 
             new (&_storage) T(std::forward<Args>(args)...);
-            _which = detail::index_of<T, _types>::value;
+            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
         }
 
         //! \requires `std::is_constructible_v<T, initializer_list<U>&,
@@ -802,7 +804,7 @@ namespace eggs { namespace variants
             _which = 0;
 
             new (&_storage) T(il, std::forward<Args>(args)...);
-            _which = detail::index_of<T, _types>::value;
+            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
         }
 
         //! \requires Lvalues of `T` shall be swappable and
@@ -888,7 +890,10 @@ namespace eggs { namespace variants
         template <typename T>
         T* target() noexcept
         {
-            return _which == detail::index_of<T, _types>::value
+            static constexpr std::size_t t_which = detail::index_of<
+                T, detail::pack<Ts...>>::value + 1;
+
+            return _which == t_which
               ? static_cast<T*>(static_cast<void*>(&_storage))
               : nullptr;
         }
@@ -900,7 +905,10 @@ namespace eggs { namespace variants
         template <typename T>
         T const* target() const noexcept
         {
-            return _which == detail::index_of<T, _types>::value
+            static constexpr std::size_t t_which = detail::index_of<
+                T, detail::pack<Ts...>>::value + 1;
+
+            return _which == t_which
               ? static_cast<T const*>(static_cast<void const*>(&_storage))
               : nullptr;
         }
