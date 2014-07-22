@@ -418,6 +418,29 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! The struct `in_place_t` is an empty structure type used as a unique
+    //! type to disambiguate constructor and function overloading.
+    //! Specifically, `variant<Ts...>` has a constructor with an unspecified
+    //! first parameter that matches an expression of the form `in_place<T>`,
+    //! followed by a parameter pack; this indicates that `T` should be
+    //! constructed in-place (as if by a call to a placement new expression)
+    //! with the forwarded pack expansion as arguments for the initialization
+    //! of `T`.
+    struct in_place_t {};
+
+    template <std::size_t I>
+    inline in_place_t in_place(detail::pack_c<std::size_t, I> = {})
+    {
+        return {};
+    }
+
+    template <typename T>
+    inline in_place_t in_place(detail::pack<T> = {})
+    {
+        return {};
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     //! The class `bad_variant_access` defines the type of objects thrown as
     //! exceptions to report the situation where an attempt is made to access
     //! an inactive member of a `variant` object.
@@ -555,6 +578,118 @@ namespace eggs { namespace variants
             new (&_storage) T(std::forward<U>(v));
             _which = detail::index_of<
                 T, detail::pack<std::remove_cv_t<Ts>...>>::value + 1;
+        }
+
+        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //!
+        //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
+        //!  Args&&...>` is `true`.
+        //!
+        //! \effects Initializes the active member as if direct-non-list-
+        //!  initializing an object of type `T` with the arguments
+        //!  `std::forward<Args>(args)...`.
+        //!
+        //! \postconditions `*this` has an active member of type `T`.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \remarks The first argument shall be the expression `in_place<I>`.
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
+        >
+        explicit variant(
+            in_place_t(detail::pack_c<std::size_t, I>)
+          , Args&&... args)
+            noexcept(
+                std::is_nothrow_constructible<T, Args&&...>::value)
+        {
+            new (&_storage) T(std::forward<Args>(args)...);
+            _which = I + 1;
+        }
+
+        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //!
+        //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
+        //!  initializer_list<U>&, Args&&...>` is `true`.
+        //!
+        //! \effects Initializes the active member as if direct-non-list-
+        //!  initializing an object of type `T` with the arguments `il,
+        //!  std::forward<Args>(args)...`.
+        //!
+        //! \postconditions `*this` has an active member of type `T`.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \remarks The first argument shall be the expression `in_place<I>`.
+        //!  This function shall not participate in overload resolution unless
+        //!  `is_constructible_v<T, initializer_list<U>&, Args&&...>` is
+        //!  `true`.
+        template <
+            std::size_t I, typename U, typename ...Args
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
+          , typename Enable = std::enable_if_t<
+                std::is_constructible<T,
+                    std::initializer_list<U>&, Args&&...>::value
+            >
+        >
+        explicit variant(
+            in_place_t(detail::pack_c<std::size_t, I>)
+          , std::initializer_list<U> il, Args&&... args)
+            noexcept(
+                std::is_nothrow_constructible<T,
+                    std::initializer_list<U>&, Args&&...>::value)
+        {
+            new (&_storage) T(il, std::forward<Args>(args)...);
+            _which = I + 1;
+        }
+
+        //! \requires `T` shall occur exactly once in `Ts...`.
+        //!
+        //! \effects Equivalent to `variant(in_place<I>,
+        //!  std::forward<Args>(args)...)` where `I` is the zero-based index
+        //!  of `T` in `Ts...`.
+        //!
+        //! \remarks The first argument shall be the expression `in_place<T>`.
+        template <typename T, typename ...Args>
+        explicit variant(
+            in_place_t(detail::pack<T>)
+          , Args&&... args)
+            noexcept(
+                std::is_nothrow_constructible<T, Args&&...>::value)
+        {
+            new (&_storage) T(std::forward<Args>(args)...);
+            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
+        }
+
+        //! \requires `T` shall occur exactly once in `Ts...`.
+        //!
+        //! \effects Equivalent to `variant(in_place<I>, il,
+        //!  std::forward<Args>(args)...)` where `I` is the zero-based index
+        //!  of `T` in `Ts...`.
+        //!
+        //! \remarks The first argument shall be the expression `in_place<T>`.
+        //!  This function shall not participate in overload resolution unless
+        //!  `is_constructible_v<T, initializer_list<U>&, Args&&...>` is
+        //!  `true`.
+        template <
+            typename T, typename U, typename ...Args
+          , typename Enable = std::enable_if_t<
+                std::is_constructible<T,
+                    std::initializer_list<U>&, Args&&...>::value
+            >
+        >
+        explicit variant(
+            in_place_t(detail::pack<T>)
+          , std::initializer_list<U> il, Args&&... args)
+            noexcept(
+                std::is_nothrow_constructible<T,
+                    std::initializer_list<U>&, Args&&...>::value)
+        {
+            new (&_storage) T(il, std::forward<Args>(args)...);
+            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
         }
 
         //! \effects If `*this` has an active member of type `T`, destroys the
@@ -745,8 +880,8 @@ namespace eggs { namespace variants
         //!
         //! \effects If `*this` has an active member of type `To`, destroys
         //!  the active member by calling `To::~To()`. Then, initializes the
-        //!  active member as if constructing an object of type `T` with the
-        //!  arguments `std::forward<Args>(args)...`.
+        //!  active member as if direct-non-list-initializing  an object of
+        //!  type `T` with the arguments `std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
         //!
@@ -781,8 +916,8 @@ namespace eggs { namespace variants
         //!
         //! \effects If `*this` has an active member of type `To`, destroys
         //!  the active member by calling `To::~To()`. Then, initializes the
-        //!  active member as if constructing an object of type `T` with the
-        //!  arguments `il, std::forward<Args>(args)...`.
+        //!  active member as if direct-non-list-initializing an object of
+        //!  type `T` with the arguments `il, std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
         //!
