@@ -19,6 +19,13 @@
 
 namespace eggs { namespace variants
 {
+    template <typename ...Ts>
+    class variant;
+
+    struct nullvariant_t;
+
+    class bad_variant_access;
+
     namespace detail
     {
         struct empty {};
@@ -228,8 +235,11 @@ namespace eggs { namespace variants
                 return table[which](std::forward<Args>(args)...);
             }
 
-            R operator()(pack<>, std::size_t /*which*/, Args&&... /*args*/) const
-            {}
+            [[noreturn]]
+            R operator()(pack<>, std::size_t, Args&&...) const
+            {
+                std::terminate();
+            }
         };
 
         ///////////////////////////////////////////////////////////////////////
@@ -333,35 +343,35 @@ namespace eggs { namespace variants
             return std::forward<F>(f)(std::forward<Args>(args)...);
         }
 
-        //template <typename F, typename Arg0, typename ...Args>
-        //constexpr auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
-        //    noexcept(noexcept((arg0.*f)(std::forward<Args>(args)...)))
-        // -> decltype((arg0.*f)(std::forward<Args>(args)...))
-        //{
-        //    return (arg0.*f)(std::forward<Args>(args)...);
-        //}
+        template <typename F, typename Arg0, typename ...Args>
+        constexpr auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
+            noexcept(noexcept((arg0.*f)(std::forward<Args>(args)...)))
+         -> decltype((arg0.*f)(std::forward<Args>(args)...))
+        {
+            return (arg0.*f)(std::forward<Args>(args)...);
+        }
 
-        //template <typename F, typename Arg0, typename ...Args>
-        //constexpr auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
-        //    noexcept(noexcept(((*arg0).*f)(std::forward<Args>(args)...)))
-        // -> decltype(((*arg0).*f)(std::forward<Args>(args)...))
-        //{
-        //    return ((*arg0).*f)(std::forward<Args>(args)...);
-        //}
+        template <typename F, typename Arg0, typename ...Args>
+        constexpr auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
+            noexcept(noexcept(((*arg0).*f)(std::forward<Args>(args)...)))
+         -> decltype(((*arg0).*f)(std::forward<Args>(args)...))
+        {
+            return ((*arg0).*f)(std::forward<Args>(args)...);
+        }
 
-        //template <typename F, typename Arg0>
-        //constexpr auto _invoke(F&& f, Arg0&& arg0) noexcept
-        // -> decltype(arg0.*f)
-        //{
-        //    return arg0.*f;
-        //}
+        template <typename F, typename Arg0>
+        constexpr auto _invoke(F&& f, Arg0&& arg0) noexcept
+         -> decltype(arg0.*f)
+        {
+            return arg0.*f;
+        }
 
-        //template <typename F, typename Arg0>
-        //constexpr auto _invoke(F&& f, Arg0&& arg0) noexcept
-        // -> decltype((*arg0).*f)
-        //{
-        //    return (*arg0).*f;
-        //}
+        template <typename F, typename Arg0>
+        constexpr auto _invoke(F&& f, Arg0&& arg0) noexcept
+         -> decltype((*arg0).*f)
+        {
+            return (*arg0).*f;
+        }
 
         template <typename R>
         struct _void_guard
@@ -374,35 +384,138 @@ namespace eggs { namespace variants
             void operator,(T const&) const noexcept {}
         };
 
-        template <typename R, typename F>
-        struct apply
-          : visitor<apply<R, F>, R(void*, F&&)>
-          , visitor<apply<R, F>, R(void const*, F&&)>
+        template <typename Variant>
+        struct _qualified_pack;
+
+        template <typename ...Ts>
+        struct _qualified_pack<variant<Ts...>&>
+          : pack<Ts&...>
+        {};
+
+        template <typename ...Ts>
+        struct _qualified_pack<variant<Ts...> const&>
+          : pack<Ts const&...>
+        {};
+
+        template <typename ...Ts>
+        struct _qualified_pack<variant<Ts...>&&>
+          : pack<Ts&&...>
+        {};
+
+        template <typename R, typename F, typename Ms, typename Vs>
+        struct _apply;
+
+        template <typename R, typename F, typename ...Ms>
+        struct _apply<R, F, pack<Ms...>, pack<>>
+          : visitor<_apply<R, F, pack<Ms...>, pack<>>, R(F&&, Ms..., void*)>
+          , visitor<_apply<R, F, pack<Ms...>, pack<>>, R(F&&, Ms..., void const*)>
         {
             template <typename T>
-            static R call(void* ptr, F&& f)
+            static R call(F&& f, Ms... ms, void* ptr)
             {
                 using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
                 return _void_guard<R>(), _invoke(
-                    std::forward<F>(f)
+                    std::forward<F>(f), std::forward<Ms>(ms)...
                   , std::forward<T>(*static_cast<value_type*>(ptr)));
             }
 
             template <typename T>
-            static R call(void const* ptr, F&& f)
+            static R call(F&& f, Ms... ms, void const* ptr)
             {
                 using value_type = std::remove_cv_t<std::remove_reference_t<T>> const;
                 return _void_guard<R>(), _invoke(
-                    std::forward<F>(f)
+                    std::forward<F>(f), std::forward<Ms>(ms)...
                   , std::forward<T>(*static_cast<value_type*>(ptr)));
             }
 
             //~ workaround for gcc and msvc issues with multiple inherited operator()
             //~ \see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61726
             //~ \see https://connect.microsoft.com/VisualStudio/feedback/details/914574
-            using visitor<apply<R, F>, R(void*, F&&)>::operator();
-            using visitor<apply<R, F>, R(void const*, F&&)>::operator();
+            using visitor<_apply, R(F&&, Ms..., void*)>::operator();
+            using visitor<_apply, R(F&&, Ms..., void const*)>::operator();
         };
+
+        template <typename R, typename F, typename ...Ms, typename V, typename ...Vs>
+        struct _apply<R, F, pack<Ms...>, pack<V, Vs...>>
+          : visitor<_apply<R, F, pack<Ms...>, pack<V, Vs...>>, R(F&&, Ms..., void*, V, Vs...)>
+          , visitor<_apply<R, F, pack<Ms...>, pack<V, Vs...>>, R(F&&, Ms..., void const*, V, Vs...)>
+        {
+            template <typename T>
+            static R call(F&& f, Ms... ms, void* ptr, V v, Vs... vs)
+            {
+                using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
+                return bool(v)
+                  ? _apply<R, F, pack<Ms..., T>, pack<Vs...>>{}(
+                        _qualified_pack<V>{}, v.which()
+                      , std::forward<F>(f), std::forward<Ms>(ms)...
+                      , std::forward<T>(*static_cast<value_type*>(ptr))
+                      , v.target(), std::forward<Vs>(vs)...
+                    )
+                  : throw bad_variant_access{};
+            }
+
+            template <typename T>
+            static R call(F&& f, Ms... ms, void const* ptr, V v, Vs... vs)
+            {
+                using value_type = std::remove_cv_t<std::remove_reference_t<T>> const;
+                return bool(v)
+                  ? _apply<R, F, pack<Ms..., T>, pack<Vs...>>{}(
+                        _qualified_pack<V>{}, v.which()
+                      , std::forward<F>(f), std::forward<Ms>(ms)...
+                      , std::forward<T>(*static_cast<value_type*>(ptr))
+                      , v.target(), std::forward<Vs>(vs)...
+                    )
+                  : throw bad_variant_access{};
+            }
+
+            //~ workaround for gcc and msvc issues with multiple inherited operator()
+            //~ \see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61726
+            //~ \see https://connect.microsoft.com/VisualStudio/feedback/details/914574
+            using visitor<_apply, R(F&&, Ms..., void*, V, Vs...)>::operator();
+            using visitor<_apply, R(F&&, Ms..., void const*, V, Vs...)>::operator();
+        };
+
+        template <typename R, typename F, typename V, typename ...Vs>
+        R apply(F&& f, V&& v, Vs&&... vs)
+        {
+            return bool(v)
+              ? _apply<R, F, pack<>, pack<Vs&&...>>{}(
+                    _qualified_pack<V&&>{}, v.which()
+                  , std::forward<F>(f), v.target(), std::forward<Vs>(vs)...
+                )
+              : throw bad_variant_access{};
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        template <typename T>
+        struct is_variant
+          : std::false_type
+        {};
+
+        template <typename ...Ts>
+        struct is_variant<variant<Ts...>>
+          : std::true_type
+        {};
+
+        template <typename ...Ts>
+        struct is_variant<variant<Ts...> const>
+          : std::true_type
+        {};
+
+        template <typename ...Ts>
+        struct is_variant<variant<Ts...> volatile>
+          : std::true_type
+        {};
+
+        template <typename ...Ts>
+        struct is_variant<variant<Ts...> const volatile>
+          : std::true_type
+        {};
+
+        template <typename T>
+        struct is_null_variant
+          : std::is_same<std::remove_cv_t<T>, nullvariant_t>
+        {};
 
         ///////////////////////////////////////////////////////////////////////
         struct hash
@@ -516,7 +629,7 @@ namespace eggs { namespace variants
 
         static_assert(
             !detail::any_of<detail::pack<
-                std::is_same<std::remove_cv_t<Ts>, nullvariant_t>...>>::value
+                detail::is_null_variant<Ts>...>>::value
           , "variant member has nullvariant_t type");
 
     public:
@@ -1614,100 +1727,89 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    //! \requires `INVOKE(std::forward<F>(f), std::declval<T>(), R)` shall be
-    //!  a valid expression for all `T` in `Ts...`.
+    //! \requires `std::decay_t<V>` shall be the type `variant<Ts...>`.
+    //!  `INVOKE(std::forward<F>(f), get<I>(std::forward<V>(v)), R)` shall be
+    //!  a valid expression for all `I` in the range `[0u, sizeof...(Ts))`.
     //!
-    //! \effects Equivalent to `INVOKE(std::forward<F>(f), *v.target<T>(), R)`
-    //!  if `v` has an active member of type `T`.
+    //! \effects Equivalent to `INVOKE(std::forward<F>(f), get<I>(
+    //!  std::forward<V>(v)), R)` where `I` is the zero-based index of the
+    //!  active member of `v`.
     //!
     //! \throws `bad_variant_access` if `v` has no active member.
-    template <typename R, typename F, typename ...Ts>
-    R apply(F&& f, variant<Ts...>& v)
+    template <
+        typename R, typename F, typename V
+      , typename Enable = std::enable_if_t<
+            detail::is_variant<std::remove_reference_t<V>>::value
+        >
+    >
+    R apply(F&& f, V&& v)
     {
-        return bool(v)
-          ? detail::apply<R, F>{}(
-                detail::pack<Ts&...>{}, v.which()
-              , v.target(), std::forward<F>(f)
-            )
-          : throw bad_variant_access{};
+        return detail::apply<R>(std::forward<F>(f), std::forward<V>(v));
     }
 
-    //! \effects Equivalent to `apply<R>(std::forward<F>(f), v)` where `R` is
-    //!  the weak result type of `F`.
+    //! \effects Equivalent to `apply<R>(std::forward<F>(f),
+    //!  std::forward<V>(v))` where `R` is the weak result type of `F`.
     //!
     //! \remarks This function shall not participate in overload resolution
     //!  unless `F` has a weak result type.
     template <
-        typename F, typename ...Ts
+        typename F, typename V
       , typename R = detail::weak_result<std::decay_t<F>>
+      , typename Enable = std::enable_if_t<
+            detail::is_variant<std::remove_reference_t<V>>::value
+        >
     >
-    R apply(F&& f, variant<Ts...>& v)
+    R apply(F&& f, V&& v)
     {
-        return apply<R>(std::forward<F>(f), v);
+        return apply<R>(std::forward<F>(f), std::forward<V>(v));
     }
 
-    //! \requires `INVOKE(std::forward<F>(f), std::declval<T const>(), R)`
-    //!  shall be a valid expression for all `T` in `Ts...`.
+    //! Let `Vi` be the `i`-th type in `Vs...`, `Ui` be `std::decay_t<Vi>`,
+    //! where all indexing is zero-based.
     //!
-    //! \effects Equivalent to `INVOKE(std::forward<F>(f), *v.target<T>(), R)`
-    //!  if `v` has an active member of type `T`.
+    //! \requires `sizeof...(Vs) != 0` shall be `true`. For all `i`, `Ui`
+    //!  shall be the type `variant<Tsi...>` where `Tsi` is the parameter
+    //!  pack representing the element types in `Ui`. `INVOKE(
+    //!  std::forward<F>(f), get<Is>(std::forward<Vs>(vs))..., R)` shall be a
+    //!  valid expression for all `Is...` in the range `[0u, sizeof...
+    //!  (Tsi))...`.
     //!
-    //! \throws `bad_variant_access` if `v` has no active member.
-    template <typename R, typename F, typename ...Ts>
-    R apply(F&& f, variant<Ts...> const& v)
+    //! \effects Equivalent to `INVOKE(std::forward<F>(f), get<Is>(
+    //!  std::forward<Vs>(vs))...), R)` where `Is...` are the zero-based
+    //!  indices of the active members of `vs...`.
+    //!
+    //! \throws `bad_variant_access` if any of `vs...` has no active member.
+    template <
+        typename R
+      , typename F, typename ...Vs
+      , typename Enable = std::enable_if_t<
+            sizeof...(Vs) != 0 && detail::all_of<detail::pack<
+                detail::is_variant<std::remove_reference_t<Vs>>...
+            >>::value
+        >
+    >
+    R apply(F&& f, Vs&&... vs)
     {
-        return bool(v)
-          ? detail::apply<R, F>{}(
-                detail::pack<Ts const&...>{}, v.which()
-              , v.target(), std::forward<F>(f)
-            )
-          : throw bad_variant_access{};
+        return detail::apply<R>(std::forward<F>(f), std::forward<Vs>(vs)...);
     }
 
-    //! \effects Equivalent to `apply<R>(std::forward<F>(f), v)` where `R` is
-    //!  the weak result type of `F`.
+    //! \effects Equivalent to `apply<R>(std::forward<F>(f),
+    //!  std::forward<Vs>(vs)...)` where `R` is the weak result type of `F`.
     //!
     //! \remarks This function shall not participate in overload resolution
     //!  unless `F` has a weak result type.
     template <
-        typename F, typename ...Ts
+        typename F, typename ...Vs
       , typename R = detail::weak_result<std::decay_t<F>>
+      , typename Enable = std::enable_if_t<
+            sizeof...(Vs) != 0 && detail::all_of<detail::pack<
+                detail::is_variant<std::remove_reference_t<Vs>>...
+            >>::value
+        >
     >
-    R apply(F&& f, variant<Ts...> const& v)
+    R apply(F&& f, Vs&&... vs)
     {
-        return apply<R>(std::forward<F>(f), v);
-    }
-
-    //! \requires `INVOKE(std::forward<F>(f), std::declval<T&&>(), R)` shall
-    //!  be a valid expression for all `T` in `Ts...`.
-    //!
-    //! \effects Equivalent to `INVOKE(std::forward<F>(f), std::move(
-    //!  *v.target<T>()), R)` if `v` has an active member of type `T`.
-    //!
-    //! \throws `bad_variant_access` if `v` has no active member.
-    template <typename R, typename F, typename ...Ts>
-    R apply(F&& f, variant<Ts...>&& v)
-    {
-        return bool(v)
-          ? detail::apply<R, F>{}(
-                detail::pack<Ts&&...>{}, v.which()
-              , v.target(), std::forward<F>(f)
-            )
-          : throw bad_variant_access{};
-    }
-
-    //! \effects Equivalent to `apply<R>(std::forward<F>(f), std::move(v))`
-    //!  where `R` is the weak result type of `F`.
-    //!
-    //! \remarks This function shall not participate in overload resolution
-    //!  unless `F` has a weak result type.
-    template <
-        typename F, typename ...Ts
-      , typename R = detail::weak_result<std::decay_t<F>>
-    >
-    R apply(F&& f, variant<Ts...>&& v)
-    {
-        return apply<R>(std::forward<F>(f), std::move(v));
+        return apply<R>(std::forward<F>(f), std::forward<Vs>(vs)...);
     }
 
     ///////////////////////////////////////////////////////////////////////////
