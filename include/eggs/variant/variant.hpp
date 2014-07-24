@@ -12,10 +12,13 @@
 #include <eggs/variant/detail/pack.hpp>
 #include <eggs/variant/detail/visitor.hpp>
 
+#include <eggs/variant/bad_variant_access.hpp>
+#include <eggs/variant/in_place.hpp>
+#include <eggs/variant/nullvariant.hpp>
+
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
-#include <stdexcept>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -24,8 +27,6 @@ namespace eggs { namespace variants
 {
     template <typename ...Ts>
     class variant;
-
-    struct nullvariant_t;
 
     namespace detail
     {
@@ -53,11 +54,6 @@ namespace eggs { namespace variants
         template <typename ...Ts>
         struct is_variant<variant<Ts...> const volatile>
           : std::true_type
-        {};
-
-        template <typename T>
-        struct is_null_variant
-          : std::is_same<std::remove_cv_t<T>, nullvariant_t>
         {};
 
         ///////////////////////////////////////////////////////////////////////
@@ -91,75 +87,6 @@ namespace eggs { namespace variants
             }
         };
     }
-
-    ///////////////////////////////////////////////////////////////////////////
-    //! The struct `in_place_t` is an empty structure type used as a unique
-    //! type to disambiguate constructor and function overloading.
-    //! Specifically, `variant<Ts...>` has a constructor with an unspecified
-    //! first parameter that matches an expression of the form `in_place<T>`,
-    //! followed by a parameter pack; this indicates that `T` should be
-    //! constructed in-place (as if by a call to a placement new expression)
-    //! with the forwarded pack expansion as arguments for the initialization
-    //! of `T`.
-    struct in_place_t {};
-
-    template <std::size_t I>
-    inline in_place_t in_place(detail::pack_c<std::size_t, I> = {})
-    {
-        return {};
-    }
-
-    template <typename T>
-    inline in_place_t in_place(detail::pack<T> = {})
-    {
-        return {};
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    //! The struct `nullvariant_t` is an empty structure type used as a unique
-    //! type to indicate the state of not having an active member for `variant`
-    //! objects. In particular, `variant<Ts...>` has a constructor with
-    //! `nullvariant_t` as a single argument; this indicates that a variant
-    //! object with no active member shall be constructed.
-    //!
-    //! Type `nullvariant_t` shall not have a default constructor. It shall be
-    //! a literal type. Constant `nullvariant` shall be initialized with an
-    //! argument of literal type.
-    struct nullvariant_t
-    {
-        nullvariant_t() = delete;
-
-        constexpr explicit nullvariant_t(detail::empty) {}
-    };
-
-    constexpr nullvariant_t nullvariant{{}};
-
-    ///////////////////////////////////////////////////////////////////////////
-    //! The class `bad_variant_access` defines the type of objects thrown as
-    //! exceptions to report the situation where an attempt is made to access
-    //! an inactive member of a `variant` object.
-    class bad_variant_access
-      : public std::logic_error
-    {
-    public:
-        //! \effects Constructs an object of class `bad_variant_access`.
-        //!  `what()` returns an implementation-defined NTBS.
-        bad_variant_access()
-          : std::logic_error{"bad_variant_access"}
-        {};
-
-        //! \effects Constructs an object of class `bad_variant_access`.
-        //!  `strcmp(what(), what_arg.c_str()) == 0`.
-        explicit bad_variant_access(std::string const& what_arg)
-          : std::logic_error{what_arg}
-        {};
-
-        //! \effects Constructs an object of class `bad_variant_access`.
-        //!  `strcmp(what(), what_arg) == 0`.
-        explicit bad_variant_access(char const* what_arg)
-          : std::logic_error{what_arg}
-        {};
-    };
 
     ///////////////////////////////////////////////////////////////////////////
     //! In a `variant`, at most one of the members can be active at any time,

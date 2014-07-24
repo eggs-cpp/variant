@@ -11,6 +11,8 @@
 
 #include <eggs/variant/detail/pack.hpp>
 
+#include <eggs/variant/bad_variant_access.hpp>
+
 #include <cstddef>
 #include <exception>
 #include <type_traits>
@@ -21,8 +23,6 @@ namespace eggs { namespace variants
 {
     template <typename ...Ts>
     class variant;
-
-    class bad_variant_access;
 }}
 
 namespace eggs { namespace variants { namespace detail
