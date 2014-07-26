@@ -10,6 +10,8 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "dtor.hpp"
+#include "throw.hpp"
 
 constexpr std::size_t npos = eggs::variant<>::npos;
 
@@ -97,6 +99,37 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         REQUIRE(v2.which() == v1.which());
         REQUIRE(*v1.target<int>() == 42);
         REQUIRE(*v2.target<int>() == 42);
+
+        SECTION("exception-safety")
+        {
+            eggs::variant<Dtor, Throw> v1;
+            v1.emplace<Throw>();
+
+            REQUIRE(bool(v1) == true);
+            REQUIRE(v1.which() == 1);
+
+            eggs::variant<Dtor, Throw> v2;
+            v2.emplace<Dtor>();
+
+            REQUIRE(bool(v2) == true);
+            REQUIRE(v2.which() == 0);
+            REQUIRE(Dtor::called == false);
+
+            bool exception_thrown = false;
+            try
+            {
+                v2 = v1;
+            } catch (...) {
+                exception_thrown = true;
+            }
+            REQUIRE(exception_thrown);
+            REQUIRE(bool(v1) == true);
+            REQUIRE(bool(v2) == false);
+            REQUIRE(v1.which() == 1);
+            REQUIRE(v2.which() == npos);
+            REQUIRE(Dtor::called == true);
+        }
+        Dtor::called = false;
     }
 }
 

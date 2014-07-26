@@ -53,6 +53,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variant<> empty;
@@ -60,11 +61,12 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
             REQUIRE(empty.which() == npos);
 
             eggs::variants::apply<void>(fun{}, empty);
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 
@@ -83,6 +85,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variant<> const empty;
@@ -90,11 +93,12 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
             REQUIRE(empty.which() == npos);
 
             eggs::variants::apply<void>(fun{}, empty);
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 
@@ -113,6 +117,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variant<> empty;
@@ -120,11 +125,12 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
             REQUIRE(empty.which() == npos);
 
             eggs::variants::apply<void>(fun{}, std::move(empty));
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 

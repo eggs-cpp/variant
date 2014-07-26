@@ -10,6 +10,8 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "dtor.hpp"
+#include "throw.hpp"
 
 constexpr std::size_t npos = eggs::variant<>::npos;
 
@@ -60,6 +62,29 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         REQUIRE(v.which() == 0);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
+
+        SECTION("exception-safety")
+        {
+            eggs::variant<Dtor, Throw> v;
+            v.emplace<Dtor>();
+
+            REQUIRE(bool(v) == true);
+            REQUIRE(v.which() == 0);
+            REQUIRE(Dtor::called == false);
+
+            bool exception_thrown = false;
+            try
+            {
+                v.emplace<1>(0);
+            } catch (...) {
+                exception_thrown = true;
+            }
+            REQUIRE(exception_thrown);
+            REQUIRE(bool(v) == false);
+            REQUIRE(v.which() == npos);
+            REQUIRE(Dtor::called == true);
+        }
+        Dtor::called = false;
     }
 }
 
@@ -110,6 +135,29 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 1);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
+
+        SECTION("exception-safety")
+        {
+            eggs::variant<Dtor, Throw> v;
+            v.emplace<Dtor>();
+
+            REQUIRE(bool(v) == true);
+            REQUIRE(v.which() == 0);
+            REQUIRE(Dtor::called == false);
+
+            bool exception_thrown = false;
+            try
+            {
+                v.emplace<1>({0});
+            } catch (...) {
+                exception_thrown = true;
+            }
+            REQUIRE(exception_thrown);
+            REQUIRE(bool(v) == false);
+            REQUIRE(v.which() == npos);
+            REQUIRE(Dtor::called == true);
+        }
+        Dtor::called = false;
     }
 }
 
@@ -160,6 +208,29 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         REQUIRE(v.which() == 0);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
+
+        SECTION("exception-safety")
+        {
+            eggs::variant<Dtor, Throw> v;
+            v.emplace<Dtor>();
+
+            REQUIRE(bool(v) == true);
+            REQUIRE(v.which() == 0);
+            REQUIRE(Dtor::called == false);
+
+            bool exception_thrown = false;
+            try
+            {
+                v.emplace<Throw>(0);
+            } catch (...) {
+                exception_thrown = true;
+            }
+            REQUIRE(exception_thrown);
+            REQUIRE(bool(v) == false);
+            REQUIRE(v.which() == npos);
+            REQUIRE(Dtor::called == true);
+        }
+        Dtor::called = false;
     }
 }
 
@@ -210,5 +281,28 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 1);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
+
+        SECTION("exception-safety")
+        {
+            eggs::variant<Dtor, Throw> v;
+            v.emplace<Dtor>();
+
+            REQUIRE(bool(v) == true);
+            REQUIRE(v.which() == 0);
+            REQUIRE(Dtor::called == false);
+
+            bool exception_thrown = false;
+            try
+            {
+                v.emplace<Throw>({0});
+            } catch (...) {
+                exception_thrown = true;
+            }
+            REQUIRE(exception_thrown);
+            REQUIRE(bool(v) == false);
+            REQUIRE(v.which() == npos);
+            REQUIRE(Dtor::called == true);
+        }
+        Dtor::called = false;
     }
 }

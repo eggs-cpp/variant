@@ -24,14 +24,16 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 
@@ -48,14 +50,16 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 
@@ -81,14 +85,16 @@ TEST_CASE("get<T>(variant<Ts...>&)", "[variant.elem]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 
@@ -102,14 +108,16 @@ TEST_CASE("get<T>(variant<Ts...> const&)", "[variant.elem]")
 
     SECTION("throws")
     {
+        bool exception_thrown = false;
         try
         {
             eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access&) {
-            REQUIRE(true);
+        } catch (eggs::variants::bad_variant_access const&) {
+            exception_thrown = true;
         } catch (...) {
             REQUIRE(false);
         }
+        REQUIRE(exception_thrown);
     }
 }
 
