@@ -9,8 +9,6 @@
 #ifndef EGGS_VARIANT_NULLVARIANT_HPP
 #define EGGS_VARIANT_NULLVARIANT_HPP
 
-#include <eggs/variant/detail/pack.hpp>
-
 #include <type_traits>
 
 namespace eggs { namespace variants
@@ -58,12 +56,10 @@ namespace eggs { namespace variants
     //! argument of literal type.
     struct nullvariant_t
     {
-        nullvariant_t() = delete;
-
-        constexpr explicit nullvariant_t(detail::empty) {}
+        constexpr explicit nullvariant_t(int) noexcept {}
     };
 
-    constexpr nullvariant_t nullvariant{{}};
+    constexpr nullvariant_t nullvariant{0};
 }}
 
 #endif /*EGGS_VARIANT_NULLVARIANT_HPP*/

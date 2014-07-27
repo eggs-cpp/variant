@@ -122,6 +122,18 @@ TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
         REQUIRE(v.target() == nullptr);
         REQUIRE(v.target_type() == typeid(void));
     }
+
+    SECTION("initializer-list")
+    {
+        eggs::variant<int, std::string> v;
+
+        v = {};
+
+        REQUIRE(bool(v) == false);
+        REQUIRE(v.which() == npos);
+        REQUIRE(v.target() == nullptr);
+        REQUIRE(v.target_type() == typeid(void));
+    }
 }
 
 TEST_CASE("variant<>::operator=(nullvariant_t)", "[variant.assign]")
