@@ -89,6 +89,8 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! template <class ...Ts> class variant;
+    //!
     //! In a `variant`, at most one of the members can be active at any time,
     //! that is, the value of at most one of the members can be stored in a
     //! `variant` at any time.  Implementations are not permitted to use
@@ -122,9 +124,12 @@ namespace eggs { namespace variants
           , "variant member has nullvariant_t type");
 
     public:
+        //! static constexpr std::size_t npos = std::size_t(-1);
         static constexpr std::size_t npos = std::size_t(-1);
 
     public:
+        //! variant() noexcept;
+        //!
         //! \postconditions `*this` does not have an active member.
         //!
         //! \remarks No member is initialized.
@@ -132,6 +137,8 @@ namespace eggs { namespace variants
           : _which{0}
         {}
 
+        //! variant(nullvariant_t) noexcept;
+        //!
         //! \postconditions `*this` does not have an active member.
         //!
         //! \remarks No member is initialized.
@@ -139,6 +146,8 @@ namespace eggs { namespace variants
           : _which{0}
         {}
 
+        //! variant(variant const& rhs);
+        //!
         //! \requires `std::is_copy_constructible_v<T>` is `true` for all `T`
         //!  in `Ts...`.
         //!
@@ -162,6 +171,8 @@ namespace eggs { namespace variants
             );
         }
 
+        //! variant(variant&& rhs);
+        //!
         //! \requires `std::is_move_constructible_v<T>` is `true` for all `T`
         //!  in `Ts...`.
         //!
@@ -186,6 +197,9 @@ namespace eggs { namespace variants
             );
         }
 
+        //! template <class U>
+        //! variant(U&& v);
+        //!
         //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
         //!
         //! \requires `std::is_constructible_v<T, U&&>` is `true`.
@@ -216,6 +230,9 @@ namespace eggs { namespace variants
                 T, detail::pack<std::remove_cv_t<Ts>...>>::value + 1;
         }
 
+        //! template <std::size_t I, class ...Args>
+        //! explicit variant(unspecified<I>, Args&&... args);
+        //!
         //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
@@ -245,6 +262,9 @@ namespace eggs { namespace variants
             _which = I + 1;
         }
 
+        //! template <std::size_t I, class U, class ...Args>
+        //! explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
+        //!
         //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
@@ -282,6 +302,9 @@ namespace eggs { namespace variants
             _which = I + 1;
         }
 
+        //! template <class T, class ...Args>
+        //! explicit variant(unspecified<T>, Args&&... args);
+        //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \effects Equivalent to `variant(in_place<I>,
@@ -300,6 +323,9 @@ namespace eggs { namespace variants
             _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
         }
 
+        //! template <class T, class U, class ...Args>
+        //! explicit variant(unspecified<T>, std::initializer_list<U> il, Args&&... args);
+        //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \effects Equivalent to `variant(in_place<I>, il,
@@ -328,6 +354,8 @@ namespace eggs { namespace variants
             _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
         }
 
+        //! ~variant();
+        //!
         //! \effects If `*this` has an active member of type `T`, destroys the
         //!  active member by calling `T::~T()`.
         ~variant()
@@ -338,6 +366,8 @@ namespace eggs { namespace variants
             );
         }
 
+        //! variant& operator=(nullvariant_t) noexcept;
+        //!
         //! \effects If `*this` has an active member of type `T`, destroys the
         //!  active member by calling `T::~T()`.
         //!
@@ -356,6 +386,8 @@ namespace eggs { namespace variants
             return *this;
         }
 
+        //! variant& operator=(variant const& rhs);
+        //!
         //! \requires `std::is_copy_constructible_v<T>` and
         //!  `std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`.
         //!
@@ -403,6 +435,8 @@ namespace eggs { namespace variants
             return *this;
         }
 
+        //! variant& operator=(variant&& rhs);
+        //!
         //! \requires `std::is_move_constructible_v<T>` and
         //!  `std::is_move_assignable_v<T>` is `true` for all `T` in `Ts...`.
         //!
@@ -455,6 +489,9 @@ namespace eggs { namespace variants
             return *this;
         }
 
+        //! template <class U>
+        //! variant& operator=(U&& v);
+        //!
         //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
         //!
         //! \requires `std::is_constructible_v<T, U&&>` and
@@ -512,6 +549,9 @@ namespace eggs { namespace variants
             return *this;
         }
 
+        //! template <std::size_t I, class ...Args>
+        //! void emplace(Args&&... args);
+        //!
         //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
@@ -543,6 +583,9 @@ namespace eggs { namespace variants
             _which = I + 1;
         }
 
+        //! template <std::size_t I, class U, class ...Args>
+        //! void emplace(std::initializer_list<U> il, Args&&... args);
+        //!
         //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
@@ -583,6 +626,9 @@ namespace eggs { namespace variants
             _which = I + 1;
         }
 
+        //! template <class T, class ...Args>
+        //! void emplace(Args&&... args);
+        //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \effects Equivalent to `emplace<I>(std::forward<Args>(args)...)`
@@ -596,6 +642,9 @@ namespace eggs { namespace variants
                 std::forward<Args>(args)...);
         }
 
+        //! template <class T, class U, class ...Args>
+        //! void emplace(std::initializer_list<U> il, Args&&... args);
+        //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \effects Equivalent to `emplace<I>(il, std::forward<Args>(args)...)`
@@ -620,6 +669,8 @@ namespace eggs { namespace variants
                 il, std::forward<Args>(args)...);
         }
 
+        //! void swap(variant& rhs);
+        //!
         //! \requires Lvalues of `T` shall be swappable and
         //!  `std::is_move_constructible_v<T>` is `true` for all `T` in
         //!  `Ts...`.
@@ -654,12 +705,16 @@ namespace eggs { namespace variants
             }
         }
 
+        //! explicit operator bool() const noexcept;
+        //!
         //! \returns `true` if and only if `*this` has an active member.
         explicit operator bool() const noexcept
         {
             return _which != 0;
         }
 
+        //! std::size_t which() const noexcept;
+        //!
         //! \returns The zero-based index of the active member if `*this` has
         //!  one. Otherwise, returns `npos`.
         std::size_t which() const noexcept
@@ -667,6 +722,8 @@ namespace eggs { namespace variants
             return _which != 0 ? _which - 1 : npos;
         }
 
+        //! std::type_info const& target_type() const noexcept;
+        //!
         //! \returns If `*this` has an active member of type `T`, `typeid(T)`;
         //!  otherwise `typeid(void)`.
         std::type_info const& target_type() const noexcept
@@ -678,6 +735,8 @@ namespace eggs { namespace variants
               : typeid(void);
         }
 
+        //! void* target() noexcept;
+        //!
         //! \returns If `*this` has an active member, a pointer to the active
         //!  member; otherwise a null pointer.
         void* target() noexcept
@@ -687,6 +746,8 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
+        //! void const* target() const noexcept;
+        //!
         //! \returns If `*this` has an active member, a pointer to the active
         //!  member; otherwise a null pointer.
         void const* target() const noexcept
@@ -696,6 +757,9 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
+        //! template <class T>
+        //! T* target() noexcept;
+        //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
@@ -711,6 +775,9 @@ namespace eggs { namespace variants
               : nullptr;
         }
 
+        //! template <class T>
+        //! T const* target() const noexcept;
+        //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
@@ -732,12 +799,18 @@ namespace eggs { namespace variants
     };
 
     ///////////////////////////////////////////////////////////////////////////
+    //! template <class T>
+    //! struct variant_size; // undefined
+    //!
     //! \remarks All specializations of `variant_size<T>` shall meet the
     //!  `UnaryTypeTrait` requirements with a `BaseCharacteristic` of
     //!  `std::integral_constant<std::size_t, N>` for some `N`.
     template <typename T>
     struct variant_size; // undefined
 
+    //! template <class ...Ts>
+    //! struct variant_size<variant<Ts...>>;
+    //!
     //! \remarks Has a `BaseCharacteristic` of `std::integral_constant<
     //!  std::size_t, sizeof...(Ts)>`.
     template <typename ...Ts>
@@ -745,6 +818,9 @@ namespace eggs { namespace variants
       : std::integral_constant<std::size_t, sizeof...(Ts)>
     {};
 
+    //! template <class T>
+    //! struct variant_size<T const>;
+    //!
     //! \remarks Let `VS` denote `variant_size<T>` of the cv-unqualified type
     //!  `T`. Has a `BaseCharacteristic` of `std::integral_constant<
     //!  std::size_t, VS::value>`
@@ -753,16 +829,23 @@ namespace eggs { namespace variants
       : variant_size<T>
     {};
 
+    //! template <class T>
+    //! constexpr std::size_t variant_size_v = variant_size<T>::value;
     template <typename T>
     constexpr std::size_t variant_size_v = variant_size<T>::value;
 
-    ///////////////////////////////////////////////////////////////////////////
+    //! template <std::size_t I, class T>
+    //! struct variant_element; // undefined
+    //!
     //! \remarks All specializations of `variant_element<I, T>` shall meet the
     //!  `TransformationTrait` requirements with a member typedef `type` that
     //!  names the `I`th member of `T`, where indexing is zero-based.
     template <std::size_t I, typename T>
     struct variant_element; // undefined
 
+    //! template <std::size_t I, class ...Ts>
+    //! struct variant_element<I, variant<Ts...>>;
+    //!
     //! \requires `I < sizeof...(Ts)`.
     //!
     //! \remarks The member typedef `type` shall name the type of the `I`th
@@ -772,6 +855,9 @@ namespace eggs { namespace variants
       : detail::at_index<I, detail::pack<Ts...>>
     {};
 
+    //! template <std::size_t I, class T>
+    //! struct variant_element<I, T const>;
+    //!
     //! \remarks Let `VE` denote `variant_element<I, T>` of the cv-unqualified
     //!  type `T`. The member typedef `type` names `std::add_const_t<
     //!  typename VE::type>`.
@@ -780,10 +866,15 @@ namespace eggs { namespace variants
       : std::add_const<typename variant_element<I, T>::type>
     {};
 
+    //! template <std::size_t I, class T>
+    //! using variant_element_t =  class variant_element<I, T>::type;
     template <std::size_t I, typename T>
     using variant_element_t =  typename variant_element<I, T>::type;
 
     ///////////////////////////////////////////////////////////////////////////
+    //! template <std::size_t I, class ...Ts>
+    //! variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v);
+    //!
     //! \requires `I < sizeof...(Ts)`.
     //!
     //! \returns A reference to the `I`th member of `v` if it is active, where
@@ -799,6 +890,9 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! template <std::size_t I, class ...Ts>
+    //! variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v);
+    //!
     //! \requires `I < sizeof...(Ts)`.
     //!
     //! \returns A const reference to the `I`th member of `v` if it is active,
@@ -814,6 +908,9 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! template <std::size_t I, class ...Ts>
+    //! variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v);
+    //!
     //! \effects Equivalent to return `std::forward<variant_element_t<I,
     //!  variant<Ts...>>&&>(get<I>(v))`.
     template <std::size_t I, typename ...Ts>
@@ -823,6 +920,9 @@ namespace eggs { namespace variants
         return std::forward<value_type&&>(get<I>(v));
     }
 
+    //! template <class T, class ...Ts>
+    //! T& get(variant<Ts...>& v);
+    //!
     //! \requires The type `T` occurs exactly once in `Ts...`.
     //!
     //! \returns A reference to the active member of `v` if it is of type `T`.
@@ -837,6 +937,9 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! template <class T, class ...Ts>
+    //! T const& get(variant<Ts...> const& v);
+    //!
     //! \requires The type `T` occurs exactly once in `Ts...`.
     //!
     //! \returns A const reference to the active member of `v` if it is of
@@ -852,6 +955,9 @@ namespace eggs { namespace variants
         throw bad_variant_access{};
     }
 
+    //! template <class T, class ...Ts>
+    //! T&& get(variant<Ts...>&& v);
+    //!
     //! \effects Equivalent to return `std::forward<T&&>(get<T>(v))`.
     template <typename T, typename ...Ts>
     T&& get(variant<Ts...>&& v)
@@ -860,6 +966,9 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! template <class ...Ts>
+    //! bool operator==(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \requires All `T` in `Ts...` shall meet the requirements of
     //!  `EqualityComparable`.
     //!
@@ -877,6 +986,9 @@ namespace eggs { namespace variants
           : false;
     }
 
+    //! template <class ...Ts>
+    //! bool operator!=(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \returns `!(lhs == rhs)`.
     template <typename ...Ts>
     bool operator!=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
@@ -884,6 +996,182 @@ namespace eggs { namespace variants
         return !(lhs == rhs);
     }
 
+    //! template <class ...Ts>
+    //! bool operator<(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
+    //!
+    //! \requires All `T` in `Ts...` shall meet the requirements of
+    //!  `LessThanComparable`.
+    //!
+    //! \returns If both `lhs` and `rhs` have an active member of type `T`,
+    //!  `*lhs.target<T>() < *rhs.target<T>()`; otherwise, if
+    //!  `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`; otherwise,
+    //!  `lhs.which() < rhs.which()`.
+    template <typename ...Ts>
+    bool operator<(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return lhs.which() == rhs.which()
+          ? bool(lhs) && detail::less{}(
+                detail::pack<Ts...>{}, lhs.which()
+              , lhs.target(), rhs.target()
+            )
+          : bool(lhs) == bool(rhs) ? lhs.which() < rhs.which() : bool(rhs);
+    }
+
+    //! template <class ...Ts>
+    //! bool operator>(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
+    //!
+    //! \returns `rhs < lhs`.
+    template <typename ...Ts>
+    bool operator>(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return rhs < lhs;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator<=(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
+    //!
+    //! \returns `!(rhs < lhs)`.
+    template <typename ...Ts>
+    bool operator<=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(rhs < lhs);
+    }
+
+    //! template <class ...Ts>
+    //! bool operator>=(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
+    //!
+    //! \returns `!(lhs < rhs)`.
+    template <typename ...Ts>
+    bool operator>=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
+    {
+        return !(lhs < rhs);
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //! template <class ...Ts>
+    //! bool operator==(variant<Ts...> const& x, nullvariant_t) noexcept;
+    //!
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator==(variant<Ts...> const& x, nullvariant_t) noexcept
+    {
+        return !x;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator==(nullvariant_t, variant<Ts...> const& x) noexcept;
+    //!
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator==(nullvariant_t, variant<Ts...> const& x) noexcept
+    {
+        return !x;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator!=(variant<Ts...> const& x, nullvariant_t) noexcept;
+    //!
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator!=(variant<Ts...> const& x, nullvariant_t) noexcept
+    {
+        return bool(x);
+    }
+
+    //! template <class ...Ts>
+    //! bool operator!=(nullvariant_t, variant<Ts...> const& x) noexcept;
+    //!
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator!=(nullvariant_t, variant<Ts...> const& x) noexcept
+    {
+        return bool(x);
+    }
+
+    //! template <class ...Ts>
+    //! bool operator<(variant<Ts...> const& x, nullvariant_t) noexcept;
+    //!
+    //! \returns `false`
+    template <typename ...Ts>
+    bool operator<(variant<Ts...> const& /*x*/, nullvariant_t) noexcept
+    {
+        return false;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator<(nullvariant_t, variant<Ts...> const& x) noexcept;
+    //!
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator<(nullvariant_t, variant<Ts...> const& x) noexcept
+    {
+        return bool(x);
+    }
+
+    //! template <class ...Ts>
+    //! bool operator>(variant<Ts...> const& x, nullvariant_t) noexcept;
+    //!
+    //! \returns `bool(x)`
+    template <typename ...Ts>
+    bool operator>(variant<Ts...> const& x, nullvariant_t) noexcept
+    {
+        return bool(x);
+    }
+
+    //! template <class ...Ts>
+    //! bool operator>(nullvariant_t, variant<Ts...> const& x) noexcept;
+    //!
+    //! \returns `false`
+    template <typename ...Ts>
+    bool operator>(nullvariant_t, variant<Ts...> const& /*x*/) noexcept
+    {
+        return false;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator<=(variant<Ts...> const& x, nullvariant_t) noexcept;
+    //!
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator<=(variant<Ts...> const& x, nullvariant_t) noexcept
+    {
+        return !x;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator<=(nullvariant_t, variant<Ts...> const& x) noexcept;
+    //!
+    //! \returns `true`
+    template <typename ...Ts>
+    bool operator<=(nullvariant_t, variant<Ts...> const& /*x*/) noexcept
+    {
+        return true;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator>=(variant<Ts...> const& x, nullvariant_t) noexcept;
+    //!
+    //! \returns `true`
+    template <typename ...Ts>
+    bool operator>=(variant<Ts...> const& /*x*/, nullvariant_t) noexcept
+    {
+        return true;
+    }
+
+    //! template <class ...Ts>
+    //! bool operator>=(nullvariant_t, variant<Ts...> const& x) noexcept;
+    //!
+    //! \returns `!x`
+    template <typename ...Ts>
+    bool operator>=(nullvariant_t, variant<Ts...> const& x) noexcept
+    {
+        return !x;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    //! template <class ...Ts, class T>
+    //! bool operator==(variant<Ts...> const& lhs, T const& rhs);
+    //!
     //! \requires `T` shall meet the requirements of `EqualityComparable`.
     //!
     //! \returns If `lhs` has an active member of type `T`,
@@ -907,6 +1195,9 @@ namespace eggs { namespace variants
           : false;
     }
 
+    //! template <class T, class ...Ts>
+    //! bool operator==(T const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \returns `rhs == lhs`
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -922,6 +1213,9 @@ namespace eggs { namespace variants
         return rhs == lhs;
     }
 
+    //! template <class ...Ts, class T>
+    //! bool operator!=(variant<Ts...> const& lhs, T const& rhs);
+    //!
     //! \returns `!(lhs == rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -937,6 +1231,9 @@ namespace eggs { namespace variants
         return !(lhs == rhs);
     }
 
+    //! template <class T, class ...Ts>
+    //! bool operator!=(T const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \returns `!(lhs == rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -952,73 +1249,9 @@ namespace eggs { namespace variants
         return !(lhs == rhs);
     }
 
-    //! \returns `!x`
-    template <typename ...Ts>
-    bool operator==(variant<Ts...>& x, nullvariant_t) noexcept
-    {
-        return !x;
-    }
-
-    //! \returns `!x`
-    template <typename ...Ts>
-    bool operator==(nullvariant_t, variant<Ts...>& x) noexcept
-    {
-        return !x;
-    }
-
-    //! \returns `bool(x)`
-    template <typename ...Ts>
-    bool operator!=(variant<Ts...>& x, nullvariant_t) noexcept
-    {
-        return bool(x);
-    }
-
-    //! \returns `bool(x)`
-    template <typename ...Ts>
-    bool operator!=(nullvariant_t, variant<Ts...>& x) noexcept
-    {
-        return bool(x);
-    }
-
-    //! \requires All `T` in `Ts...` shall meet the requirements of
-    //!  `LessThanComparable`.
+    //! template <class ...Ts, class T>
+    //! bool operator<(variant<Ts...> const& lhs, T const& rhs);
     //!
-    //! \returns If both `lhs` and `rhs` have an active member of type `T`,
-    //!  `*lhs.target<T>() < *rhs.target<T>()`; otherwise, if
-    //!  `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`; otherwise,
-    //!  `lhs.which() < rhs.which()`.
-    template <typename ...Ts>
-    bool operator<(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
-    {
-        return lhs.which() == rhs.which()
-          ? bool(lhs) && detail::less{}(
-                detail::pack<Ts...>{}, lhs.which()
-              , lhs.target(), rhs.target()
-            )
-          : bool(lhs) == bool(rhs) ? lhs.which() < rhs.which() : bool(rhs);
-    }
-
-    //! \returns `rhs < lhs`.
-    template <typename ...Ts>
-    bool operator>(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
-    {
-        return rhs < lhs;
-    }
-
-    //! \returns `!(rhs < lhs)`.
-    template <typename ...Ts>
-    bool operator<=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
-    {
-        return !(rhs < lhs);
-    }
-
-    //! \returns `!(lhs < rhs)`.
-    template <typename ...Ts>
-    bool operator>=(variant<Ts...> const& lhs, variant<Ts...> const& rhs)
-    {
-        return !(lhs < rhs);
-    }
-
     //! \requires `T` shall meet the requirements of `LessThanComparable`.
     //!
     //! \returns If `lhs` has an active member of type `T`,
@@ -1044,6 +1277,9 @@ namespace eggs { namespace variants
           : bool(lhs) ? lhs.which() < rhs_which : true;
     }
 
+    //! template <class T, class ...Ts>
+    //! bool operator<(T const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \requires `T` shall meet the requirements of `LessThanComparable`.
     //!
     //! \returns If `rhs` has an active member of type `T`,
@@ -1069,6 +1305,9 @@ namespace eggs { namespace variants
           : bool(rhs) ? lhs_which < rhs.which() : false;
     }
 
+    //! template <class ...Ts, class T>
+    //! bool operator>(variant<Ts...> const& lhs, T const& rhs);
+    //!
     //! \returns `rhs < lhs`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -1084,6 +1323,9 @@ namespace eggs { namespace variants
         return rhs < lhs;
     }
 
+    //! template <class T, class ...Ts>
+    //! bool operator>(T const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \returns `rhs < lhs`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -1099,6 +1341,9 @@ namespace eggs { namespace variants
         return rhs < lhs;
     }
 
+    //! template <class ...Ts, class T>
+    //! bool operator<=(variant<Ts...> const& lhs, T const& rhs);
+    //!
     //! \returns `!(rhs < lhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -1114,6 +1359,9 @@ namespace eggs { namespace variants
         return !(rhs < lhs);
     }
 
+    //! template <class T, class ...Ts>
+    //! bool operator<=(T const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \returns `!(rhs < lhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -1129,6 +1377,9 @@ namespace eggs { namespace variants
         return !(rhs < lhs);
     }
 
+    //! template <class ...Ts, class T>
+    //! bool operator>=(variant<Ts...> const& lhs, T const& rhs);
+    //!
     //! \returns `!(lhs < rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -1144,6 +1395,9 @@ namespace eggs { namespace variants
         return !(lhs < rhs);
     }
 
+    //! template <class T, class ...Ts>
+    //! bool operator>=(T const& lhs, variant<Ts...> const& rhs);
+    //!
     //! \returns `!(lhs < rhs)`.
     //!
     //! \remarks This operator shall not participate in overload resolution
@@ -1159,63 +1413,10 @@ namespace eggs { namespace variants
         return !(lhs < rhs);
     }
 
-    //! \returns `false`
-    template <typename ...Ts>
-    bool operator<(variant<Ts...>& /*x*/, nullvariant_t) noexcept
-    {
-        return false;
-    }
-
-    //! \returns `bool(x)`
-    template <typename ...Ts>
-    bool operator<(nullvariant_t, variant<Ts...>& x) noexcept
-    {
-        return bool(x);
-    }
-
-    //! \returns `bool(x)`
-    template <typename ...Ts>
-    bool operator>(variant<Ts...>& x, nullvariant_t) noexcept
-    {
-        return bool(x);
-    }
-
-    //! \returns `false`
-    template <typename ...Ts>
-    bool operator>(nullvariant_t, variant<Ts...>& /*x*/) noexcept
-    {
-        return false;
-    }
-
-    //! \returns `!x`
-    template <typename ...Ts>
-    bool operator<=(variant<Ts...>& x, nullvariant_t) noexcept
-    {
-        return !x;
-    }
-
-    //! \returns `true`
-    template <typename ...Ts>
-    bool operator<=(nullvariant_t, variant<Ts...>& /*x*/) noexcept
-    {
-        return true;
-    }
-
-    //! \returns `true`
-    template <typename ...Ts>
-    bool operator>=(variant<Ts...>& /*x*/, nullvariant_t) noexcept
-    {
-        return true;
-    }
-
-    //! \returns `!x`
-    template <typename ...Ts>
-    bool operator>=(nullvariant_t, variant<Ts...>& x) noexcept
-    {
-        return !x;
-    }
-
     ///////////////////////////////////////////////////////////////////////////
+    //! template <class R, class F, class V>
+    //! R apply(F&& f, V&& v);
+    //!
     //! \requires `std::decay_t<V>` shall be the type `variant<Ts...>`.
     //!  `INVOKE(std::forward<F>(f), get<I>(std::forward<V>(v)), R)` shall be
     //!  a valid expression for all `I` in the range `[0u, sizeof...(Ts))`.
@@ -1236,6 +1437,9 @@ namespace eggs { namespace variants
         return detail::apply<R>(std::forward<F>(f), std::forward<V>(v));
     }
 
+    //! template <class F, class V>
+    //! R apply(F&& f, V&& v);
+    //!
     //! \effects Equivalent to `apply<R>(std::forward<F>(f),
     //!  std::forward<V>(v))` where `R` is the weak result type of `F`.
     //!
@@ -1253,6 +1457,9 @@ namespace eggs { namespace variants
         return apply<R>(std::forward<F>(f), std::forward<V>(v));
     }
 
+    //! template <class R, class F, class ...Vs>
+    //! R apply(F&& f, Vs&&... vs);
+    //!
     //! Let `Vi` be the `i`-th type in `Vs...`, `Ui` be `std::decay_t<Vi>`,
     //! where all indexing is zero-based.
     //!
@@ -1282,6 +1489,9 @@ namespace eggs { namespace variants
         return detail::apply<R>(std::forward<F>(f), std::forward<Vs>(vs)...);
     }
 
+    //! template <class F, class ...Vs>
+    //! R apply(F&& f, Vs&&... vs);
+    //!
     //! \effects Equivalent to `apply<R>(std::forward<F>(f),
     //!  std::forward<Vs>(vs)...)` where `R` is the weak result type of `F`.
     //!
@@ -1302,6 +1512,9 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! template <class ...Ts>
+    //! void swap(variant<Ts...>& x, variant<Ts...>& y);
+    //!
     //! \effects Calls `x.swap(y)`.
     template <typename ...Ts>
     void swap(variant<Ts...>& x, variant<Ts...>& y)
@@ -1313,6 +1526,9 @@ namespace eggs { namespace variants
 
 namespace std
 {
+    //! template <class ...Ts>
+    //! struct hash<::eggs::variants::variant<Ts...>>;
+    //!
     //! \requires The template specialization `std::hash<T>` shall meet the
     //!  requirements of class template `std::hash` for all `T` in `Ts...`.
     //!  The template specialization `std::hash<variant<Ts...>>` shall meet

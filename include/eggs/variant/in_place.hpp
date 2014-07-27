@@ -18,6 +18,8 @@
 namespace eggs { namespace variants
 {
     ///////////////////////////////////////////////////////////////////////////
+    //! struct in_place_t {};
+    //!
     //! The struct `in_place_t` is an empty structure type used as a unique
     //! type to disambiguate constructor and function overloading.
     //! Specifically, `variant<Ts...>` has a constructor with an unspecified
@@ -28,12 +30,16 @@ namespace eggs { namespace variants
     //! of `T`.
     struct in_place_t {};
 
+    //! template <std::size_t I>
+    //! in_place_t in_place(unspecified<I>);
     template <std::size_t I>
     inline in_place_t in_place(detail::pack_c<std::size_t, I> = {})
     {
         return {};
     }
 
+    //! template <class T>
+    //! in_place_t in_place(unspecified<T>);
     template <typename T>
     inline in_place_t in_place(detail::pack<T> = {})
     {

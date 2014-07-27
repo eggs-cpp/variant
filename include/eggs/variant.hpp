@@ -13,6 +13,7 @@
 
 namespace eggs
 {
+    //! using variants::variant;
     using variants::variant;
 }
 

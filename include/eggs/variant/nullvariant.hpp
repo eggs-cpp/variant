@@ -45,6 +45,8 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! struct nullvariant_t {see below};
+    //!
     //! The struct `nullvariant_t` is an empty structure type used as a unique
     //! type to indicate the state of not having an active member for `variant`
     //! objects. In particular, `variant<Ts...>` has a constructor with
@@ -59,6 +61,7 @@ namespace eggs { namespace variants
         constexpr explicit nullvariant_t(int) noexcept {}
     };
 
+    //! constexpr nullvariant_t nullvariant(unspecified);
     constexpr nullvariant_t nullvariant{0};
 }}
 
