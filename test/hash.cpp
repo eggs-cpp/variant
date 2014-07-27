@@ -14,7 +14,7 @@
 
 TEST_CASE("std::hash<variant<Ts...>>", "[variant.hash]")
 {
-    eggs::variant<int, std::string> v(42);
+    eggs::variant<int, std::string> const v(42);
     
     REQUIRE(v.which() == 0);
     REQUIRE(*v.target<int>() == 42);

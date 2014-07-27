@@ -19,12 +19,12 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
 {
     SECTION("same members")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(v1.which() == 0);
         REQUIRE(*v1.target<int>() == 42);
 
-        eggs::variant<int, std::string> v2(42);
+        eggs::variant<int, std::string> const v2(42);
 
         REQUIRE(v2.which() == v1.which());
         REQUIRE(*v2.target<int>() == 42);
@@ -34,11 +34,11 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
 
     SECTION("empty member")
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, std::string> const v1;
 
         REQUIRE(v1.which() == npos);
 
-        eggs::variant<int, std::string> v2(42);
+        eggs::variant<int, std::string> const v2(42);
 
         REQUIRE(v2.which() == 0);
         REQUIRE(*v2.target<int>() == 42);
@@ -48,12 +48,12 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
 
     SECTION("different members")
     {
-        eggs::variant<int, std::string> v1(std::string{""});
+        eggs::variant<int, std::string> const v1(std::string{""});
 
         REQUIRE(v1.which() == 1);
         REQUIRE(*v1.target<std::string>() == "");
 
-        eggs::variant<int, std::string> v2(42);
+        eggs::variant<int, std::string> const v2(42);
 
         REQUIRE(v2.which() == 0);
         REQUIRE(*v2.target<int>() == 42);
@@ -66,7 +66,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
 {
     SECTION("same members")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(v1.which() == 0);
         REQUIRE(*v1.target<int>() == 42);
@@ -76,7 +76,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
 
     SECTION("empty member")
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, std::string> const v1;
 
         REQUIRE(v1.which() == npos);
 
@@ -85,7 +85,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
 
     SECTION("different members")
     {
-        eggs::variant<int, std::string> v1(std::string{""});
+        eggs::variant<int, std::string> const v1(std::string{""});
 
         REQUIRE(v1.which() == 1);
         REQUIRE(*v1.target<std::string>() == "");
@@ -98,7 +98,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
 {
     SECTION("same members")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(v1.which() == 0);
         REQUIRE(*v1.target<int>() == 42);
@@ -108,7 +108,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
 
     SECTION("empty member")
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, std::string> const v1;
 
         REQUIRE(v1.which() == npos);
 
@@ -117,7 +117,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
 
     SECTION("different members")
     {
-        eggs::variant<int, std::string> v1(std::string{""});
+        eggs::variant<int, std::string> const v1(std::string{""});
 
         REQUIRE(v1.which() == 1);
         REQUIRE(*v1.target<std::string>() == "");
@@ -130,7 +130,7 @@ TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
 {
     SECTION("empty member")
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, std::string> const v1;
 
         REQUIRE(v1.which() == npos);
 
@@ -139,7 +139,7 @@ TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
     
     SECTION("non-empty members")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(v1.which() == 0);
         REQUIRE(*v1.target<int>() == 42);
@@ -152,7 +152,7 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
 {
     SECTION("empty member")
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, std::string> const v1;
 
         REQUIRE(v1.which() == npos);
 
@@ -161,7 +161,7 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
     
     SECTION("non-empty members")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(v1.which() == 0);
         REQUIRE(*v1.target<int>() == 42);
@@ -172,11 +172,11 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
 
 TEST_CASE("operator==(variant<> const&, variant<> const&)", "[variant.rel]")
 {
-    eggs::variant<> v1;
+    eggs::variant<> const v1;
 
     REQUIRE(v1.which() == npos);
 
-    eggs::variant<> v2;
+    eggs::variant<> const v2;
 
     REQUIRE(v2.which() == npos);
 

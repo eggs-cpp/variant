@@ -15,11 +15,13 @@
 
 constexpr std::size_t npos = eggs::variant<>::npos;
 
+using eggs::variants::in_place;
+
 TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]")
 {
     SECTION("empty source")
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, std::string> const v1;
 
         REQUIRE(bool(v1) == false);
         REQUIRE(v1.which() == npos);
@@ -38,7 +40,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 
     SECTION("empty target")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0);
@@ -59,7 +61,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 
     SECTION("same target")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0);
@@ -81,7 +83,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 
     SECTION("different target")
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, std::string> const v1(42);
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0);
@@ -102,8 +104,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 
         SECTION("exception-safety")
         {
-            eggs::variant<Dtor, Throw> v1;
-            v1.emplace<Throw>();
+            eggs::variant<Dtor, Throw> const v1(in_place<Throw>);
 
             REQUIRE(bool(v1) == true);
             REQUIRE(v1.which() == 1);
@@ -135,7 +136,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 
 TEST_CASE("variant<>::operator=(variant<> const&)", "[variant.assign]")
 {
-    eggs::variant<> v1;
+    eggs::variant<> const v1;
 
     REQUIRE(bool(v1) == false);
     REQUIRE(v1.which() == npos);

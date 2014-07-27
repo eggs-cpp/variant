@@ -13,7 +13,7 @@
 
 TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
 {
-    eggs::variant<int, std::string> v1(42);
+    eggs::variant<int, std::string> const v1(42);
 
     REQUIRE(bool(v1) == true);
     REQUIRE(v1.which() == 0);
@@ -29,7 +29,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
 
 TEST_CASE("variant<>::variant(variant<> const&)", "[variant.cnstr]")
 {
-    eggs::variant<> v1;
+    eggs::variant<> const v1;
 
     REQUIRE(bool(v1) == false);
     REQUIRE(v1.which() == npos);
