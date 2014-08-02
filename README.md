@@ -25,7 +25,7 @@
 	  // Class bad_variant_access
 	  class bad_variant_access;
 
-	  // Class variant
+	  // Class template variant
 	  template <class ...Ts>
 	  class variant {
 	  public:
@@ -35,7 +35,7 @@
 		variant() noexcept;
 		variant(nullvariant_t) noexcept;
 		variant(variant const&);
-		variant(variant&&);
+		variant(variant&&) noexcept(see below);
 		template <class U>
 		variant(U&&);
 		template <std::size_t I, class ...Args>
@@ -53,7 +53,7 @@
 		// Assignment
 		variant& operator=(nullvariant_t) noexcept;
 		variant& operator=(variant const&);
-		variant& operator=(variant&&);
+		variant& operator=(variant&&) noexcept(see below);
 		template <class U>
 		variant& operator=(U&&);
 		template <std::size_t I, class ...Args>
@@ -66,7 +66,7 @@
 		void emplace(std::initializer_list<U>, Args&&...);
 
 		// Swap
-		void swap(variant&);
+		void swap(variant&) noexcept(see below);
 
 		// Observers
 		explicit operator bool() const noexcept;
@@ -190,18 +190,14 @@
 	  bool operator>=(T const&, variant<Ts...> const&);
 
 	  // Calling a function with variants of arguments
-	  template <class R, class F, class V>
-	  R apply(F&&, V&&);
-	  template <class F, class V>
-	  R apply(F&&, V&&);
 	  template <class R, class F, class ...Vs>
 	  R apply(F&&, Vs&&...);
 	  template <class F, class ...Vs>
-	  R apply(F&&, Vs&&...);
+	  see below apply(F&&, Vs&&...);
 
 	  // Specialized algorithms
 	  template <class ...Ts>
-	  void swap(variant<Ts...>&, variant<Ts...>&);
+	  void swap(variant<Ts...>&, variant<Ts...>&) noexcept(see below);
 	}}
 
 	// Hash support

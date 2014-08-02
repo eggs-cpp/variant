@@ -19,6 +19,7 @@
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
+#include <new>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -171,7 +172,7 @@ namespace eggs { namespace variants
             );
         }
 
-        //! variant(variant&& rhs);
+        //! variant(variant&& rhs) noexcept(see below);
         //!
         //! \requires `std::is_move_constructible_v<T>` is `true` for all `T`
         //!  in `Ts...`.
@@ -184,6 +185,9 @@ namespace eggs { namespace variants
         //! \postconditions `rhs.which() == this->which()`.
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \remarks The expression inside `noexcept` is equivalent to the
+        //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`.
         variant(variant&& rhs)
             noexcept(
                 detail::all_of<detail::pack<
@@ -233,7 +237,8 @@ namespace eggs { namespace variants
         //! template <std::size_t I, class ...Args>
         //! explicit variant(unspecified<I>, Args&&... args);
         //!
-        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //! Let `T` be the `I`th element in `Ts...`, where indexing is
+        //! zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
         //!  Args&&...>` is `true`.
@@ -265,7 +270,8 @@ namespace eggs { namespace variants
         //! template <std::size_t I, class U, class ...Args>
         //! explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
         //!
-        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //! Let `T` be the `I`th element in `Ts...`, where indexing is
+        //! zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
         //!  initializer_list<U>&, Args&&...>` is `true`.
@@ -280,8 +286,8 @@ namespace eggs { namespace variants
         //!
         //! \remarks The first argument shall be the expression `in_place<I>`.
         //!  This function shall not participate in overload resolution unless
-        //!  `is_constructible_v<T, initializer_list<U>&, Args&&...>` is
-        //!  `true`.
+        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
+        //!  is `true`.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -334,8 +340,8 @@ namespace eggs { namespace variants
         //!
         //! \remarks The first argument shall be the expression `in_place<T>`.
         //!  This function shall not participate in overload resolution unless
-        //!  `is_constructible_v<T, initializer_list<U>&, Args&&...>` is
-        //!  `true`.
+        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
+        //!  is `true`.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = std::enable_if_t<
@@ -435,7 +441,7 @@ namespace eggs { namespace variants
             return *this;
         }
 
-        //! variant& operator=(variant&& rhs);
+        //! variant& operator=(variant&& rhs) noexcept(see below);
         //!
         //! \requires `std::is_move_constructible_v<T>` and
         //!  `std::is_move_assignable_v<T>` is `true` for all `T` in `Ts...`.
@@ -464,6 +470,10 @@ namespace eggs { namespace variants
         //!  active member (if any) has been destroyed, and the state of the
         //!  active member of `rhs` is determined by the exception safety
         //!  guarantee of `T`'s move constructor.
+        //!
+        //! \remarks The expression inside `noexcept` is equivalent to the
+        //!  logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
+        //!  `std::is_nothrow_move_constructible_v<Ts>...`.
         variant& operator=(variant&& rhs)
             noexcept(
                 detail::all_of<detail::pack<
@@ -552,7 +562,8 @@ namespace eggs { namespace variants
         //! template <std::size_t I, class ...Args>
         //! void emplace(Args&&... args);
         //!
-        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //! Let `T` be the `I`th element in `Ts...`, where indexing is
+        //! zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
         //!  Args&&...>` is `true`.
@@ -586,7 +597,8 @@ namespace eggs { namespace variants
         //! template <std::size_t I, class U, class ...Args>
         //! void emplace(std::initializer_list<U> il, Args&&... args);
         //!
-        //! Let `T` the `I`th element in `Ts...`, where indexing is zero-based.
+        //! Let `T` be the `I`th element in `Ts...`, where indexing is
+        //! zero-based.
         //!
         //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
         //!  initializer_list<U>&, Args&&...>` is `true`.
@@ -604,8 +616,8 @@ namespace eggs { namespace variants
         //!  active member (if any) has been destroyed.
         //!
         //! \remarks This function shall not participate in overload resolution
-        //!  unless `is_constructible_v<T, initializer_list<U>&, Args&&...>`
-        //!  is `true`.
+        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //!  Args&&...>` is `true`.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -651,8 +663,8 @@ namespace eggs { namespace variants
         //!  where `I` is the zero-based index of `T` in `Ts...`.
         //!
         //! \remarks This function shall not participate in overload resolution
-        //!  unless `is_constructible_v<T, initializer_list<U>&, Args&&...>`
-        //!  is `true`.
+        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //!  Args&&...>` is `true`.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = std::enable_if_t<
@@ -669,7 +681,7 @@ namespace eggs { namespace variants
                 il, std::forward<Args>(args)...);
         }
 
-        //! void swap(variant& rhs);
+        //! void swap(variant& rhs) noexcept(see below);
         //!
         //! \requires Lvalues of `T` shall be swappable and
         //!  `std::is_move_constructible_v<T>` is `true` for all `T` in
@@ -687,6 +699,11 @@ namespace eggs { namespace variants
         //!  lvalues of `T`. If an exception is thrown during the call to
         //!  a move constructor, the state of `*this` and `rhs` is
         //!  unspecified.
+        //!
+        //! \remarks The expression inside `noexcept` is equivalent to the
+        //!  logical AND of `noexcept(swap(std::declval<Ts&>>(),
+        //!  std::declval<Ts&>()))...` where `std::swap` is in scope and
+        //!  `std::is_nothrow_move_constructible_v<Ts>...`.
         void swap(variant& rhs)
             noexcept(
                 detail::all_of<detail::pack<
@@ -867,9 +884,9 @@ namespace eggs { namespace variants
     {};
 
     //! template <std::size_t I, class T>
-    //! using variant_element_t =  class variant_element<I, T>::type;
+    //! using variant_element_t = class variant_element<I, T>::type;
     template <std::size_t I, typename T>
-    using variant_element_t =  typename variant_element<I, T>::type;
+    using variant_element_t = typename variant_element<I, T>::type;
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <std::size_t I, class ...Ts>
@@ -1283,7 +1300,7 @@ namespace eggs { namespace variants
     //! \requires `T` shall meet the requirements of `LessThanComparable`.
     //!
     //! \returns If `rhs` has an active member of type `T`,
-    //!  `lhs < *rhs->target<T>(); otherwise, if `rhs` has an active member
+    //!  `lhs < *rhs->target<T>()`; otherwise, if `rhs` has an active member
     //!  of type `Td` and `Td` occurs in `Ts...` after `T`, `true`;
     //!  otherwise, `false`.
     //!
@@ -1414,49 +1431,6 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    //! template <class R, class F, class V>
-    //! R apply(F&& f, V&& v);
-    //!
-    //! \requires `std::decay_t<V>` shall be the type `variant<Ts...>`.
-    //!  `INVOKE(std::forward<F>(f), get<I>(std::forward<V>(v)), R)` shall be
-    //!  a valid expression for all `I` in the range `[0u, sizeof...(Ts))`.
-    //!
-    //! \effects Equivalent to `INVOKE(std::forward<F>(f), get<I>(
-    //!  std::forward<V>(v)), R)` where `I` is the zero-based index of the
-    //!  active member of `v`.
-    //!
-    //! \throws `bad_variant_access` if `v` has no active member.
-    template <
-        typename R, typename F, typename V
-      , typename Enable = std::enable_if_t<
-            detail::is_variant<std::remove_reference_t<V>>::value
-        >
-    >
-    R apply(F&& f, V&& v)
-    {
-        return detail::apply<R>(std::forward<F>(f), std::forward<V>(v));
-    }
-
-    //! template <class F, class V>
-    //! R apply(F&& f, V&& v);
-    //!
-    //! \effects Equivalent to `apply<R>(std::forward<F>(f),
-    //!  std::forward<V>(v))` where `R` is the weak result type of `F`.
-    //!
-    //! \remarks This function shall not participate in overload resolution
-    //!  unless `F` has a weak result type.
-    template <
-        typename F, typename V
-      , typename R = detail::weak_result<std::decay_t<F>>
-      , typename Enable = std::enable_if_t<
-            detail::is_variant<std::remove_reference_t<V>>::value
-        >
-    >
-    R apply(F&& f, V&& v)
-    {
-        return apply<R>(std::forward<F>(f), std::forward<V>(v));
-    }
-
     //! template <class R, class F, class ...Vs>
     //! R apply(F&& f, Vs&&... vs);
     //!
@@ -1492,11 +1466,19 @@ namespace eggs { namespace variants
     //! template <class F, class ...Vs>
     //! R apply(F&& f, Vs&&... vs);
     //!
+    //! Let `FD` be `std::decay_t<F>`, `R` be the strong result type of `FD`:
+    //! - if `FD` is a pointer to function type, `R` shall be the return type
+    //!   of `FD`;
+    //! - if `FD` is a pointer to member function type, `R` shall be the
+    //!   return type of `FD`;
+    //! - if `FD` is a class type with a member type `result_type`, `R` shall
+    //!   be `FD::result_type`;
+    //!
     //! \effects Equivalent to `apply<R>(std::forward<F>(f),
-    //!  std::forward<Vs>(vs)...)` where `R` is the weak result type of `F`.
+    //!  std::forward<Vs>(vs)...)`.
     //!
     //! \remarks This function shall not participate in overload resolution
-    //!  unless `F` has a weak result type.
+    //!  unless `FD` has a strong result type.
     template <
         typename F, typename ...Vs
       , typename R = detail::weak_result<std::decay_t<F>>
@@ -1513,7 +1495,8 @@ namespace eggs { namespace variants
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <class ...Ts>
-    //! void swap(variant<Ts...>& x, variant<Ts...>& y);
+    //! void swap(variant<Ts...>& x, variant<Ts...>& y)
+    //!   noexcept(noexcept(x.swap(y))
     //!
     //! \effects Calls `x.swap(y)`.
     template <typename ...Ts>
