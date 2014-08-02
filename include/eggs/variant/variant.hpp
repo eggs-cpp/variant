@@ -160,10 +160,9 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         variant(variant const& rhs)
-            noexcept(
-                detail::all_of<detail::pack<
-                    std::is_nothrow_copy_constructible<Ts>...
-                >>::value)
+            noexcept(detail::all_of<detail::pack<
+                std::is_nothrow_copy_constructible<Ts>...
+            >>::value)
           : _which{rhs._which}
         {
             detail::copy_construct{}(
@@ -189,10 +188,9 @@ namespace eggs { namespace variants
         //! \remarks The expression inside `noexcept` is equivalent to the
         //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`.
         variant(variant&& rhs)
-            noexcept(
-                detail::all_of<detail::pack<
-                    std::is_nothrow_move_constructible<Ts>...
-                >>::value)
+            noexcept(detail::all_of<detail::pack<
+                std::is_nothrow_move_constructible<Ts>...
+            >>::value)
           : _which{rhs._which}
         {
             detail::move_construct{}(
@@ -221,17 +219,17 @@ namespace eggs { namespace variants
         //!  `std::remove_cv_t<Ts>...`.
         template <
             typename U
-          , typename T = std::remove_cv_t<std::remove_reference_t<U>>
-          , typename Enable = std::enable_if_t<
-                detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-            >
+          , typename T = typename std::remove_cv<
+                typename std::remove_reference<U>::type>::type
+          , typename Enable = typename std::enable_if<detail::contains<
+                T, detail::pack<typename std::remove_cv<Ts>::type...>
+            >::value>::type
         > variant(U&& v)
-            noexcept(
-                std::is_nothrow_constructible<T, U&&>::value)
+            noexcept(std::is_nothrow_constructible<T, U&&>::value)
         {
             new (&_storage) T(std::forward<U>(v));
-            _which = detail::index_of<
-                T, detail::pack<std::remove_cv_t<Ts>...>>::value + 1;
+            _which = detail::index_of<T, detail::pack<
+                typename std::remove_cv<Ts>::type...>>::value + 1;
         }
 
         //! template <std::size_t I, class ...Args>
@@ -260,8 +258,7 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
         {
             new (&_storage) T(std::forward<Args>(args)...);
             _which = I + 1;
@@ -292,17 +289,16 @@ namespace eggs { namespace variants
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
-          , typename Enable = std::enable_if_t<
-                std::is_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value
-            >
+          , typename Enable = typename std::enable_if<std::is_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value>::type
         >
         explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , std::initializer_list<U> il, Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value)
         {
             new (&_storage) T(il, std::forward<Args>(args)...);
             _which = I + 1;
@@ -322,8 +318,7 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack<T>)
           , Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
         {
             new (&_storage) T(std::forward<Args>(args)...);
             _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
@@ -344,17 +339,16 @@ namespace eggs { namespace variants
         //!  is `true`.
         template <
             typename T, typename U, typename ...Args
-          , typename Enable = std::enable_if_t<
-                std::is_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value
-            >
+          , typename Enable = typename std::enable_if<std::is_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value>::type
         >
         explicit variant(
             in_place_t(detail::pack<T>)
           , std::initializer_list<U> il, Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value)
         {
             new (&_storage) T(il, std::forward<Args>(args)...);
             _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
@@ -417,11 +411,10 @@ namespace eggs { namespace variants
         //!  copy constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed.
         variant& operator=(variant const& rhs)
-            noexcept(
-                detail::all_of<detail::pack<
-                    std::is_nothrow_copy_assignable<Ts>...
-                  , std::is_nothrow_copy_constructible<Ts>...
-                >>::value)
+            noexcept(detail::all_of<detail::pack<
+                std::is_nothrow_copy_assignable<Ts>...
+              , std::is_nothrow_copy_constructible<Ts>...
+            >>::value)
         {
             if (_which == rhs._which)
             {
@@ -475,11 +468,10 @@ namespace eggs { namespace variants
         //!  logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`.
         variant& operator=(variant&& rhs)
-            noexcept(
-                detail::all_of<detail::pack<
-                    std::is_nothrow_move_assignable<Ts>...
-                  , std::is_nothrow_move_constructible<Ts>...
-                >>::value)
+            noexcept(detail::all_of<detail::pack<
+                std::is_nothrow_move_assignable<Ts>...
+              , std::is_nothrow_move_constructible<Ts>...
+            >>::value)
         {
             if (_which == rhs._which)
             {
@@ -531,18 +523,18 @@ namespace eggs { namespace variants
         //!  `std::remove_cv_t<Ts>...`.
         template <
             typename U
-          , typename T = std::remove_cv_t<std::remove_reference_t<U>>
-          , typename Enable = std::enable_if_t<
-                detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-            >
+          , typename T = typename std::remove_cv<
+                typename std::remove_reference<U>::type>::type
+          , typename Enable = typename std::enable_if<detail::contains<
+                T, detail::pack<typename std::remove_cv<Ts>::type...>
+            >::value>::type
         >
         variant& operator=(U&& v)
-            noexcept(
-                std::is_nothrow_assignable<T, U&&>::value
-             && std::is_nothrow_constructible<T, U&&>::value)
+            noexcept(std::is_nothrow_assignable<T, U&&>::value
+                  && std::is_nothrow_constructible<T, U&&>::value)
         {
-            static constexpr std::size_t t_which = detail::index_of<
-                T, detail::pack<std::remove_cv_t<Ts>...>>::value + 1;
+            constexpr std::size_t t_which = detail::index_of<T, detail::pack<
+                typename std::remove_cv<Ts>::type...>>::value + 1;
 
             if (_which == t_which)
             {
@@ -585,8 +577,7 @@ namespace eggs { namespace variants
                 I, detail::pack<Ts...>>::type
         >
         void emplace(Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
         {
             *this = nullvariant;
 
@@ -622,15 +613,14 @@ namespace eggs { namespace variants
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
-          , typename Enable = std::enable_if_t<
-                std::is_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value
-            >
+          , typename Enable = typename std::enable_if<std::is_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value>::type
         >
         void emplace(std::initializer_list<U> il, Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value)
         {
             *this = nullvariant;
 
@@ -647,8 +637,7 @@ namespace eggs { namespace variants
         //!  where `I` is the zero-based index of `T` in `Ts...`.
         template <typename T, typename ...Args>
         void emplace(Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
         {
             return emplace<detail::index_of<T, detail::pack<Ts...>>::value>(
                 std::forward<Args>(args)...);
@@ -667,15 +656,14 @@ namespace eggs { namespace variants
         //!  Args&&...>` is `true`.
         template <
             typename T, typename U, typename ...Args
-          , typename Enable = std::enable_if_t<
-                std::is_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value
-            >
+          , typename Enable = typename std::enable_if<std::is_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value>::type
         >
         void emplace(std::initializer_list<U> il, Args&&... args)
-            noexcept(
-                std::is_nothrow_constructible<T,
-                    std::initializer_list<U>&, Args&&...>::value)
+            noexcept(std::is_nothrow_constructible<
+                T, std::initializer_list<U>&, Args&&...
+            >::value)
         {
             return emplace<detail::index_of<T, detail::pack<Ts...>>::value>(
                 il, std::forward<Args>(args)...);
@@ -705,11 +693,10 @@ namespace eggs { namespace variants
         //!  std::declval<Ts&>()))...` where `std::swap` is in scope and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`.
         void swap(variant& rhs)
-            noexcept(
-                detail::all_of<detail::pack<
-                    detail::is_nothrow_swappable<Ts>...
-                  , std::is_nothrow_move_constructible<Ts>...
-                >>::value)
+            noexcept(detail::all_of<detail::pack<
+                detail::is_nothrow_swappable<Ts>...
+              , std::is_nothrow_move_constructible<Ts>...
+            >>::value)
         {
             if (_which == rhs._which)
             {
@@ -784,7 +771,7 @@ namespace eggs { namespace variants
         template <typename T>
         T* target() noexcept
         {
-            static constexpr std::size_t t_which = detail::index_of<
+            constexpr std::size_t t_which = detail::index_of<
                 T, detail::pack<Ts...>>::value + 1;
 
             return _which == t_which
@@ -802,7 +789,7 @@ namespace eggs { namespace variants
         template <typename T>
         T const* target() const noexcept
         {
-            static constexpr std::size_t t_which = detail::index_of<
+            constexpr std::size_t t_which = detail::index_of<
                 T, detail::pack<Ts...>>::value + 1;
 
             return _which == t_which
@@ -812,7 +799,7 @@ namespace eggs { namespace variants
 
     private:
         std::size_t _which;
-        std::aligned_union_t<0, Ts...> _storage;
+        typename std::aligned_union<0, Ts...>::type _storage;
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -846,10 +833,12 @@ namespace eggs { namespace variants
       : variant_size<T>
     {};
 
+#if __cplusplus > 201103L
     //! template <class T>
     //! constexpr std::size_t variant_size_v = variant_size<T>::value;
     template <typename T>
     constexpr std::size_t variant_size_v = variant_size<T>::value;
+#endif
 
     //! template <std::size_t I, class T>
     //! struct variant_element; // undefined
@@ -1198,14 +1187,14 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator==(variant<Ts...> const& lhs, T const& rhs)
     {
-        static constexpr std::size_t rhs_which =
-            detail::index_of<T, detail::pack<std::remove_cv_t<Ts>...>>::value;
+        constexpr std::size_t rhs_which = detail::index_of<T, detail::pack<
+            typename std::remove_cv<Ts>::type...>>::value;
 
         return lhs.which() == rhs_which
           ? *lhs.template target<T>() == rhs
@@ -1221,9 +1210,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator==(T const& lhs, variant<Ts...> const& rhs)
     {
@@ -1239,9 +1228,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator!=(variant<Ts...> const& lhs, T const& rhs)
     {
@@ -1257,9 +1246,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator!=(T const& lhs, variant<Ts...> const& rhs)
     {
@@ -1280,14 +1269,14 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator<(variant<Ts...> const& lhs, T const& rhs)
     {
-        static constexpr std::size_t rhs_which =
-            detail::index_of<T, detail::pack<std::remove_cv_t<Ts>...>>::value;
+        constexpr std::size_t rhs_which = detail::index_of<T, detail::pack<
+            typename std::remove_cv<Ts>::type...>>::value;
 
         return lhs.which() == rhs_which
           ? *lhs.template target<T>() < rhs
@@ -1308,14 +1297,14 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator<(T const& lhs, variant<Ts...> const& rhs)
     {
-        static constexpr std::size_t lhs_which =
-            detail::index_of<T, detail::pack<std::remove_cv_t<Ts>...>>::value;
+        constexpr std::size_t lhs_which = detail::index_of<T, detail::pack<
+            typename std::remove_cv<Ts>::type...>>::value;
 
         return lhs_which == rhs.which()
           ? lhs < *rhs.template target<T>()
@@ -1331,9 +1320,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator>(variant<Ts...> const& lhs, T const& rhs)
     {
@@ -1349,9 +1338,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator>(T const& lhs, variant<Ts...> const& rhs)
     {
@@ -1367,9 +1356,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator<=(variant<Ts...> const& lhs, T const& rhs)
     {
@@ -1385,9 +1374,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator<=(T const& lhs, variant<Ts...> const& rhs)
     {
@@ -1403,9 +1392,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename ...Ts, typename T
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator>=(variant<Ts...> const& lhs, T const& rhs)
     {
@@ -1421,9 +1410,9 @@ namespace eggs { namespace variants
     //!  unless `T` occurs exactly once in `Ts...`.
     template <
         typename T, typename ...Ts
-      , typename Enable = std::enable_if_t<
-            detail::contains<T, detail::pack<std::remove_cv_t<Ts>...>>::value
-        >
+      , typename Enable = typename std::enable_if<detail::contains<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>
+        >::value>::type
     >
     bool operator>=(T const& lhs, variant<Ts...> const& rhs)
     {
@@ -1452,11 +1441,11 @@ namespace eggs { namespace variants
     template <
         typename R
       , typename F, typename ...Vs
-      , typename Enable = std::enable_if_t<
+      , typename Enable = typename std::enable_if<
             sizeof...(Vs) != 0 && detail::all_of<detail::pack<
-                detail::is_variant<std::remove_reference_t<Vs>>...
+                detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
-        >
+        >::type
     >
     R apply(F&& f, Vs&&... vs)
     {
@@ -1481,12 +1470,12 @@ namespace eggs { namespace variants
     //!  unless `FD` has a strong result type.
     template <
         typename F, typename ...Vs
-      , typename R = detail::weak_result<std::decay_t<F>>
-      , typename Enable = std::enable_if_t<
+      , typename R = detail::weak_result<typename std::decay<F>::type>
+      , typename Enable = typename std::enable_if<
             sizeof...(Vs) != 0 && detail::all_of<detail::pack<
-                detail::is_variant<std::remove_reference_t<Vs>>...
+                detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
-        >
+        >::type
     >
     R apply(F&& f, Vs&&... vs)
     {

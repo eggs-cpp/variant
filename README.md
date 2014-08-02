@@ -3,7 +3,7 @@
 
 # Introduction #
 
-**Eggs.Variant** is a **C++14** type-safe, generic, discriminated union.
+**Eggs.Variant** is a **C++11/14** type-safe, generic, discriminated union.
 
 # Synopsis #
 

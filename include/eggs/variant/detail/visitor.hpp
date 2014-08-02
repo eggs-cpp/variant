@@ -221,7 +221,8 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static R call(F&& f, Ms... ms, void* ptr)
         {
-            using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
+            using value_type = typename std::remove_cv<
+                typename std::remove_reference<T>::type>::type;
             return _void_guard<R>(), _invoke(
                 std::forward<F>(f), std::forward<Ms>(ms)...
               , std::forward<T>(*static_cast<value_type*>(ptr)));
@@ -230,7 +231,8 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static R call(F&& f, Ms... ms, void const* ptr)
         {
-            using value_type = std::remove_cv_t<std::remove_reference_t<T>> const;
+            using value_type = typename std::remove_cv<
+                typename std::remove_reference<T>::type>::type const;
             return _void_guard<R>(), _invoke(
                 std::forward<F>(f), std::forward<Ms>(ms)...
               , std::forward<T>(*static_cast<value_type*>(ptr)));
@@ -251,7 +253,8 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static R call(F&& f, Ms... ms, void* ptr, V v, Vs... vs)
         {
-            using value_type = std::remove_cv_t<std::remove_reference_t<T>>;
+            using value_type = typename std::remove_cv<
+                typename std::remove_reference<T>::type>::type;
             return bool(v)
               ? _apply<R, F, pack<Ms..., T>, pack<Vs...>>{}(
                     _qualified_pack<V>{}, v.which()
@@ -265,7 +268,8 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static R call(F&& f, Ms... ms, void const* ptr, V v, Vs... vs)
         {
-            using value_type = std::remove_cv_t<std::remove_reference_t<T>> const;
+            using value_type = typename std::remove_cv<
+                typename std::remove_reference<T>::type>::type const;
             return bool(v)
               ? _apply<R, F, pack<Ms..., T>, pack<Vs...>>{}(
                     _qualified_pack<V>{}, v.which()

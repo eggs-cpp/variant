@@ -11,6 +11,7 @@
 
 #include <cstddef>
 #include <type_traits>
+#include <utility>
 
 namespace eggs { namespace variants { namespace detail
 {
@@ -28,13 +29,25 @@ namespace eggs { namespace variants { namespace detail
         using type = pack;
     };
 
+#if __cplusplus > 201103L
+    template <typename T, T ...Vs>
+    using pack_c = std::integer_sequence<T, Vs...>;
+#else
     template <typename T, T ...Vs>
     struct pack_c
     {
         using type = pack_c;
     };
+#endif
 
     ///////////////////////////////////////////////////////////////////////////
+#if __cplusplus > 201103L
+    template <std::size_t N>
+    struct _make_index_pack
+    {
+        using type = std::make_index_sequence<N>;
+    };
+#else
     template <typename Left, typename Right>
     struct _make_index_pack_join;
 
@@ -62,6 +75,7 @@ namespace eggs { namespace variants { namespace detail
     struct _make_index_pack<0>
       : pack_c<std::size_t>
     {};
+#endif
 
     template <typename Ts>
     struct _index_pack;
