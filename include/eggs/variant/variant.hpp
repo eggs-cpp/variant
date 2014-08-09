@@ -77,6 +77,281 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        template <typename Ts, bool TriviallyCopyable, bool TriviallyDestructible>
+        struct _storage;
+
+        template <typename ...Ts>
+        struct _storage<pack<Ts...>, true, true>
+        {
+        public:
+            _storage() noexcept
+              : _which{0}
+            {}
+
+            _storage(_storage const& rhs) noexcept = default;
+            _storage(_storage&& rhs) noexcept = default;
+
+            template <typename T, typename ...Args>
+            _storage(pack<T>, std::size_t which, Args&&... args)
+            {
+                emplace(pack<T>{}, which, std::forward<Args>(args)...);
+            }
+
+            template <typename T, typename ...Args>
+            void emplace(pack<T>, std::size_t which, Args&&... args)
+            {
+                new (&_buffer) T(std::forward<Args>(args)...);
+                _which = which;
+            }
+
+            _storage& operator=(_storage const& rhs) noexcept = default;
+            _storage& operator=(_storage&& rhs) noexcept = default;
+
+            void swap(_storage& rhs)
+            {
+                std::swap(*this, rhs);
+            }
+
+            std::size_t which() const
+            {
+                return _which;
+            }
+
+            void* target()
+            {
+                return &_buffer;
+            }
+
+            void const* target() const
+            {
+                return &_buffer;
+            }
+
+        protected:
+            std::size_t _which;
+            typename std::aligned_union<0, Ts...>::type _buffer;
+        };
+
+        template <typename ...Ts>
+        struct _storage<pack<Ts...>, false, true>
+          : _storage<pack<Ts...>, true, true>
+        {
+            using base_type = _storage<pack<Ts...>, true, true>;
+
+            _storage() = default;
+
+            _storage(_storage const& rhs)
+                noexcept(all_of<pack<
+                    std::is_nothrow_copy_constructible<Ts>...
+                >>::value)
+              : base_type{}
+            {
+                detail::copy_construct{}(
+                    pack<empty, Ts...>{}, rhs._which
+                  , &_buffer, &rhs._buffer
+                );
+                _which = rhs._which;
+            }
+
+            _storage(_storage&& rhs)
+                noexcept(all_of<pack<
+                    std::is_nothrow_move_constructible<Ts>...
+                >>::value)
+              : base_type{}
+            {
+                detail::move_construct{}(
+                    pack<empty, Ts...>{}, rhs._which
+                  , &_buffer, &rhs._buffer
+                );
+                _which = rhs._which;
+            }
+
+            template <typename T, typename ...Args>
+            _storage(pack<T>, std::size_t which, Args&&... args)
+            {
+                emplace(pack<T>{}, which, std::forward<Args>(args)...);
+            }
+
+            template <typename T, typename ...Args>
+            void emplace(pack<T>, std::size_t which, Args&&... args)
+            {
+                _which = 0;
+
+                base_type::emplace(
+                    pack<T>{}, which
+                  , std::forward<Args>(args)...
+                );
+            }
+
+            _storage& operator=(_storage const& rhs)
+                noexcept(all_of<pack<
+                    std::is_nothrow_copy_assignable<Ts>...
+                  , std::is_nothrow_copy_constructible<Ts>...
+                >>::value)
+            {
+                if (_which == rhs._which)
+                {
+                    detail::copy_assign{}(
+                        pack<empty, Ts...>{}, _which
+                      , &_buffer, &rhs._buffer
+                    );
+                } else {
+                    _which = 0;
+
+                    detail::copy_construct{}(
+                        pack<empty, Ts...>{}, rhs._which
+                      , &_buffer, &rhs._buffer
+                    );
+                    _which = rhs._which;
+                }
+                return *this;
+            }
+
+            _storage& operator=(_storage&& rhs)
+                noexcept(all_of<pack<
+                    std::is_nothrow_move_assignable<Ts>...
+                  , std::is_nothrow_move_constructible<Ts>...
+                >>::value)
+            {
+                if (_which == rhs._which)
+                {
+                    detail::move_assign{}(
+                        pack<empty, Ts...>{}, _which
+                      , &_buffer, &rhs._buffer
+                    );
+                } else {
+                    _which = 0;
+
+                    detail::move_construct{}(
+                        pack<empty, Ts...>{}, rhs._which
+                      , &_buffer, &rhs._buffer
+                    );
+                    _which = rhs._which;
+                }
+                return *this;
+            }
+
+            void swap(_storage& rhs)
+            {
+                if (_which == rhs._which)
+                {
+                    detail::swap{}(
+                        pack<empty, Ts...>{}, _which
+                      , &_buffer, &rhs._buffer
+                    );
+                } else if (_which == 0) {
+                    *this = std::move(rhs);
+                    rhs._which = 0;
+                } else if (rhs._which == 0) {
+                    rhs = std::move(*this);
+                    _which = 0;
+                } else {
+                    std::swap(*this, rhs);
+                }
+            }
+
+        protected:
+            using base_type::_which;
+            using base_type::_buffer;
+        };
+
+        template <typename ...Ts>
+        struct _storage<pack<Ts...>, false, false>
+          : _storage<pack<Ts...>, false, true>
+        {
+            using base_type = _storage<pack<Ts...>, false, true>;
+
+            _storage() = default;
+            _storage(_storage const& rhs) = default;
+            _storage(_storage&& rhs) = default;
+
+            template <typename T, typename ...Args>
+            _storage(pack<T>, std::size_t which, Args&&... args)
+            {
+                emplace(pack<T>{}, which, std::forward<Args>(args)...);
+            }
+
+            ~_storage()
+            {
+                _destroy();
+            }
+
+            template <typename T, typename ...Args>
+            void emplace(
+                pack<T>, std::size_t which
+              , Args&&... args)
+            {
+                _destroy();
+                base_type::emplace(
+                    pack<T>{}, which
+                  , std::forward<Args>(args)...
+                );
+            }
+
+            _storage& operator=(_storage const& rhs)
+                noexcept(all_of<pack<
+                    std::is_nothrow_copy_assignable<Ts>...
+                  , std::is_nothrow_copy_constructible<Ts>...
+                >>::value)
+            {
+                if (_which != rhs._which)
+                {
+                    _destroy();
+                }
+                base_type::operator=(rhs);
+                return *this;
+            }
+
+            _storage& operator=(_storage&& rhs)
+                noexcept(all_of<pack<
+                    std::is_nothrow_move_assignable<Ts>...
+                  , std::is_nothrow_move_constructible<Ts>...
+                >>::value)
+            {
+                if (_which != rhs._which)
+                {
+                    _destroy();
+                }
+                base_type::operator=(std::move(rhs));
+                return *this;
+            }
+
+            void swap(_storage& rhs)
+            {
+                if (_which == 0)
+                {
+                    base_type::swap(rhs);
+                    rhs._destroy();
+                } else if (rhs._which == 0) {
+                    base_type::swap(rhs);
+                    _destroy();
+                } else {
+                    base_type::swap(rhs);
+                }
+            }
+
+        protected:
+            void _destroy()
+            {
+                detail::destroy{}(
+                    pack<empty, Ts...>{}, _which
+                  , &_buffer
+                );
+            }
+
+        protected:
+            using base_type::_which;
+            using base_type::_buffer;
+        };
+
+        template <typename ...Ts>
+        using storage = _storage<
+            pack<Ts...>
+          , all_of<pack<std::is_trivially_copyable<Ts>...>>::value
+          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+        >;
+
+        ///////////////////////////////////////////////////////////////////////
         struct hash
         {
             using result_type = std::size_t;
@@ -135,7 +410,7 @@ namespace eggs { namespace variants
         //!
         //! \remarks No member is initialized.
         variant() noexcept
-          : _which{0}
+          : _storage{}
         {}
 
         //! variant(nullvariant_t) noexcept;
@@ -144,7 +419,7 @@ namespace eggs { namespace variants
         //!
         //! \remarks No member is initialized.
         variant(nullvariant_t) noexcept
-          : _which{0}
+          : _storage{}
         {}
 
         //! variant(variant const& rhs);
@@ -159,17 +434,11 @@ namespace eggs { namespace variants
         //! \postconditions `rhs.which() == this->which()`.
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
-        variant(variant const& rhs)
-            noexcept(detail::all_of<detail::pack<
-                std::is_nothrow_copy_constructible<Ts>...
-            >>::value)
-          : _which{rhs._which}
-        {
-            detail::copy_construct{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage, &rhs._storage
-            );
-        }
+        //!
+        //! \remarks If `std::is_trivially_copy_constructible_v<T>` is `true`
+        //!  for all `T` in `Ts...`, then this copy constructor shall be
+        //!  trivial.
+        variant(variant const& rhs) = default;
 
         //! variant(variant&& rhs) noexcept(see below);
         //!
@@ -186,18 +455,10 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks The expression inside `noexcept` is equivalent to the
-        //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`.
-        variant(variant&& rhs)
-            noexcept(detail::all_of<detail::pack<
-                std::is_nothrow_move_constructible<Ts>...
-            >>::value)
-          : _which{rhs._which}
-        {
-            detail::move_construct{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage, &rhs._storage
-            );
-        }
+        //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`. If
+        //!  `std::is_trivially_move_constructible_v<T>` is `true` for all `T`
+        //!  in `Ts...`, then this move constructor shall be trivial.
+        variant(variant&& rhs) = default;
 
         //! template <class U>
         //! variant(U&& v);
@@ -226,11 +487,10 @@ namespace eggs { namespace variants
             >::value>::type
         > variant(U&& v)
             noexcept(std::is_nothrow_constructible<T, U&&>::value)
-        {
-            new (&_storage) T(std::forward<U>(v));
-            _which = detail::index_of<T, detail::pack<
-                typename std::remove_cv<Ts>::type...>>::value + 1;
-        }
+          : _storage{detail::pack<T>{}, detail::index_of<
+                    T, detail::pack<typename std::remove_cv<Ts>::type...>
+                >::value + 1, std::forward<U>(v)}
+        {}
 
         //! template <std::size_t I, class ...Args>
         //! explicit variant(unspecified<I>, Args&&... args);
@@ -259,10 +519,8 @@ namespace eggs { namespace variants
             in_place_t(detail::pack_c<std::size_t, I>)
           , Args&&... args)
             noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
-        {
-            new (&_storage) T(std::forward<Args>(args)...);
-            _which = I + 1;
-        }
+          : _storage{detail::pack<T>{}, I + 1, std::forward<Args>(args)...}
+        {}
 
         //! template <std::size_t I, class U, class ...Args>
         //! explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
@@ -299,10 +557,8 @@ namespace eggs { namespace variants
             noexcept(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
-        {
-            new (&_storage) T(il, std::forward<Args>(args)...);
-            _which = I + 1;
-        }
+          : _storage{detail::pack<T>{}, I + 1, il, std::forward<Args>(args)...}
+        {}
 
         //! template <class T, class ...Args>
         //! explicit variant(unspecified<T>, Args&&... args);
@@ -319,10 +575,10 @@ namespace eggs { namespace variants
             in_place_t(detail::pack<T>)
           , Args&&... args)
             noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
-        {
-            new (&_storage) T(std::forward<Args>(args)...);
-            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
-        }
+          : _storage{detail::pack<T>{}, detail::index_of<
+                    T, detail::pack<typename std::remove_cv<Ts>::type...>
+                >::value + 1, std::forward<Args>(args)...}
+        {}
 
         //! template <class T, class U, class ...Args>
         //! explicit variant(unspecified<T>, std::initializer_list<U> il, Args&&... args);
@@ -349,22 +605,19 @@ namespace eggs { namespace variants
             noexcept(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
-        {
-            new (&_storage) T(il, std::forward<Args>(args)...);
-            _which = detail::index_of<T, detail::pack<Ts...>>::value + 1;
-        }
+          : _storage{detail::pack<T>{}, detail::index_of<
+                    T, detail::pack<typename std::remove_cv<Ts>::type...>
+                >::value + 1, il, std::forward<Args>(args)...}
+        {}
 
         //! ~variant();
         //!
         //! \effects If `*this` has an active member of type `T`, destroys the
-        //!  active member by calling `T::~T()`.
-        ~variant()
-        {
-            detail::destroy{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage
-            );
-        }
+        //!  active member as if by calling `target<T>()->~T()`.
+        //!
+        //! \remarks If `std::is_trivially_destructible_v<T>` is `true` for all
+        //!  `T` in `Ts...`, then this destructor shall be trivial.
+        ~variant() = default;
 
         //! variant& operator=(nullvariant_t) noexcept;
         //!
@@ -377,12 +630,7 @@ namespace eggs { namespace variants
         //!
         variant& operator=(nullvariant_t) noexcept
         {
-            detail::destroy{}(
-                detail::pack<detail::empty, Ts...>{}, _which
-              , &_storage
-            );
-            _which = 0;
-
+            _storage.emplace(detail::pack<detail::empty>{}, 0);
             return *this;
         }
 
@@ -410,29 +658,11 @@ namespace eggs { namespace variants
         //!  assignment. If an exception is thrown during the call to `T`'s
         //!  copy constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed.
-        variant& operator=(variant const& rhs)
-            noexcept(detail::all_of<detail::pack<
-                std::is_nothrow_copy_assignable<Ts>...
-              , std::is_nothrow_copy_constructible<Ts>...
-            >>::value)
-        {
-            if (_which == rhs._which)
-            {
-                detail::copy_assign{}(
-                    detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage, &rhs._storage
-                );
-            } else {
-                *this = nullvariant;
-
-                detail::copy_construct{}(
-                    detail::pack<detail::empty, Ts...>{}, rhs._which
-                  , &_storage, &rhs._storage
-                );
-                _which = rhs._which;
-            }
-            return *this;
-        }
+        //!
+        //! \remarks If `std::is_trivially_copy_assignable_v<T>` is `true` for
+        //!  all `T` in `Ts...`, then this copy assignment operator shall be
+        //!  trivial.
+        variant& operator=(variant const& rhs) = default;
 
         //! variant& operator=(variant&& rhs) noexcept(see below);
         //!
@@ -466,30 +696,10 @@ namespace eggs { namespace variants
         //!
         //! \remarks The expression inside `noexcept` is equivalent to the
         //!  logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
-        //!  `std::is_nothrow_move_constructible_v<Ts>...`.
-        variant& operator=(variant&& rhs)
-            noexcept(detail::all_of<detail::pack<
-                std::is_nothrow_move_assignable<Ts>...
-              , std::is_nothrow_move_constructible<Ts>...
-            >>::value)
-        {
-            if (_which == rhs._which)
-            {
-                detail::move_assign{}(
-                    detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage, &rhs._storage
-                );
-            } else {
-                *this = nullvariant;
-
-                detail::move_construct{}(
-                    detail::pack<detail::empty, Ts...>{}, rhs._which
-                  , &_storage, &rhs._storage
-                );
-                _which = rhs._which;
-            }
-            return *this;
-        }
+        //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
+        //!  `std::is_trivially_move_assignable_v<T>` is `true` for all `T` in
+        //!  `Ts...`, then this move assignment operator shall be trivial.
+        variant& operator=(variant&& rhs) = default;
 
         //! template <class U>
         //! variant& operator=(U&& v);
@@ -536,17 +746,16 @@ namespace eggs { namespace variants
             constexpr std::size_t t_which = detail::index_of<T, detail::pack<
                 typename std::remove_cv<Ts>::type...>>::value + 1;
 
-            if (_which == t_which)
+            if (_storage.which() == t_which)
             {
-                T* active_member_ptr =
-                    static_cast<T*>(static_cast<void*>(&_storage));
+                T* active_member_ptr = static_cast<T*>(_storage.target());
 
                 *active_member_ptr = std::forward<U>(v);
             } else {
-                *this = nullvariant;
-
-                new (&_storage) T(std::forward<U>(v));
-                _which = t_which;
+                _storage.emplace(
+                    detail::pack<T>{}, t_which
+                  , std::forward<U>(v)
+                );
             }
             return *this;
         }
@@ -579,10 +788,10 @@ namespace eggs { namespace variants
         void emplace(Args&&... args)
             noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
         {
-            *this = nullvariant;
-
-            new (&_storage) T(std::forward<Args>(args)...);
-            _which = I + 1;
+            _storage.emplace(
+                detail::pack<T>{}, I + 1
+              , std::forward<Args>(args)...
+            );
         }
 
         //! template <std::size_t I, class U, class ...Args>
@@ -622,10 +831,10 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value)
         {
-            *this = nullvariant;
-
-            new (&_storage) T(il, std::forward<Args>(args)...);
-            _which = I + 1;
+            _storage.emplace(
+                detail::pack<T>{}, I + 1
+              , il, std::forward<Args>(args)...
+            );
         }
 
         //! template <class T, class ...Args>
@@ -639,8 +848,12 @@ namespace eggs { namespace variants
         void emplace(Args&&... args)
             noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
         {
-            return emplace<detail::index_of<T, detail::pack<Ts...>>::value>(
-                std::forward<Args>(args)...);
+            _storage.emplace(
+                detail::pack<T>{}, detail::index_of<
+                    T, detail::pack<Ts...>
+                >::value + 1
+              , std::forward<Args>(args)...
+            );
         }
 
         //! template <class T, class U, class ...Args>
@@ -665,8 +878,12 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value)
         {
-            return emplace<detail::index_of<T, detail::pack<Ts...>>::value>(
-                il, std::forward<Args>(args)...);
+            _storage.emplace(
+                detail::pack<T>{}, detail::index_of<
+                    T, detail::pack<Ts...>
+                >::value + 1
+              , il, std::forward<Args>(args)...
+            );
         }
 
         //! void swap(variant& rhs) noexcept(see below);
@@ -698,15 +915,7 @@ namespace eggs { namespace variants
               , std::is_nothrow_move_constructible<Ts>...
             >>::value)
         {
-            if (_which == rhs._which)
-            {
-                detail::swap{}(
-                    detail::pack<detail::empty, Ts...>{}, _which
-                  , &_storage, &rhs._storage
-                );
-            } else {
-                std::swap(*this, rhs);
-            }
+            _storage.swap(rhs._storage);
         }
 
         //! explicit operator bool() const noexcept;
@@ -714,7 +923,7 @@ namespace eggs { namespace variants
         //! \returns `true` if and only if `*this` has an active member.
         explicit operator bool() const noexcept
         {
-            return _which != 0;
+            return _storage.which() != 0;
         }
 
         //! std::size_t which() const noexcept;
@@ -723,7 +932,7 @@ namespace eggs { namespace variants
         //!  one. Otherwise, returns `npos`.
         std::size_t which() const noexcept
         {
-            return _which != 0 ? _which - 1 : npos;
+            return _storage.which() != 0 ? _storage.which() - 1 : npos;
         }
 
         //! std::type_info const& target_type() const noexcept;
@@ -732,9 +941,9 @@ namespace eggs { namespace variants
         //!  otherwise `typeid(void)`.
         std::type_info const& target_type() const noexcept
         {
-            return _which != 0
+            return _storage.which() != 0
               ? detail::type_id{}(
-                    detail::pack<Ts...>{}, _which - 1
+                    detail::pack<Ts...>{}, _storage.which() - 1
                 )
               : typeid(void);
         }
@@ -745,9 +954,7 @@ namespace eggs { namespace variants
         //!  member; otherwise a null pointer.
         void* target() noexcept
         {
-            return _which != 0
-              ? static_cast<void*>(&_storage)
-              : nullptr;
+            return _storage.which() != 0 ? _storage.target() : nullptr;
         }
 
         //! void const* target() const noexcept;
@@ -756,9 +963,7 @@ namespace eggs { namespace variants
         //!  member; otherwise a null pointer.
         void const* target() const noexcept
         {
-            return _which != 0
-              ? static_cast<void const*>(&_storage)
-              : nullptr;
+            return _storage.which() != 0 ? _storage.target() : nullptr;
         }
 
         //! template <class T>
@@ -774,8 +979,8 @@ namespace eggs { namespace variants
             constexpr std::size_t t_which = detail::index_of<
                 T, detail::pack<Ts...>>::value + 1;
 
-            return _which == t_which
-              ? static_cast<T*>(static_cast<void*>(&_storage))
+            return _storage.which() == t_which
+              ? static_cast<T*>(_storage.target())
               : nullptr;
         }
 
@@ -792,14 +997,13 @@ namespace eggs { namespace variants
             constexpr std::size_t t_which = detail::index_of<
                 T, detail::pack<Ts...>>::value + 1;
 
-            return _which == t_which
-              ? static_cast<T const*>(static_cast<void const*>(&_storage))
+            return _storage.which() == t_which
+              ? static_cast<T const*>(_storage.target())
               : nullptr;
         }
 
     private:
-        std::size_t _which;
-        typename std::aligned_union<0, Ts...>::type _storage;
+        detail::storage<Ts...> _storage;
     };
 
     ///////////////////////////////////////////////////////////////////////////

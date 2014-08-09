@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -131,6 +132,31 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(Dtor::called == true);
         }
         Dtor::called = false;
+    }
+
+    SECTION("trivially_copyable")
+    {
+        eggs::variant<int, float> v1(42);
+
+        REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
+
+        REQUIRE(bool(v1) == true);
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        eggs::variant<int, float> v2(42.f);
+
+        REQUIRE(bool(v2) == true);
+        REQUIRE(v2.which() == 1);
+        REQUIRE(*v2.target<float>() == 42.f);
+
+        v2 = std::move(v1);
+
+        REQUIRE(bool(v1) == true);
+        REQUIRE(bool(v2) == true);
+        REQUIRE(v2.which() == v1.which());
+        REQUIRE(*v1.target<int>() == 42);
+        REQUIRE(*v2.target<int>() == 42);
     }
 }
 

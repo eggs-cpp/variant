@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -25,6 +26,25 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
     REQUIRE(bool(v2) == true);
     REQUIRE(v2.which() == v1.which());
     REQUIRE(*v1.target<int>() == 42);
+
+    SECTION("trivially_copyable")
+    {
+        eggs::variant<int, float> v1(42);
+
+        REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
+
+        REQUIRE(bool(v1) == true);
+        REQUIRE(v1.which() == 0);
+        REQUIRE(*v1.target<int>() == 42);
+
+        eggs::variant<int, float> v2(std::move(v1));
+
+        REQUIRE(bool(v1) == true);
+        REQUIRE(bool(v2) == true);
+        REQUIRE(v2.which() == v1.which());
+        REQUIRE(*v1.target<int>() == 42);
+        REQUIRE(*v2.target<int>() == 42);
+    }
 }
 
 TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
