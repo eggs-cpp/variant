@@ -1006,6 +1006,31 @@ namespace eggs { namespace variants
         detail::storage<Ts...> _storage;
     };
 
+    template <>
+    class variant<>
+    {
+    public:
+        static constexpr std::size_t npos = std::size_t(-1);
+
+    public:
+        variant() noexcept {}
+        variant(nullvariant_t) noexcept {}
+        variant(variant const&) = default;
+        variant(variant&&) = default;
+
+        variant& operator=(nullvariant_t) noexcept { return *this; }
+        variant& operator=(variant const&) = default;
+        variant& operator=(variant&&) = default;
+
+        void swap(variant&) noexcept {}
+
+        explicit operator bool() const noexcept { return false; }
+        std::size_t which() const noexcept { return npos; }
+        std::type_info const& target_type() const noexcept { return typeid(void); }
+        void* target() noexcept { return nullptr; }
+        void const* target() const noexcept { return nullptr; }
+    };
+
     ///////////////////////////////////////////////////////////////////////////
     //! template <class T>
     //! struct variant_size; // undefined
