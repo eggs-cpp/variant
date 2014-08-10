@@ -23,12 +23,12 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         eggs::variant<int, std::string> v2(42);
 
-        REQUIRE(v2.which() == 0);
+        REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
         v2.swap(v1);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         REQUIRE(v2.which() == npos);
@@ -38,7 +38,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
     {
         eggs::variant<int, std::string> v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> v2;
@@ -49,7 +49,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         REQUIRE(v1.which() == npos);
 
-        REQUIRE(v2.which() == 0);
+        REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
     }
 
@@ -57,7 +57,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
     {
         eggs::variant<int, std::string> v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> v2(43);
@@ -70,7 +70,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         REQUIRE(v1.which() == v1.which());
         REQUIRE(*v1.target<int>() == 43);
 
-        REQUIRE(v2.which() == 0);
+        REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
     }
 
@@ -78,20 +78,20 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
     {
         eggs::variant<int, std::string> v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> v2(std::string{""});
 
-        REQUIRE(v2.which() == 1);
+        REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
 
         v2.swap(v1);
 
-        REQUIRE(v1.which() == 1);
+        REQUIRE(v1.which() == 1u);
         REQUIRE(*v1.target<std::string>() == "");
 
-        REQUIRE(v2.which() == 0);
+        REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
     }
 }

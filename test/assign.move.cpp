@@ -28,7 +28,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, std::string> v2(42);
 
         REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == 0);
+        REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
         v2 = std::move(v1);
@@ -43,7 +43,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, std::string> v1(42);
 
         REQUIRE(bool(v1) == true);
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> v2;
@@ -64,7 +64,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, std::string> v1(42);
 
         REQUIRE(bool(v1) == true);
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> v2(43);
@@ -86,13 +86,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, std::string> v1(42);
 
         REQUIRE(bool(v1) == true);
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> v2(std::string{""});
 
         REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == 1);
+        REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
 
         v2 = std::move(v1);
@@ -108,13 +108,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             v1.emplace<Throw>();
 
             REQUIRE(bool(v1) == true);
-            REQUIRE(v1.which() == 1);
+            REQUIRE(v1.which() == 1u);
 
             eggs::variant<Dtor, Throw> v2;
             v2.emplace<Dtor>();
 
             REQUIRE(bool(v2) == true);
-            REQUIRE(v2.which() == 0);
+            REQUIRE(v2.which() == 0u);
             REQUIRE(Dtor::called == false);
 
             bool exception_thrown = false;
@@ -127,7 +127,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(exception_thrown);
             REQUIRE(bool(v1) == true);
             REQUIRE(bool(v2) == false);
-            REQUIRE(v1.which() == 1);
+            REQUIRE(v1.which() == 1u);
             REQUIRE(v2.which() == npos);
             REQUIRE(Dtor::called == true);
         }
@@ -141,13 +141,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
 
         REQUIRE(bool(v1) == true);
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, float> v2(42.f);
 
         REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == 1);
+        REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<float>() == 42.f);
 
         v2 = std::move(v1);

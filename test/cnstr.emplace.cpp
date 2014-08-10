@@ -18,7 +18,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
     eggs::variant<int, std::string> v(in_place<0>, 42);
 
     REQUIRE(bool(v) == true);
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(v.target_type() == typeid(int));
     REQUIRE(*v.target<int>() == 42);
 }
@@ -28,7 +28,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&
     eggs::variant<int, std::string> v(in_place<1>, {'4', '2'});
 
     REQUIRE(bool(v) == true);
-    REQUIRE(v.which() == 1);
+    REQUIRE(v.which() == 1u);
     REQUIRE(v.target_type() == typeid(std::string));
     REQUIRE(*v.target<std::string>() == "42");
 }
@@ -38,7 +38,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
     eggs::variant<int, std::string> v(in_place<int>, 42);
 
     REQUIRE(bool(v) == true);
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(v.target_type() == typeid(int));
     REQUIRE(*v.target<int>() == 42);
 }
@@ -48,7 +48,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&
     eggs::variant<int, std::string> v(in_place<std::string>, {'4', '2'});
 
     REQUIRE(bool(v) == true);
-    REQUIRE(v.which() == 1);
+    REQUIRE(v.which() == 1u);
     REQUIRE(v.target_type() == typeid(std::string));
     REQUIRE(*v.target<std::string>() == "42");
 }

@@ -17,7 +17,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
     eggs::variant<int, std::string> v1(42);
 
     REQUIRE(bool(v1) == true);
-    REQUIRE(v1.which() == 0);
+    REQUIRE(v1.which() == 0u);
     REQUIRE(*v1.target<int>() == 42);
 
     eggs::variant<int, std::string> v2(std::move(v1));
@@ -34,7 +34,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
 
         REQUIRE(bool(v1) == true);
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, float> v2(std::move(v1));

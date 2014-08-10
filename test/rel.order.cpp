@@ -21,7 +21,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> const v2(43);
@@ -40,7 +40,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
 
         eggs::variant<int, std::string> const v2(42);
 
-        REQUIRE(v2.which() == 0);
+        REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
         REQUIRE(v1 < v2);
@@ -50,12 +50,12 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         eggs::variant<int, std::string> const v2(std::string{""});
 
-        REQUIRE(v2.which() == 1);
+        REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
 
         REQUIRE(v1 < v2);
@@ -68,7 +68,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         REQUIRE(v1 < 43);
@@ -87,7 +87,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         REQUIRE(v1 < std::string{""});
@@ -100,7 +100,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         REQUIRE(41 < v1);
@@ -119,7 +119,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v1(std::string{""});
 
-        REQUIRE(v1.which() == 1);
+        REQUIRE(v1.which() == 1u);
         REQUIRE(*v1.target<std::string>() == "");
 
         REQUIRE(42 < v1);
@@ -144,7 +144,7 @@ TEST_CASE("operator<(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         REQUIRE((v1 < nullvariant) == false);
@@ -172,7 +172,7 @@ TEST_CASE("operator<(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v1(42);
 
-        REQUIRE(v1.which() == 0);
+        REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
         REQUIRE(nullvariant < v1);

@@ -15,7 +15,7 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     int& ref = eggs::variants::get<0>(v);
@@ -41,7 +41,7 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
 {
     eggs::variant<int, std::string> const v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     int const& ref = eggs::variants::get<0>(v);
@@ -67,7 +67,7 @@ TEST_CASE("get<I>(variant<Ts...>&&)", "[variant.elem]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     int&& ref = eggs::variants::get<0>(std::move(v));

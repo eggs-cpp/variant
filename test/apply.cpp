@@ -42,13 +42,13 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v);
 
-    REQUIRE(f.nonconst_lvalue == 1);
+    REQUIRE(f.nonconst_lvalue == 1u);
     REQUIRE(calls == f.nonconst_lvalue);
 
     SECTION("throws")
@@ -74,13 +74,13 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> const v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v);
 
-    REQUIRE(f.const_lvalue == 1);
+    REQUIRE(f.const_lvalue == 1u);
     REQUIRE(calls == f.const_lvalue);
 
     SECTION("throws")
@@ -106,13 +106,13 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, std::move(v));
 
-    REQUIRE(f.rvalue == 1);
+    REQUIRE(f.rvalue == 1u);
     REQUIRE(calls == f.rvalue);
 
     SECTION("throws")
@@ -138,13 +138,13 @@ TEST_CASE("apply(F&&, variant<Ts...>&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
     std::size_t calls = eggs::variants::apply(f, v);
 
-    REQUIRE(f.nonconst_lvalue == 1);
+    REQUIRE(f.nonconst_lvalue == 1u);
     REQUIRE(calls == f.nonconst_lvalue);
 }
 
@@ -152,13 +152,13 @@ TEST_CASE("apply(F&&, variant<Ts...> const&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> const v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
     std::size_t calls = eggs::variants::apply(f, v);
 
-    REQUIRE(f.const_lvalue == 1);
+    REQUIRE(f.const_lvalue == 1u);
     REQUIRE(calls == f.const_lvalue);
 }
 
@@ -166,13 +166,13 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
     std::size_t calls = eggs::variants::apply(f, std::move(v));
 
-    REQUIRE(f.rvalue == 1);
+    REQUIRE(f.rvalue == 1u);
     REQUIRE(calls == f.rvalue);
 }
 
@@ -207,18 +207,18 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&, variant<Us...>&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v1(42);
 
-    REQUIRE(v1.which() == 0);
+    REQUIRE(v1.which() == 0u);
     REQUIRE(*v1.target<int>() == 42);
 
     eggs::variant<std::string, int> v2(std::string{"42"});
 
-    REQUIRE(v2.which() == 0);
+    REQUIRE(v2.which() == 0u);
     REQUIRE(*v2.target<std::string>() == "42");
 
     fun2 f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v1, v2);
 
-    REQUIRE(f.nonconst_lvalue == 1);
+    REQUIRE(f.nonconst_lvalue == 1u);
     REQUIRE(calls == f.nonconst_lvalue);
 }
 
@@ -226,18 +226,18 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&, variant<Us...> const&)", "[varia
 {
     eggs::variant<int, std::string> const v1(42);
 
-    REQUIRE(v1.which() == 0);
+    REQUIRE(v1.which() == 0u);
     REQUIRE(*v1.target<int>() == 42);
 
     eggs::variant<std::string, int> const v2(std::string{"42"});
 
-    REQUIRE(v2.which() == 0);
+    REQUIRE(v2.which() == 0u);
     REQUIRE(*v2.target<std::string>() == "42");
 
     fun2 f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v1, v2);
 
-    REQUIRE(f.const_lvalue == 1);
+    REQUIRE(f.const_lvalue == 1u);
     REQUIRE(calls == f.const_lvalue);
 }
 
@@ -245,17 +245,17 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&, variant<Us...>&&)", "[variant.apply]"
 {
     eggs::variant<int, std::string> v1(42);
 
-    REQUIRE(v1.which() == 0);
+    REQUIRE(v1.which() == 0u);
     REQUIRE(*v1.target<int>() == 42);
 
     eggs::variant<std::string, int> v2(std::string{"42"});
 
-    REQUIRE(v2.which() == 0);
+    REQUIRE(v2.which() == 0u);
     REQUIRE(*v2.target<std::string>() == "42");
 
     fun2 f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, std::move(v1), std::move(v2));
 
-    REQUIRE(f.rvalue == 1);
+    REQUIRE(f.rvalue == 1u);
     REQUIRE(calls == f.rvalue);
 }

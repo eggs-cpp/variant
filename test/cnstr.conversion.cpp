@@ -20,7 +20,7 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
     eggs::variant<int, std::string> v(42);
 
     REQUIRE(bool(v) == true);
-    REQUIRE(v.which() == 0);
+    REQUIRE(v.which() == 0u);
     REQUIRE(v.target_type() == typeid(int));
     REQUIRE(v.target() == v.target<int>());
     REQUIRE(*v.target<int>() == 42);

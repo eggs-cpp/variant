@@ -27,7 +27,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         v.emplace<0>(42);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
@@ -37,13 +37,13 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         eggs::variant<int, std::string> v(43);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
         v.emplace<0>(42);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
@@ -53,13 +53,13 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         eggs::variant<int, std::string> v(std::string{""});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
         v.emplace<0>(42);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
 
@@ -69,7 +69,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             v.emplace<Dtor>();
 
             REQUIRE(bool(v) == true);
-            REQUIRE(v.which() == 0);
+            REQUIRE(v.which() == 0u);
             REQUIRE(Dtor::called == false);
 
             bool exception_thrown = false;
@@ -100,7 +100,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         v.emplace<1>({'4', '2'});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
     }
@@ -110,13 +110,13 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         eggs::variant<int, std::string> v(std::string{""});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
         v.emplace<1>({'4', '2'});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
     }
@@ -126,13 +126,13 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         eggs::variant<int, std::string> v(43);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
         v.emplace<1>({'4', '2'});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
 
@@ -142,7 +142,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             v.emplace<Dtor>();
 
             REQUIRE(bool(v) == true);
-            REQUIRE(v.which() == 0);
+            REQUIRE(v.which() == 0u);
             REQUIRE(Dtor::called == false);
 
             bool exception_thrown = false;
@@ -173,7 +173,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         v.emplace<int>(42);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
@@ -183,13 +183,13 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         eggs::variant<int, std::string> v(43);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
         v.emplace<int>(42);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
@@ -199,13 +199,13 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         eggs::variant<int, std::string> v(std::string{""});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
         v.emplace<int>(42);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
 
@@ -215,7 +215,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             v.emplace<Dtor>();
 
             REQUIRE(bool(v) == true);
-            REQUIRE(v.which() == 0);
+            REQUIRE(v.which() == 0u);
             REQUIRE(Dtor::called == false);
 
             bool exception_thrown = false;
@@ -246,7 +246,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         v.emplace<std::string>({'4', '2'});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
     }
@@ -256,13 +256,13 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         eggs::variant<int, std::string> v(std::string{""});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
         v.emplace<std::string>({'4', '2'});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
     }
@@ -272,13 +272,13 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         eggs::variant<int, std::string> v(43);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
         v.emplace<std::string>({'4', '2'});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(v.target_type() == typeid(std::string));
         REQUIRE(*v.target<std::string>() == "42");
 
@@ -288,7 +288,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             v.emplace<Dtor>();
 
             REQUIRE(bool(v) == true);
-            REQUIRE(v.which() == 0);
+            REQUIRE(v.which() == 0u);
             REQUIRE(Dtor::called == false);
 
             bool exception_thrown = false;

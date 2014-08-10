@@ -29,7 +29,7 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         v = 42;
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
@@ -39,13 +39,13 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         eggs::variant<int, std::string> v(43);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
         v = 42;
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
     }
@@ -55,13 +55,13 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         eggs::variant<int, std::string> v(std::string{""});
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 1);
+        REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
         v = 42;
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(v.target_type() == typeid(int));
         REQUIRE(*v.target<int>() == 42);
 
@@ -71,7 +71,7 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
             v.emplace<Dtor>();
 
             REQUIRE(bool(v) == true);
-            REQUIRE(v.which() == 0);
+            REQUIRE(v.which() == 0u);
             REQUIRE(Dtor::called == false);
 
             bool exception_thrown = false;
@@ -112,7 +112,7 @@ TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
         eggs::variant<int, std::string> v(43);
 
         REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0);
+        REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
         v = nullvariant;
