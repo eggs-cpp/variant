@@ -11,6 +11,8 @@
 
 #include <type_traits>
 
+#include <eggs/variant/detail/config/prefix.hpp>
+
 namespace eggs { namespace variants
 {
     struct nullvariant_t;
@@ -58,11 +60,13 @@ namespace eggs { namespace variants
     //! argument of literal type.
     struct nullvariant_t
     {
-        constexpr explicit nullvariant_t(int) noexcept {}
+        EGGS_CXX11_CONSTEXPR explicit nullvariant_t(int) EGGS_CXX11_NOEXCEPT {}
     };
 
     //! constexpr nullvariant_t nullvariant(unspecified);
-    constexpr nullvariant_t nullvariant{0};
+    EGGS_CXX11_CONSTEXPR nullvariant_t nullvariant{0};
 }}
+
+#include <eggs/variant/detail/config/suffix.hpp>
 
 #endif /*EGGS_VARIANT_NULLVARIANT_HPP*/

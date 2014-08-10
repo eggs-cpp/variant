@@ -13,6 +13,8 @@
 #include <type_traits>
 #include <utility>
 
+#include <eggs/variant/detail/config/prefix.hpp>
+
 namespace eggs { namespace variants { namespace detail
 {
     struct empty {};
@@ -29,7 +31,7 @@ namespace eggs { namespace variants { namespace detail
         using type = pack;
     };
 
-#if __cplusplus > 201103L
+#if EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE
     template <typename T, T ...Vs>
     using pack_c = std::integer_sequence<T, Vs...>;
 #else
@@ -41,7 +43,7 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
-#if __cplusplus > 201103L
+#if EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE
     template <std::size_t N>
     struct _make_index_pack
     {
@@ -164,5 +166,7 @@ namespace eggs { namespace variants { namespace detail
       : decltype(_index_of<T>(_indexer<Ts>{}))
     {};
 }}}
+
+#include <eggs/variant/detail/config/suffix.hpp>
 
 #endif /*EGGS_VARIANT_DETAIL_PACK_HPP*/

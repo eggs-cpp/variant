@@ -13,11 +13,14 @@
 
 #include <eggs/variant/bad_variant_access.hpp>
 
+#include <cassert>
 #include <cstddef>
 #include <exception>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
+
+#include <eggs/variant/detail/config/prefix.hpp>
 
 namespace eggs { namespace variants
 {
@@ -37,14 +40,15 @@ namespace eggs { namespace variants { namespace detail
         template <typename ...Ts>
         R operator()(pack<Ts...>, std::size_t which, Args&&... args) const
         {
-            using fun_ptr = R(*)(Args...);
-            static constexpr fun_ptr table[] = {&F::template call<Ts>...};
+            using function_ptr = R(*)(Args...);
+            EGGS_CXX11_STATIC_CONSTEXPR function_ptr table[] = {
+                &F::template call<Ts>...};
 
+            assert(which < sizeof...(Ts) && "discriminator out of bounds");
             return table[which](std::forward<Args>(args)...);
         }
 
-        [[noreturn]]
-        R operator()(pack<>, std::size_t, Args&&...) const
+        EGGS_CXX11_NORETURN R operator()(pack<>, std::size_t, Args&&...) const
         {
             std::terminate();
         }
@@ -57,7 +61,7 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static void call(void* ptr, void const* other)
         {
-            new (ptr) T(*static_cast<T const*>(other));
+            ::new (ptr) T(*static_cast<T const*>(other));
         }
     };
 
@@ -67,7 +71,7 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static void call(void* ptr, void* other)
         {
-            new (ptr) T(std::move(*static_cast<T*>(other)));
+            ::new (ptr) T(std::move(*static_cast<T*>(other)));
         }
     };
 
@@ -144,42 +148,47 @@ namespace eggs { namespace variants { namespace detail
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename F, typename ...Args>
-    constexpr auto _invoke(F&& f, Args&&... args)
-        noexcept(noexcept(std::forward<F>(f)(std::forward<Args>(args)...)))
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Args&&... args)
+        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
+            std::forward<F>(f)(std::forward<Args>(args)...)))
      -> decltype(std::forward<F>(f)(std::forward<Args>(args)...))
     {
         return std::forward<F>(f)(std::forward<Args>(args)...);
     }
 
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     template <typename F, typename Arg0, typename ...Args>
-    constexpr auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
-        noexcept(noexcept((arg0.*f)(std::forward<Args>(args)...)))
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
+        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
+            (arg0.*f)(std::forward<Args>(args)...)))
      -> decltype((arg0.*f)(std::forward<Args>(args)...))
     {
         return (arg0.*f)(std::forward<Args>(args)...);
     }
 
     template <typename F, typename Arg0, typename ...Args>
-    constexpr auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
-        noexcept(noexcept(((*arg0).*f)(std::forward<Args>(args)...)))
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
+        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
+            ((*arg0).*f)(std::forward<Args>(args)...)))
      -> decltype(((*arg0).*f)(std::forward<Args>(args)...))
     {
         return ((*arg0).*f)(std::forward<Args>(args)...);
     }
 
     template <typename F, typename Arg0>
-    constexpr auto _invoke(F&& f, Arg0&& arg0) noexcept
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0) EGGS_CXX11_NOEXCEPT
      -> decltype(arg0.*f)
     {
         return arg0.*f;
     }
 
     template <typename F, typename Arg0>
-    constexpr auto _invoke(F&& f, Arg0&& arg0) noexcept
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0) EGGS_CXX11_NOEXCEPT
      -> decltype((*arg0).*f)
     {
         return (*arg0).*f;
     }
+#endif
 
     template <typename R>
     struct _void_guard
@@ -189,7 +198,7 @@ namespace eggs { namespace variants { namespace detail
     struct _void_guard<void>
     {
         template <typename T>
-        void operator,(T const&) const noexcept {}
+        void operator,(T const&) const EGGS_CXX11_NOEXCEPT {}
     };
 
     template <typename Variant>
@@ -215,11 +224,11 @@ namespace eggs { namespace variants { namespace detail
 
     template <typename R, typename F, typename ...Ms>
     struct _apply<R, F, pack<Ms...>, pack<>>
-      : visitor<_apply<R, F, pack<Ms...>, pack<>>, R(F&&, Ms..., void*)>
-      , visitor<_apply<R, F, pack<Ms...>, pack<>>, R(F&&, Ms..., void const*)>
+      : visitor<_apply<R, F, pack<Ms...>, pack<>>, R(F, Ms..., void*)>
+      , visitor<_apply<R, F, pack<Ms...>, pack<>>, R(F, Ms..., void const*)>
     {
         template <typename T>
-        static R call(F&& f, Ms... ms, void* ptr)
+        static R call(F f, Ms... ms, void* ptr)
         {
             using value_type = typename std::remove_cv<
                 typename std::remove_reference<T>::type>::type;
@@ -229,7 +238,7 @@ namespace eggs { namespace variants { namespace detail
         }
 
         template <typename T>
-        static R call(F&& f, Ms... ms, void const* ptr)
+        static R call(F f, Ms... ms, void const* ptr)
         {
             using value_type = typename std::remove_cv<
                 typename std::remove_reference<T>::type>::type const;
@@ -241,17 +250,17 @@ namespace eggs { namespace variants { namespace detail
         //~ workaround for gcc and msvc issues with multiple inherited operator()
         //~ \see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61726
         //~ \see https://connect.microsoft.com/VisualStudio/feedback/details/914574
-        using visitor<_apply, R(F&&, Ms..., void*)>::operator();
-        using visitor<_apply, R(F&&, Ms..., void const*)>::operator();
+        using visitor<_apply, R(F, Ms..., void*)>::operator();
+        using visitor<_apply, R(F, Ms..., void const*)>::operator();
     };
 
     template <typename R, typename F, typename ...Ms, typename V, typename ...Vs>
     struct _apply<R, F, pack<Ms...>, pack<V, Vs...>>
-      : visitor<_apply<R, F, pack<Ms...>, pack<V, Vs...>>, R(F&&, Ms..., void*, V, Vs...)>
-      , visitor<_apply<R, F, pack<Ms...>, pack<V, Vs...>>, R(F&&, Ms..., void const*, V, Vs...)>
+      : visitor<_apply<R, F, pack<Ms...>, pack<V, Vs...>>, R(F, Ms..., void*, V, Vs...)>
+      , visitor<_apply<R, F, pack<Ms...>, pack<V, Vs...>>, R(F, Ms..., void const*, V, Vs...)>
     {
         template <typename T>
-        static R call(F&& f, Ms... ms, void* ptr, V v, Vs... vs)
+        static R call(F f, Ms... ms, void* ptr, V v, Vs... vs)
         {
             using value_type = typename std::remove_cv<
                 typename std::remove_reference<T>::type>::type;
@@ -266,7 +275,7 @@ namespace eggs { namespace variants { namespace detail
         }
 
         template <typename T>
-        static R call(F&& f, Ms... ms, void const* ptr, V v, Vs... vs)
+        static R call(F f, Ms... ms, void const* ptr, V v, Vs... vs)
         {
             using value_type = typename std::remove_cv<
                 typename std::remove_reference<T>::type>::type const;
@@ -283,15 +292,15 @@ namespace eggs { namespace variants { namespace detail
         //~ workaround for gcc and msvc issues with multiple inherited operator()
         //~ \see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=61726
         //~ \see https://connect.microsoft.com/VisualStudio/feedback/details/914574
-        using visitor<_apply, R(F&&, Ms..., void*, V, Vs...)>::operator();
-        using visitor<_apply, R(F&&, Ms..., void const*, V, Vs...)>::operator();
+        using visitor<_apply, R(F, Ms..., void*, V, Vs...)>::operator();
+        using visitor<_apply, R(F, Ms..., void const*, V, Vs...)>::operator();
     };
 
     template <typename R, typename F, typename V, typename ...Vs>
     R apply(F&& f, V&& v, Vs&&... vs)
     {
         return bool(v)
-          ? _apply<R, F, pack<>, pack<Vs&&...>>{}(
+          ? _apply<R, F&&, pack<>, pack<Vs&&...>>{}(
                 _qualified_pack<V&&>{}, v.which()
               , std::forward<F>(f), v.target(), std::forward<Vs>(vs)...
             )
@@ -330,5 +339,7 @@ namespace eggs { namespace variants { namespace detail
     template <typename T>
     using weak_result = typename _weak_result<T>::type;
 }}}
+
+#include <eggs/variant/detail/config/suffix.hpp>
 
 #endif /*EGGS_VARIANT_DETAIL_VISITOR_HPP*/

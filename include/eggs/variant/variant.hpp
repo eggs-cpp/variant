@@ -24,6 +24,8 @@
 #include <typeinfo>
 #include <utility>
 
+#include <eggs/variant/detail/config/prefix.hpp>
+
 namespace eggs { namespace variants
 {
     template <typename ...Ts>
@@ -66,7 +68,7 @@ namespace eggs { namespace variants
             struct is_nothrow_swappable
               : std::integral_constant<
                     bool
-                  , noexcept(swap(std::declval<T&>(), std::declval<T&>()))
+                  , EGGS_CXX11_NOEXCEPT_EXPR(swap(std::declval<T&>(), std::declval<T&>()))
                 >
             {};
         }
@@ -77,6 +79,32 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+#if EGGS_CXX11_STD_HAS_ALIGNED_UNION
+        using std::aligned_union;
+#else
+        template <std::size_t ...Vs>
+        struct _static_max;
+
+        template <std::size_t V0>
+        struct _static_max<V0>
+          : std::integral_constant<std::size_t, V0>
+        {};
+
+        template <std::size_t V0, std::size_t V1, std::size_t ...Vs>
+        struct _static_max<V0, V1, Vs...>
+          : _static_max<V0 < V1 ? V1 : V0, Vs...>
+        {};
+
+        template <std::size_t Len, typename ...Types>
+        struct aligned_union
+          : std::aligned_storage<
+                _static_max<Len, sizeof(Types)...>::value
+              , _static_max<std::alignment_of<Types>::value...>::value
+            >
+        {};
+#endif
+
+        ///////////////////////////////////////////////////////////////////////
         template <typename Ts, bool TriviallyCopyable, bool TriviallyDestructible>
         struct _storage;
 
@@ -84,12 +112,14 @@ namespace eggs { namespace variants
         struct _storage<pack<Ts...>, true, true>
         {
         public:
-            _storage() noexcept
+            _storage() EGGS_CXX11_NOEXCEPT
               : _which{0}
             {}
 
-            _storage(_storage const& rhs) noexcept = default;
-            _storage(_storage&& rhs) noexcept = default;
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+            _storage(_storage const& rhs) EGGS_CXX11_NOEXCEPT = default;
+            _storage(_storage&& rhs) EGGS_CXX11_NOEXCEPT = default;
+#endif
 
             template <typename T, typename ...Args>
             _storage(pack<T>, std::size_t which, Args&&... args)
@@ -100,12 +130,14 @@ namespace eggs { namespace variants
             template <typename T, typename ...Args>
             void emplace(pack<T>, std::size_t which, Args&&... args)
             {
-                new (&_buffer) T(std::forward<Args>(args)...);
+                ::new (&_buffer) T(std::forward<Args>(args)...);
                 _which = which;
             }
 
-            _storage& operator=(_storage const& rhs) noexcept = default;
-            _storage& operator=(_storage&& rhs) noexcept = default;
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+            _storage& operator=(_storage const& rhs) EGGS_CXX11_NOEXCEPT = default;
+            _storage& operator=(_storage&& rhs) EGGS_CXX11_NOEXCEPT = default;
+#endif
 
             void swap(_storage& rhs)
             {
@@ -129,7 +161,7 @@ namespace eggs { namespace variants
 
         protected:
             std::size_t _which;
-            typename std::aligned_union<0, Ts...>::type _buffer;
+            typename aligned_union<0, Ts...>::type _buffer;
         };
 
         template <typename ...Ts>
@@ -138,10 +170,16 @@ namespace eggs { namespace variants
         {
             using base_type = _storage<pack<Ts...>, true, true>;
 
-            _storage() = default;
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+            _storage() EGGS_CXX11_NOEXCEPT = default;
+#else
+            _storage() EGGS_CXX11_NOEXCEPT
+              : base_type{}
+            {}
+#endif
 
             _storage(_storage const& rhs)
-                noexcept(all_of<pack<
+                EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
               : base_type{}
@@ -154,7 +192,7 @@ namespace eggs { namespace variants
             }
 
             _storage(_storage&& rhs)
-                noexcept(all_of<pack<
+                EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_move_constructible<Ts>...
                 >>::value)
               : base_type{}
@@ -184,7 +222,7 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage const& rhs)
-                noexcept(all_of<pack<
+                EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_copy_assignable<Ts>...
                   , std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
@@ -208,7 +246,7 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage&& rhs)
-                noexcept(all_of<pack<
+                EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_move_assignable<Ts>...
                   , std::is_nothrow_move_constructible<Ts>...
                 >>::value)
@@ -261,9 +299,29 @@ namespace eggs { namespace variants
         {
             using base_type = _storage<pack<Ts...>, false, true>;
 
-            _storage() = default;
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+            _storage() EGGS_CXX11_NOEXCEPT = default;
             _storage(_storage const& rhs) = default;
             _storage(_storage&& rhs) = default;
+#else
+            _storage() EGGS_CXX11_NOEXCEPT
+              : base_type{}
+            {}
+
+            _storage(_storage const& rhs)
+                EGGS_CXX11_NOEXCEPT_IF(
+                    std::is_nothrow_copy_constructible<base_type>::value
+                )
+              : base_type{static_cast<base_type const&>(rhs)}
+            {}
+
+            _storage(_storage&& rhs)
+                EGGS_CXX11_NOEXCEPT_IF(
+                    std::is_nothrow_move_constructible<base_type>::value
+                )
+              : base_type{static_cast<base_type&&>(rhs)}
+            {}
+#endif
 
             template <typename T, typename ...Args>
             _storage(pack<T>, std::size_t which, Args&&... args)
@@ -289,7 +347,7 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage const& rhs)
-                noexcept(all_of<pack<
+                EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_copy_assignable<Ts>...
                   , std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
@@ -303,7 +361,7 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage&& rhs)
-                noexcept(all_of<pack<
+                EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_move_assignable<Ts>...
                   , std::is_nothrow_move_constructible<Ts>...
                 >>::value)
@@ -347,7 +405,11 @@ namespace eggs { namespace variants
         template <typename ...Ts>
         using storage = _storage<
             pack<Ts...>
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
           , all_of<pack<std::is_trivially_copyable<Ts>...>>::value
+#else
+          , all_of<pack<std::is_pod<Ts>...>>::value
+#endif
           , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
         >;
 
@@ -401,7 +463,7 @@ namespace eggs { namespace variants
 
     public:
         //! static constexpr std::size_t npos = std::size_t(-1);
-        static constexpr std::size_t npos = std::size_t(-1);
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = std::size_t(-1);
 
     public:
         //! variant() noexcept;
@@ -409,7 +471,7 @@ namespace eggs { namespace variants
         //! \postconditions `*this` does not have an active member.
         //!
         //! \remarks No member is initialized.
-        variant() noexcept
+        variant() EGGS_CXX11_NOEXCEPT
           : _storage{}
         {}
 
@@ -418,7 +480,7 @@ namespace eggs { namespace variants
         //! \postconditions `*this` does not have an active member.
         //!
         //! \remarks No member is initialized.
-        variant(nullvariant_t) noexcept
+        variant(nullvariant_t) EGGS_CXX11_NOEXCEPT
           : _storage{}
         {}
 
@@ -438,7 +500,9 @@ namespace eggs { namespace variants
         //! \remarks If `std::is_trivially_copy_constructible_v<T>` is `true`
         //!  for all `T` in `Ts...`, then this copy constructor shall be
         //!  trivial.
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant const& rhs) = default;
+#endif
 
         //! variant(variant&& rhs) noexcept(see below);
         //!
@@ -458,7 +522,9 @@ namespace eggs { namespace variants
         //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`. If
         //!  `std::is_trivially_move_constructible_v<T>` is `true` for all `T`
         //!  in `Ts...`, then this move constructor shall be trivial.
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant&& rhs) = default;
+#endif
 
         //! template <class U>
         //! variant(U&& v);
@@ -486,7 +552,8 @@ namespace eggs { namespace variants
                 T, detail::pack<typename std::remove_cv<Ts>::type...>
             >::value>::type
         > variant(U&& v)
-            noexcept(std::is_nothrow_constructible<T, U&&>::value)
+            EGGS_CXX11_NOEXCEPT_IF(
+                std::is_nothrow_constructible<T, U&&>::value)
           : _storage{detail::pack<T>{}, detail::index_of<
                     T, detail::pack<typename std::remove_cv<Ts>::type...>
                 >::value + 1, std::forward<U>(v)}
@@ -518,7 +585,8 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , Args&&... args)
-            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
+            EGGS_CXX11_NOEXCEPT_IF(
+                std::is_nothrow_constructible<T, Args&&...>::value)
           : _storage{detail::pack<T>{}, I + 1, std::forward<Args>(args)...}
         {}
 
@@ -554,7 +622,7 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , std::initializer_list<U> il, Args&&... args)
-            noexcept(std::is_nothrow_constructible<
+            EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
           : _storage{detail::pack<T>{}, I + 1, il, std::forward<Args>(args)...}
@@ -574,7 +642,8 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack<T>)
           , Args&&... args)
-            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
+            EGGS_CXX11_NOEXCEPT_IF(
+                std::is_nothrow_constructible<T, Args&&...>::value)
           : _storage{detail::pack<T>{}, detail::index_of<
                     T, detail::pack<typename std::remove_cv<Ts>::type...>
                 >::value + 1, std::forward<Args>(args)...}
@@ -602,7 +671,7 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack<T>)
           , std::initializer_list<U> il, Args&&... args)
-            noexcept(std::is_nothrow_constructible<
+            EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
           : _storage{detail::pack<T>{}, detail::index_of<
@@ -617,7 +686,9 @@ namespace eggs { namespace variants
         //!
         //! \remarks If `std::is_trivially_destructible_v<T>` is `true` for all
         //!  `T` in `Ts...`, then this destructor shall be trivial.
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         ~variant() = default;
+#endif
 
         //! variant& operator=(nullvariant_t) noexcept;
         //!
@@ -628,7 +699,7 @@ namespace eggs { namespace variants
         //!
         //! \postconditions `*this` does not have an active member.
         //!
-        variant& operator=(nullvariant_t) noexcept
+        variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT
         {
             _storage.emplace(detail::pack<detail::empty>{}, 0);
             return *this;
@@ -662,7 +733,9 @@ namespace eggs { namespace variants
         //! \remarks If `std::is_trivially_copy_assignable_v<T>` is `true` for
         //!  all `T` in `Ts...`, then this copy assignment operator shall be
         //!  trivial.
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const& rhs) = default;
+#endif
 
         //! variant& operator=(variant&& rhs) noexcept(see below);
         //!
@@ -699,7 +772,9 @@ namespace eggs { namespace variants
         //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
         //!  `std::is_trivially_move_assignable_v<T>` is `true` for all `T` in
         //!  `Ts...`, then this move assignment operator shall be trivial.
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant&& rhs) = default;
+#endif
 
         //! template <class U>
         //! variant& operator=(U&& v);
@@ -740,11 +815,12 @@ namespace eggs { namespace variants
             >::value>::type
         >
         variant& operator=(U&& v)
-            noexcept(std::is_nothrow_assignable<T, U&&>::value
+            EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_assignable<T, U&&>::value
                   && std::is_nothrow_constructible<T, U&&>::value)
         {
-            constexpr std::size_t t_which = detail::index_of<T, detail::pack<
-                typename std::remove_cv<Ts>::type...>>::value + 1;
+            EGGS_CXX11_CONSTEXPR std::size_t t_which = detail::index_of<
+                    T, detail::pack<typename std::remove_cv<Ts>::type...>
+                >::value + 1;
 
             if (_storage.which() == t_which)
             {
@@ -786,7 +862,8 @@ namespace eggs { namespace variants
                 I, detail::pack<Ts...>>::type
         >
         void emplace(Args&&... args)
-            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
+            EGGS_CXX11_NOEXCEPT_IF(
+                std::is_nothrow_constructible<T, Args&&...>::value)
         {
             _storage.emplace(
                 detail::pack<T>{}, I + 1
@@ -827,7 +904,7 @@ namespace eggs { namespace variants
             >::value>::type
         >
         void emplace(std::initializer_list<U> il, Args&&... args)
-            noexcept(std::is_nothrow_constructible<
+            EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
         {
@@ -846,7 +923,8 @@ namespace eggs { namespace variants
         //!  where `I` is the zero-based index of `T` in `Ts...`.
         template <typename T, typename ...Args>
         void emplace(Args&&... args)
-            noexcept(std::is_nothrow_constructible<T, Args&&...>::value)
+            EGGS_CXX11_NOEXCEPT_IF(
+                std::is_nothrow_constructible<T, Args&&...>::value)
         {
             _storage.emplace(
                 detail::pack<T>{}, detail::index_of<
@@ -874,7 +952,7 @@ namespace eggs { namespace variants
             >::value>::type
         >
         void emplace(std::initializer_list<U> il, Args&&... args)
-            noexcept(std::is_nothrow_constructible<
+            EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
         {
@@ -910,7 +988,7 @@ namespace eggs { namespace variants
         //!  std::declval<Ts&>()))...` where `std::swap` is in scope and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`.
         void swap(variant& rhs)
-            noexcept(detail::all_of<detail::pack<
+            EGGS_CXX11_NOEXCEPT_IF(detail::all_of<detail::pack<
                 detail::is_nothrow_swappable<Ts>...
               , std::is_nothrow_move_constructible<Ts>...
             >>::value)
@@ -921,7 +999,7 @@ namespace eggs { namespace variants
         //! explicit operator bool() const noexcept;
         //!
         //! \returns `true` if and only if `*this` has an active member.
-        explicit operator bool() const noexcept
+        explicit operator bool() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0;
         }
@@ -930,7 +1008,7 @@ namespace eggs { namespace variants
         //!
         //! \returns The zero-based index of the active member if `*this` has
         //!  one. Otherwise, returns `npos`.
-        std::size_t which() const noexcept
+        std::size_t which() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0 ? _storage.which() - 1 : npos;
         }
@@ -939,7 +1017,7 @@ namespace eggs { namespace variants
         //!
         //! \returns If `*this` has an active member of type `T`, `typeid(T)`;
         //!  otherwise `typeid(void)`.
-        std::type_info const& target_type() const noexcept
+        std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0
               ? detail::type_id{}(
@@ -952,7 +1030,7 @@ namespace eggs { namespace variants
         //!
         //! \returns If `*this` has an active member, a pointer to the active
         //!  member; otherwise a null pointer.
-        void* target() noexcept
+        void* target() EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0 ? _storage.target() : nullptr;
         }
@@ -961,7 +1039,7 @@ namespace eggs { namespace variants
         //!
         //! \returns If `*this` has an active member, a pointer to the active
         //!  member; otherwise a null pointer.
-        void const* target() const noexcept
+        void const* target() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0 ? _storage.target() : nullptr;
         }
@@ -974,9 +1052,9 @@ namespace eggs { namespace variants
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         template <typename T>
-        T* target() noexcept
+        T* target() EGGS_CXX11_NOEXCEPT
         {
-            constexpr std::size_t t_which = detail::index_of<
+            EGGS_CXX11_CONSTEXPR std::size_t t_which = detail::index_of<
                 T, detail::pack<Ts...>>::value + 1;
 
             return _storage.which() == t_which
@@ -992,9 +1070,9 @@ namespace eggs { namespace variants
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         template <typename T>
-        T const* target() const noexcept
+        T const* target() const EGGS_CXX11_NOEXCEPT
         {
-            constexpr std::size_t t_which = detail::index_of<
+            EGGS_CXX11_CONSTEXPR std::size_t t_which = detail::index_of<
                 T, detail::pack<Ts...>>::value + 1;
 
             return _storage.which() == t_which
@@ -1010,25 +1088,29 @@ namespace eggs { namespace variants
     class variant<>
     {
     public:
-        static constexpr std::size_t npos = std::size_t(-1);
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = std::size_t(-1);
 
     public:
-        variant() noexcept {}
-        variant(nullvariant_t) noexcept {}
-        variant(variant const&) = default;
-        variant(variant&&) = default;
+        variant() EGGS_CXX11_NOEXCEPT {}
+        variant(nullvariant_t) EGGS_CXX11_NOEXCEPT {}
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        variant(variant const&) EGGS_CXX11_NOEXCEPT = default;
+        variant(variant&&) EGGS_CXX11_NOEXCEPT = default;
+#endif
 
-        variant& operator=(nullvariant_t) noexcept { return *this; }
-        variant& operator=(variant const&) = default;
-        variant& operator=(variant&&) = default;
+        variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT { return *this; }
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        variant& operator=(variant const&) EGGS_CXX11_NOEXCEPT = default;
+        variant& operator=(variant&&) EGGS_CXX11_NOEXCEPT = default;
+#endif
 
-        void swap(variant&) noexcept {}
+        void swap(variant&) EGGS_CXX11_NOEXCEPT {}
 
-        explicit operator bool() const noexcept { return false; }
-        std::size_t which() const noexcept { return npos; }
-        std::type_info const& target_type() const noexcept { return typeid(void); }
-        void* target() noexcept { return nullptr; }
-        void const* target() const noexcept { return nullptr; }
+        explicit operator bool() const EGGS_CXX11_NOEXCEPT { return false; }
+        std::size_t which() const EGGS_CXX11_NOEXCEPT { return npos; }
+        std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT { return typeid(void); }
+        void* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
+        void const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1062,11 +1144,11 @@ namespace eggs { namespace variants
       : variant_size<T>
     {};
 
-#if __cplusplus > 201103L
+#if EGGS_CXX14_HAS_VARIABLE_TEMPLATES
     //! template <class T>
     //! constexpr std::size_t variant_size_v = variant_size<T>::value;
     template <typename T>
-    constexpr std::size_t variant_size_v = variant_size<T>::value;
+    EGGS_CXX11_CONSTEXPR std::size_t variant_size_v = variant_size<T>::value;
 #endif
 
     //! template <std::size_t I, class T>
@@ -1288,7 +1370,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `!x`
     template <typename ...Ts>
-    bool operator==(variant<Ts...> const& x, nullvariant_t) noexcept
+    bool operator==(variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
     {
         return !x;
     }
@@ -1298,7 +1380,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `!x`
     template <typename ...Ts>
-    bool operator==(nullvariant_t, variant<Ts...> const& x) noexcept
+    bool operator==(nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
     {
         return !x;
     }
@@ -1308,7 +1390,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `bool(x)`
     template <typename ...Ts>
-    bool operator!=(variant<Ts...> const& x, nullvariant_t) noexcept
+    bool operator!=(variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
     {
         return bool(x);
     }
@@ -1318,7 +1400,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `bool(x)`
     template <typename ...Ts>
-    bool operator!=(nullvariant_t, variant<Ts...> const& x) noexcept
+    bool operator!=(nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
     {
         return bool(x);
     }
@@ -1328,7 +1410,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `false`
     template <typename ...Ts>
-    bool operator<(variant<Ts...> const& /*x*/, nullvariant_t) noexcept
+    bool operator<(variant<Ts...> const& /*x*/, nullvariant_t) EGGS_CXX11_NOEXCEPT
     {
         return false;
     }
@@ -1338,7 +1420,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `bool(x)`
     template <typename ...Ts>
-    bool operator<(nullvariant_t, variant<Ts...> const& x) noexcept
+    bool operator<(nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
     {
         return bool(x);
     }
@@ -1348,7 +1430,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `bool(x)`
     template <typename ...Ts>
-    bool operator>(variant<Ts...> const& x, nullvariant_t) noexcept
+    bool operator>(variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
     {
         return bool(x);
     }
@@ -1358,7 +1440,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `false`
     template <typename ...Ts>
-    bool operator>(nullvariant_t, variant<Ts...> const& /*x*/) noexcept
+    bool operator>(nullvariant_t, variant<Ts...> const& /*x*/) EGGS_CXX11_NOEXCEPT
     {
         return false;
     }
@@ -1368,7 +1450,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `!x`
     template <typename ...Ts>
-    bool operator<=(variant<Ts...> const& x, nullvariant_t) noexcept
+    bool operator<=(variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
     {
         return !x;
     }
@@ -1378,7 +1460,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `true`
     template <typename ...Ts>
-    bool operator<=(nullvariant_t, variant<Ts...> const& /*x*/) noexcept
+    bool operator<=(nullvariant_t, variant<Ts...> const& /*x*/) EGGS_CXX11_NOEXCEPT
     {
         return true;
     }
@@ -1388,7 +1470,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `true`
     template <typename ...Ts>
-    bool operator>=(variant<Ts...> const& /*x*/, nullvariant_t) noexcept
+    bool operator>=(variant<Ts...> const& /*x*/, nullvariant_t) EGGS_CXX11_NOEXCEPT
     {
         return true;
     }
@@ -1398,7 +1480,7 @@ namespace eggs { namespace variants
     //!
     //! \returns `!x`
     template <typename ...Ts>
-    bool operator>=(nullvariant_t, variant<Ts...> const& x) noexcept
+    bool operator>=(nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
     {
         return !x;
     }
@@ -1422,8 +1504,8 @@ namespace eggs { namespace variants
     >
     bool operator==(variant<Ts...> const& lhs, T const& rhs)
     {
-        constexpr std::size_t rhs_which = detail::index_of<T, detail::pack<
-            typename std::remove_cv<Ts>::type...>>::value;
+        EGGS_CXX11_CONSTEXPR std::size_t rhs_which = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value;
 
         return lhs.which() == rhs_which
           ? *lhs.template target<T>() == rhs
@@ -1504,8 +1586,8 @@ namespace eggs { namespace variants
     >
     bool operator<(variant<Ts...> const& lhs, T const& rhs)
     {
-        constexpr std::size_t rhs_which = detail::index_of<T, detail::pack<
-            typename std::remove_cv<Ts>::type...>>::value;
+        EGGS_CXX11_CONSTEXPR std::size_t rhs_which = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value;
 
         return lhs.which() == rhs_which
           ? *lhs.template target<T>() < rhs
@@ -1532,8 +1614,8 @@ namespace eggs { namespace variants
     >
     bool operator<(T const& lhs, variant<Ts...> const& rhs)
     {
-        constexpr std::size_t lhs_which = detail::index_of<T, detail::pack<
-            typename std::remove_cv<Ts>::type...>>::value;
+        EGGS_CXX11_CONSTEXPR std::size_t lhs_which = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value;
 
         return lhs_which == rhs.which()
           ? lhs < *rhs.template target<T>()
@@ -1719,7 +1801,7 @@ namespace eggs { namespace variants
     //! \effects Calls `x.swap(y)`.
     template <typename ...Ts>
     void swap(variant<Ts...>& x, variant<Ts...>& y)
-        noexcept(noexcept(x.swap(y)))
+        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(x.swap(y)))
     {
         x.swap(y);
     }
@@ -1753,5 +1835,7 @@ namespace std
         }
     };
 }
+
+#include <eggs/variant/detail/config/suffix.hpp>
 
 #endif /*EGGS_VARIANT_VARIANT_HPP*/
