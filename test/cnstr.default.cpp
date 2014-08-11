@@ -17,18 +17,18 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v;
 
-    REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
-    REQUIRE(v.target() == nullptr);
-    REQUIRE(v.target_type() == typeid(void));
+    CHECK(bool(v) == false);
+    CHECK(v.which() == npos);
+    CHECK(v.target() == nullptr);
+    CHECK(v.target_type() == typeid(void));
 }
 
 TEST_CASE("variant<>::variant()", "[variant.cnstr]")
 {
     eggs::variant<> v;
 
-    REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
-    REQUIRE(v.target() == nullptr);
-    REQUIRE(v.target_type() == typeid(void));
+    CHECK(bool(v) == false);
+    CHECK(v.which() == npos);
+    CHECK(v.target() == nullptr);
+    CHECK(v.target_type() == typeid(void));
 }

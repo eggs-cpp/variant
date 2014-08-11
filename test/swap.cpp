@@ -28,10 +28,10 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         v2.swap(v1);
 
-        REQUIRE(v1.which() == 0u);
-        REQUIRE(*v1.target<int>() == 42);
-
-        REQUIRE(v2.which() == npos);
+        CHECK(v1.which() == 0u);
+        REQUIRE(v1.target<int>() != nullptr);
+        CHECK(*v1.target<int>() == 42);
+        CHECK(v2.which() == npos);
     }
 
     SECTION("empty target")
@@ -47,10 +47,10 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         v2.swap(v1);
 
-        REQUIRE(v1.which() == npos);
-
-        REQUIRE(v2.which() == 0u);
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(v1.which() == npos);
+        CHECK(v2.which() == 0u);
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
     }
 
     SECTION("same target")
@@ -67,11 +67,12 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         v2.swap(v1);
 
-        REQUIRE(v1.which() == v1.which());
-        REQUIRE(*v1.target<int>() == 43);
-
-        REQUIRE(v2.which() == 0u);
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(v1.which() == v1.which());
+        REQUIRE(v1.target<int>() != nullptr);
+        CHECK(*v1.target<int>() == 43);
+        CHECK(v2.which() == 0u);
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
     }
 
     SECTION("different target")
@@ -88,11 +89,12 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         v2.swap(v1);
 
-        REQUIRE(v1.which() == 1u);
-        REQUIRE(*v1.target<std::string>() == "");
-
-        REQUIRE(v2.which() == 0u);
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(v1.which() == 1u);
+        REQUIRE(v1.target<std::string>() != nullptr);
+        CHECK(*v1.target<std::string>() == "");
+        CHECK(v2.which() == 0u);
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
     }
 }
 
@@ -108,7 +110,6 @@ TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
 
     v2.swap(v1);
 
-    REQUIRE(v1.which() == npos);
-
-    REQUIRE(v2.which() == npos);
+    CHECK(v1.which() == npos);
+    CHECK(v2.which() == npos);
 }

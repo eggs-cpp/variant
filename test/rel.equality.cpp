@@ -29,7 +29,7 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
         REQUIRE(v2.which() == v1.which());
         REQUIRE(*v2.target<int>() == 42);
 
-        REQUIRE(v1 == v2);
+        CHECK(v1 == v2);
     }
 
     SECTION("empty member")
@@ -43,7 +43,7 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
         REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
-        REQUIRE(v1 != v2);
+        CHECK(v1 != v2);
     }
 
     SECTION("different members")
@@ -58,7 +58,7 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
         REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
-        REQUIRE(v1 != v2);
+        CHECK(v1 != v2);
     }
 }
 
@@ -71,7 +71,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        REQUIRE(v1 == 42);
+        CHECK(v1 == 42);
     }
 
     SECTION("empty member")
@@ -80,7 +80,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
 
         REQUIRE(v1.which() == npos);
 
-        REQUIRE(v1 != 42);
+        CHECK(v1 != 42);
     }
 
     SECTION("different members")
@@ -90,7 +90,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(v1.which() == 1u);
         REQUIRE(*v1.target<std::string>() == "");
 
-        REQUIRE(v1 != 42);
+        CHECK(v1 != 42);
     }
 }
 
@@ -103,7 +103,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        REQUIRE(42 == v1);
+        CHECK(42 == v1);
     }
 
     SECTION("empty member")
@@ -112,7 +112,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
 
         REQUIRE(v1.which() == npos);
 
-        REQUIRE(42 != v1);
+        CHECK(42 != v1);
     }
 
     SECTION("different members")
@@ -122,7 +122,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(v1.which() == 1u);
         REQUIRE(*v1.target<std::string>() == "");
 
-        REQUIRE(42 != v1);
+        CHECK(42 != v1);
     }
 }
 
@@ -134,7 +134,7 @@ TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
 
         REQUIRE(v1.which() == npos);
 
-        REQUIRE(v1 == nullvariant);
+        CHECK(v1 == nullvariant);
     }
 
     SECTION("non-empty members")
@@ -144,7 +144,7 @@ TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        REQUIRE(v1 != nullvariant);
+        CHECK(v1 != nullvariant);
     }
 }
 
@@ -156,7 +156,7 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
 
         REQUIRE(v1.which() == npos);
 
-        REQUIRE(nullvariant == v1);
+        CHECK(nullvariant == v1);
     }
 
     SECTION("non-empty members")
@@ -166,7 +166,7 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        REQUIRE(nullvariant != v1);
+        CHECK(nullvariant != v1);
     }
 }
 
@@ -180,5 +180,5 @@ TEST_CASE("operator==(variant<> const&, variant<> const&)", "[variant.rel]")
 
     REQUIRE(v2.which() == npos);
 
-    REQUIRE(v1 == v2);
+    CHECK(v1 == v2);
 }

@@ -11,6 +11,8 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+constexpr std::size_t npos = eggs::variant<>::npos;
+
 struct fun
 {
     std::size_t nonconst_lvalue, const_lvalue, rvalue;
@@ -48,25 +50,18 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
     fun f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v);
 
-    REQUIRE(f.nonconst_lvalue == 1u);
-    REQUIRE(calls == f.nonconst_lvalue);
+    CHECK(f.nonconst_lvalue == 1u);
+    CHECK(calls == f.nonconst_lvalue);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variant<> empty;
+        eggs::variant<> empty;
 
-            REQUIRE(empty.which() == npos);
+        REQUIRE(empty.which() == npos);
 
-            eggs::variants::apply<void>(fun{}, empty);
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::apply<void>(fun{}, empty)
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -80,25 +75,18 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
     fun f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v);
 
-    REQUIRE(f.const_lvalue == 1u);
-    REQUIRE(calls == f.const_lvalue);
+    CHECK(f.const_lvalue == 1u);
+    CHECK(calls == f.const_lvalue);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variant<> const empty;
+        eggs::variant<> const empty;
 
-            REQUIRE(empty.which() == npos);
+        REQUIRE(empty.which() == npos);
 
-            eggs::variants::apply<void>(fun{}, empty);
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::apply<void>(fun{}, empty)
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -112,25 +100,18 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
     fun f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, std::move(v));
 
-    REQUIRE(f.rvalue == 1u);
-    REQUIRE(calls == f.rvalue);
+    CHECK(f.rvalue == 1u);
+    CHECK(calls == f.rvalue);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variant<> empty;
+        eggs::variant<> empty;
 
-            REQUIRE(empty.which() == npos);
+        REQUIRE(empty.which() == npos);
 
-            eggs::variants::apply<void>(fun{}, std::move(empty));
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::apply<void>(fun{}, std::move(empty))
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -144,8 +125,8 @@ TEST_CASE("apply(F&&, variant<Ts...>&)", "[variant.apply]")
     fun f;
     std::size_t calls = eggs::variants::apply(f, v);
 
-    REQUIRE(f.nonconst_lvalue == 1u);
-    REQUIRE(calls == f.nonconst_lvalue);
+    CHECK(f.nonconst_lvalue == 1u);
+    CHECK(calls == f.nonconst_lvalue);
 }
 
 TEST_CASE("apply(F&&, variant<Ts...> const&)", "[variant.apply]")
@@ -158,8 +139,8 @@ TEST_CASE("apply(F&&, variant<Ts...> const&)", "[variant.apply]")
     fun f;
     std::size_t calls = eggs::variants::apply(f, v);
 
-    REQUIRE(f.const_lvalue == 1u);
-    REQUIRE(calls == f.const_lvalue);
+    CHECK(f.const_lvalue == 1u);
+    CHECK(calls == f.const_lvalue);
 }
 
 TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
@@ -172,8 +153,8 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
     fun f;
     std::size_t calls = eggs::variants::apply(f, std::move(v));
 
-    REQUIRE(f.rvalue == 1u);
-    REQUIRE(calls == f.rvalue);
+    CHECK(f.rvalue == 1u);
+    CHECK(calls == f.rvalue);
 }
 
 struct fun2
@@ -218,8 +199,8 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&, variant<Us...>&)", "[variant.apply]")
     fun2 f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v1, v2);
 
-    REQUIRE(f.nonconst_lvalue == 1u);
-    REQUIRE(calls == f.nonconst_lvalue);
+    CHECK(f.nonconst_lvalue == 1u);
+    CHECK(calls == f.nonconst_lvalue);
 }
 
 TEST_CASE("apply<R>(F&&, variant<Ts...> const&, variant<Us...> const&)", "[variant.apply]")
@@ -237,8 +218,8 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&, variant<Us...> const&)", "[varia
     fun2 f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, v1, v2);
 
-    REQUIRE(f.const_lvalue == 1u);
-    REQUIRE(calls == f.const_lvalue);
+    CHECK(f.const_lvalue == 1u);
+    CHECK(calls == f.const_lvalue);
 }
 
 TEST_CASE("apply<R>(F&&, variant<Ts...>&&, variant<Us...>&&)", "[variant.apply]")
@@ -256,6 +237,6 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&, variant<Us...>&&)", "[variant.apply]"
     fun2 f;
     std::size_t calls = eggs::variants::apply<std::size_t>(f, std::move(v1), std::move(v2));
 
-    REQUIRE(f.rvalue == 1u);
-    REQUIRE(calls == f.rvalue);
+    CHECK(f.rvalue == 1u);
+    CHECK(calls == f.rvalue);
 }

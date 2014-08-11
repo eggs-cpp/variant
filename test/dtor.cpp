@@ -26,11 +26,11 @@ TEST_CASE("variant<Ts...>::~variant()", "[variant.dtor]")
             eggs::variant<int, Dtor> v;
             v.emplace<Dtor>();
 
-            REQUIRE(std::is_trivially_destructible<decltype(v)>::value == false);
-
             REQUIRE(Dtor::called == false);
+
+            CHECK(std::is_trivially_destructible<decltype(v)>::value == false);
         }
-        REQUIRE(Dtor::called == true);
+        CHECK(Dtor::called == true);
     }
     Dtor::called = false;
 
@@ -39,7 +39,7 @@ TEST_CASE("variant<Ts...>::~variant()", "[variant.dtor]")
         eggs::variant<int, Y> v1;
         eggs::variant<int, float> v2;
 
-        REQUIRE(std::is_trivially_destructible<decltype(v1)>::value == true);
-        REQUIRE(std::is_trivially_destructible<decltype(v2)>::value == true);
+        CHECK(std::is_trivially_destructible<decltype(v1)>::value == true);
+        CHECK(std::is_trivially_destructible<decltype(v2)>::value == true);
     }
 }

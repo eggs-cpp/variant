@@ -33,9 +33,9 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
         v2 = std::move(v1);
 
-        REQUIRE(bool(v1) == false);
-        REQUIRE(bool(v2) == false);
-        REQUIRE(v2.which() == v1.which());
+        CHECK(bool(v1) == false);
+        CHECK(bool(v2) == false);
+        CHECK(v2.which() == v1.which());
     }
 
     SECTION("empty target")
@@ -53,10 +53,11 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
         v2 = std::move(v1);
 
-        REQUIRE(bool(v1) == true);
-        REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == v1.which());
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(bool(v1) == true);
+        CHECK(bool(v2) == true);
+        CHECK(v2.which() == v1.which());
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
     }
 
     SECTION("same target")
@@ -75,10 +76,11 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
         v2 = std::move(v1);
 
-        REQUIRE(bool(v1) == true);
-        REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == v1.which());
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(bool(v1) == true);
+        CHECK(bool(v2) == true);
+        CHECK(v2.which() == v1.which());
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
     }
 
     SECTION("different target")
@@ -97,10 +99,11 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
         v2 = std::move(v1);
 
-        REQUIRE(bool(v1) == true);
-        REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == v1.which());
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(bool(v1) == true);
+        CHECK(bool(v2) == true);
+        CHECK(v2.which() == v1.which());
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
 
         SECTION("exception-safety")
         {
@@ -117,19 +120,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(v2.which() == 0u);
             REQUIRE(Dtor::called == false);
 
-            bool exception_thrown = false;
-            try
-            {
-                v2 = std::move(v1);
-            } catch (...) {
-                exception_thrown = true;
-            }
-            REQUIRE(exception_thrown);
-            REQUIRE(bool(v1) == true);
-            REQUIRE(bool(v2) == false);
-            REQUIRE(v1.which() == 1u);
-            REQUIRE(v2.which() == npos);
-            REQUIRE(Dtor::called == true);
+            CHECK_THROWS(v2 = std::move(v1));
+
+            CHECK(bool(v1) == true);
+            CHECK(bool(v2) == false);
+            CHECK(v1.which() == 1u);
+            CHECK(v2.which() == npos);
+            CHECK(Dtor::called == true);
         }
         Dtor::called = false;
     }
@@ -152,11 +149,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
         v2 = std::move(v1);
 
-        REQUIRE(bool(v1) == true);
-        REQUIRE(bool(v2) == true);
-        REQUIRE(v2.which() == v1.which());
-        REQUIRE(*v1.target<int>() == 42);
-        REQUIRE(*v2.target<int>() == 42);
+        CHECK(bool(v1) == true);
+        CHECK(bool(v2) == true);
+        CHECK(v2.which() == v1.which());
+        REQUIRE(v1.target<int>() != nullptr);
+        CHECK(*v1.target<int>() == 42);
+        REQUIRE(v2.target<int>() != nullptr);
+        CHECK(*v2.target<int>() == 42);
     }
 }
 
@@ -174,7 +173,7 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
 
     v2 = std::move(v1);
 
-    REQUIRE(bool(v1) == false);
-    REQUIRE(bool(v2) == false);
-    REQUIRE(v2.which() == v1.which());
+    CHECK(bool(v1) == false);
+    CHECK(bool(v2) == false);
+    CHECK(v2.which() == v1.which());
 }

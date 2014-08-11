@@ -20,20 +20,13 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 
     int& ref = eggs::variants::get<0>(v);
 
-    REQUIRE(ref == 42);
+    CHECK(ref == 42);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::get<1>(v)
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -46,20 +39,13 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
 
     int const& ref = eggs::variants::get<0>(v);
 
-    REQUIRE(ref == 42);
+    CHECK(ref == 42);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::get<1>(v)
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -72,7 +58,7 @@ TEST_CASE("get<I>(variant<Ts...>&&)", "[variant.elem]")
 
     int&& ref = eggs::variants::get<0>(std::move(v));
 
-    REQUIRE(ref == 42);
+    CHECK(ref == 42);
 }
 
 TEST_CASE("get<T>(variant<Ts...>&)", "[variant.elem]")
@@ -81,20 +67,13 @@ TEST_CASE("get<T>(variant<Ts...>&)", "[variant.elem]")
 
     int& ref = eggs::variants::get<int>(v);
 
-    REQUIRE(ref == 42);
+    CHECK(ref == 42);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::get<std::string>(v)
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -104,20 +83,13 @@ TEST_CASE("get<T>(variant<Ts...> const&)", "[variant.elem]")
 
     int const& ref = eggs::variants::get<int>(v);
 
-    REQUIRE(ref == 42);
+    CHECK(ref == 42);
 
     SECTION("throws")
     {
-        bool exception_thrown = false;
-        try
-        {
-            eggs::variants::get<1>(v);
-        } catch (eggs::variants::bad_variant_access const&) {
-            exception_thrown = true;
-        } catch (...) {
-            REQUIRE(false);
-        }
-        REQUIRE(exception_thrown);
+        CHECK_THROWS_AS(
+            eggs::variants::get<std::string>(v)
+          , eggs::variants::bad_variant_access);
     }
 }
 
@@ -127,5 +99,5 @@ TEST_CASE("get<T>(variant<Ts...>&&)", "[variant.elem]")
 
     int&& ref = eggs::variants::get<int>(std::move(v));
 
-    REQUIRE(ref == 42);
+    CHECK(ref == 42);
 }

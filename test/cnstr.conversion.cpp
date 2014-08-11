@@ -19,30 +19,31 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(42);
 
-    REQUIRE(bool(v) == true);
-    REQUIRE(v.which() == 0u);
-    REQUIRE(v.target_type() == typeid(int));
-    REQUIRE(v.target() == v.target<int>());
-    REQUIRE(*v.target<int>() == 42);
+    CHECK(bool(v) == true);
+    CHECK(v.which() == 0u);
+    CHECK(v.target_type() == typeid(int));
+    CHECK(v.target() == v.target<int>());
+    REQUIRE(v.target<int>() != nullptr);
+    CHECK(*v.target<int>() == 42);
 }
 
 TEST_CASE("variant<Ts...>::variant(nullvariant_t)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(nullvariant);
 
-    REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
-    REQUIRE(v.target() == nullptr);
-    REQUIRE(v.target_type() == typeid(void));
+    CHECK(bool(v) == false);
+    CHECK(v.which() == npos);
+    CHECK(v.target() == nullptr);
+    CHECK(v.target_type() == typeid(void));
 
     SECTION("initializer-list")
     {
         eggs::variant<int, std::string> v = {};
 
-        REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
-        REQUIRE(v.target() == nullptr);
-        REQUIRE(v.target_type() == typeid(void));
+        CHECK(bool(v) == false);
+        CHECK(v.which() == npos);
+        CHECK(v.target() == nullptr);
+        CHECK(v.target_type() == typeid(void));
     }
 }
 
@@ -50,8 +51,8 @@ TEST_CASE("variant<>::variant(nullvariant_t)", "[variant.cnstr]")
 {
     eggs::variant<> v(nullvariant);
 
-    REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
-    REQUIRE(v.target() == nullptr);
-    REQUIRE(v.target_type() == typeid(void));
+    CHECK(bool(v) == false);
+    CHECK(v.which() == npos);
+    CHECK(v.target() == nullptr);
+    CHECK(v.target_type() == typeid(void));
 }

@@ -28,10 +28,11 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 
         v = 42;
 
-        REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0u);
-        REQUIRE(v.target_type() == typeid(int));
-        REQUIRE(*v.target<int>() == 42);
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 0u);
+        CHECK(v.target_type() == typeid(int));
+        REQUIRE(v.target<int>() != nullptr);
+        CHECK(*v.target<int>() == 42);
     }
 
     SECTION("same target")
@@ -44,10 +45,11 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 
         v = 42;
 
-        REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0u);
-        REQUIRE(v.target_type() == typeid(int));
-        REQUIRE(*v.target<int>() == 42);
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 0u);
+        CHECK(v.target_type() == typeid(int));
+        REQUIRE(v.target<int>() != nullptr);
+        CHECK(*v.target<int>() == 42);
     }
 
     SECTION("different target")
@@ -60,10 +62,11 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 
         v = 42;
 
-        REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0u);
-        REQUIRE(v.target_type() == typeid(int));
-        REQUIRE(*v.target<int>() == 42);
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 0u);
+        CHECK(v.target_type() == typeid(int));
+        REQUIRE(v.target<int>() != nullptr);
+        CHECK(*v.target<int>() == 42);
 
         SECTION("exception-safety")
         {
@@ -74,17 +77,11 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
             REQUIRE(v.which() == 0u);
             REQUIRE(Dtor::called == false);
 
-            bool exception_thrown = false;
-            try
-            {
-                v = Throw{};
-            } catch (...) {
-                exception_thrown = true;
-            }
-            REQUIRE(exception_thrown);
-            REQUIRE(bool(v) == false);
-            REQUIRE(v.which() == npos);
-            REQUIRE(Dtor::called == true);
+            CHECK_THROWS(v = Throw{});
+
+            CHECK(bool(v) == false);
+            CHECK(v.which() == npos);
+            CHECK(Dtor::called == true);
         }
         Dtor::called = false;
     }
@@ -101,10 +98,10 @@ TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
 
         v = nullvariant;
 
-        REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
-        REQUIRE(v.target() == nullptr);
-        REQUIRE(v.target_type() == typeid(void));
+        CHECK(bool(v) == false);
+        CHECK(v.which() == npos);
+        CHECK(v.target() == nullptr);
+        CHECK(v.target_type() == typeid(void));
     }
 
     SECTION("non-empty target")
@@ -117,22 +114,25 @@ TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
 
         v = nullvariant;
 
-        REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
-        REQUIRE(v.target() == nullptr);
-        REQUIRE(v.target_type() == typeid(void));
+        CHECK(bool(v) == false);
+        CHECK(v.which() == npos);
+        CHECK(v.target() == nullptr);
+        CHECK(v.target_type() == typeid(void));
     }
 
     SECTION("initializer-list")
     {
         eggs::variant<int, std::string> v;
 
-        v = {};
-
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
-        REQUIRE(v.target() == nullptr);
-        REQUIRE(v.target_type() == typeid(void));
+
+        v = {};
+
+        CHECK(bool(v) == false);
+        CHECK(v.which() == npos);
+        CHECK(v.target() == nullptr);
+        CHECK(v.target_type() == typeid(void));
     }
 }
 
@@ -145,8 +145,8 @@ TEST_CASE("variant<>::operator=(nullvariant_t)", "[variant.assign]")
 
     v = nullvariant;
 
-    REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
-    REQUIRE(v.target() == nullptr);
-    REQUIRE(v.target_type() == typeid(void));
+    CHECK(bool(v) == false);
+    CHECK(v.which() == npos);
+    CHECK(v.target() == nullptr);
+    CHECK(v.target_type() == typeid(void));
 }

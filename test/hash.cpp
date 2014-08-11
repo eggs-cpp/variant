@@ -22,5 +22,5 @@ TEST_CASE("std::hash<variant<Ts...>>", "[variant.hash]")
     std::hash<eggs::variant<int, std::string>> variant_hasher;
     std::hash<int> int_hasher;
 
-    REQUIRE(variant_hasher(v) == int_hasher(42));
+    CHECK(variant_hasher(v) == int_hasher(42));
 }
