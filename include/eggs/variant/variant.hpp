@@ -179,9 +179,11 @@ namespace eggs { namespace variants
 #endif
 
             _storage(_storage const& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
+#endif
               : base_type{}
             {
                 detail::copy_construct{}(
@@ -192,9 +194,11 @@ namespace eggs { namespace variants
             }
 
             _storage(_storage&& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_move_constructible<Ts>...
                 >>::value)
+#endif
               : base_type{}
             {
                 detail::move_construct{}(
@@ -222,10 +226,12 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage const& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_copy_assignable<Ts>...
                   , std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
+#endif
             {
                 if (_which == rhs._which)
                 {
@@ -246,10 +252,12 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage&& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_move_assignable<Ts>...
                   , std::is_nothrow_move_constructible<Ts>...
                 >>::value)
+#endif
             {
                 if (_which == rhs._which)
                 {
@@ -309,16 +317,20 @@ namespace eggs { namespace variants
             {}
 
             _storage(_storage const& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(
                     std::is_nothrow_copy_constructible<base_type>::value
                 )
+#endif
               : base_type{static_cast<base_type const&>(rhs)}
             {}
 
             _storage(_storage&& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(
                     std::is_nothrow_move_constructible<base_type>::value
                 )
+#endif
               : base_type{static_cast<base_type&&>(rhs)}
             {}
 #endif
@@ -347,10 +359,12 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage const& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_copy_assignable<Ts>...
                   , std::is_nothrow_copy_constructible<Ts>...
                 >>::value)
+#endif
             {
                 if (_which != rhs._which)
                 {
@@ -361,10 +375,12 @@ namespace eggs { namespace variants
             }
 
             _storage& operator=(_storage&& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
                 EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                     std::is_nothrow_move_assignable<Ts>...
                   , std::is_nothrow_move_constructible<Ts>...
                 >>::value)
+#endif
             {
                 if (_which != rhs._which)
                 {
@@ -410,7 +426,11 @@ namespace eggs { namespace variants
 #else
           , all_of<pack<std::is_pod<Ts>...>>::value
 #endif
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
           , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+#else
+          , all_of<pack<std::is_pod<Ts>...>>::value
+#endif
         >;
 
         ///////////////////////////////////////////////////////////////////////
@@ -497,9 +517,8 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \remarks If `std::is_trivially_copy_constructible_v<T>` is `true`
-        //!  for all `T` in `Ts...`, then this copy constructor shall be
-        //!  trivial.
+        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...`, then this copy constructor shall be trivial.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant const& rhs) = default;
 #endif
@@ -520,8 +539,8 @@ namespace eggs { namespace variants
         //!
         //! \remarks The expression inside `noexcept` is equivalent to the
         //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`. If
-        //!  `std::is_trivially_move_constructible_v<T>` is `true` for all `T`
-        //!  in `Ts...`, then this move constructor shall be trivial.
+        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+        //!  `Ts...`, then this move constructor shall be trivial.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant&& rhs) = default;
 #endif
@@ -552,8 +571,10 @@ namespace eggs { namespace variants
                 T, detail::pack<typename std::remove_cv<Ts>::type...>
             >::value>::type
         > variant(U&& v)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, U&&>::value)
+#endif
           : _storage{detail::pack<T>{}, detail::index_of<
                     T, detail::pack<typename std::remove_cv<Ts>::type...>
                 >::value + 1, std::forward<U>(v)}
@@ -585,8 +606,10 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
+#endif
           : _storage{detail::pack<T>{}, I + 1, std::forward<Args>(args)...}
         {}
 
@@ -622,9 +645,11 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , std::initializer_list<U> il, Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
+#endif
           : _storage{detail::pack<T>{}, I + 1, il, std::forward<Args>(args)...}
         {}
 
@@ -642,8 +667,10 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack<T>)
           , Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
+#endif
           : _storage{detail::pack<T>{}, detail::index_of<
                     T, detail::pack<typename std::remove_cv<Ts>::type...>
                 >::value + 1, std::forward<Args>(args)...}
@@ -671,9 +698,11 @@ namespace eggs { namespace variants
         explicit variant(
             in_place_t(detail::pack<T>)
           , std::initializer_list<U> il, Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
+#endif
           : _storage{detail::pack<T>{}, detail::index_of<
                     T, detail::pack<typename std::remove_cv<Ts>::type...>
                 >::value + 1, il, std::forward<Args>(args)...}
@@ -730,8 +759,8 @@ namespace eggs { namespace variants
         //!  copy constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed.
         //!
-        //! \remarks If `std::is_trivially_copy_assignable_v<T>` is `true` for
-        //!  all `T` in `Ts...`, then this copy assignment operator shall be
+        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...`, then this copy assignment operator shall be
         //!  trivial.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const& rhs) = default;
@@ -770,7 +799,7 @@ namespace eggs { namespace variants
         //! \remarks The expression inside `noexcept` is equivalent to the
         //!  logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
-        //!  `std::is_trivially_move_assignable_v<T>` is `true` for all `T` in
+        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
         //!  `Ts...`, then this move assignment operator shall be trivial.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant&& rhs) = default;
@@ -815,8 +844,10 @@ namespace eggs { namespace variants
             >::value>::type
         >
         variant& operator=(U&& v)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_assignable<T, U&&>::value
                   && std::is_nothrow_constructible<T, U&&>::value)
+#endif
         {
             EGGS_CXX11_CONSTEXPR std::size_t t_which = detail::index_of<
                     T, detail::pack<typename std::remove_cv<Ts>::type...>
@@ -862,8 +893,10 @@ namespace eggs { namespace variants
                 I, detail::pack<Ts...>>::type
         >
         void emplace(Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
+#endif
         {
             _storage.emplace(
                 detail::pack<T>{}, I + 1
@@ -904,9 +937,11 @@ namespace eggs { namespace variants
             >::value>::type
         >
         void emplace(std::initializer_list<U> il, Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
+#endif
         {
             _storage.emplace(
                 detail::pack<T>{}, I + 1
@@ -923,8 +958,10 @@ namespace eggs { namespace variants
         //!  where `I` is the zero-based index of `T` in `Ts...`.
         template <typename T, typename ...Args>
         void emplace(Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
+#endif
         {
             _storage.emplace(
                 detail::pack<T>{}, detail::index_of<
@@ -952,9 +989,11 @@ namespace eggs { namespace variants
             >::value>::type
         >
         void emplace(std::initializer_list<U> il, Args&&... args)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value)
+#endif
         {
             _storage.emplace(
                 detail::pack<T>{}, detail::index_of<
@@ -988,10 +1027,12 @@ namespace eggs { namespace variants
         //!  std::declval<Ts&>()))...` where `std::swap` is in scope and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`.
         void swap(variant& rhs)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(detail::all_of<detail::pack<
                 detail::is_nothrow_swappable<Ts>...
               , std::is_nothrow_move_constructible<Ts>...
             >>::value)
+#endif
         {
             _storage.swap(rhs._storage);
         }

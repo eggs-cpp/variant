@@ -144,6 +144,16 @@
 #  define EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE_DEFINED
 #endif
 
+/// std::is_nothrow_* support
+#ifndef EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+#  if defined(__GLIBCXX__) && !defined(_GLIBCXX_NOEXCEPT)
+#    define EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS 0
+#  else
+#    define EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS 1
+#  endif
+#  define EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS_DEFINED
+#endif
+
 /// std::is_trivially_copyable support
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
 #  if defined(__GLIBCXX__)
@@ -154,4 +164,14 @@
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 1
 #  endif
 #  define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE_DEFINED
+#endif
+
+/// std::is_trivially_destructible support
+#ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+#  if defined(__GLIBCXX__) && __GLIBCXX__ < 20130531
+#    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE 0
+#  else
+#    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE 1
+#  endif
+#  define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE_DEFINED
 #endif

@@ -8,10 +8,12 @@
 #include <eggs/variant.hpp>
 #include <string>
 
+#include <eggs/variant/detail/config/prefix.hpp>
+
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-constexpr std::size_t npos = eggs::variant<>::npos;
+EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 {

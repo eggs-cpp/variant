@@ -9,10 +9,12 @@
 #include <string>
 #include <type_traits>
 
+#include <eggs/variant/detail/config/prefix.hpp>
+
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
-constexpr std::size_t npos = eggs::variant<>::npos;
+EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
 {
@@ -30,7 +32,8 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
     CHECK(*v1.target<int>() == 42);
     REQUIRE(v2.target<int>() != nullptr);
     CHECK(*v2.target<int>() == 42);
-
+    
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     SECTION("trivially_copyable")
     {
         eggs::variant<int, float> v1(42);
@@ -50,6 +53,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
     }
+#endif
 }
 
 TEST_CASE("variant<>::variant(variant<> const&)", "[variant.cnstr]")
