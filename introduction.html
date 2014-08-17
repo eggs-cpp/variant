@@ -1,0 +1,132 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <!-- TITLE -->
+    <title>Eggs.Variant</title>
+
+    <!-- DESCRIPTION -->
+    <meta name="description" content="">
+
+    <!-- CSS3 -->
+    <link rel="stylesheet" type="text/css" href="css/normalize.css?v=2.0" />
+    <link rel="stylesheet" type="text/css" href="css/main.css?v=2.0" />
+
+    <!-- FAVICON -->
+    <link rel="shortcut icon" href="css/img/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+    <div id="container">
+        <header id="head">
+            <div class="top">
+                <img src="logo.png" class="logo" />
+                <a href="http://eggs-cpp.github.io/variant/">
+                    Eggs.Variant
+                </a>
+            </div>
+            <div class="nav">
+                <a href="index.html"><img src="css/img/prev.png" alt="Prev"></a>
+                <a href="index.html"><img src="css/img/home.png" alt="Home"></a>
+                <a href="design.html"><img src="css/img/next.png" alt="Next"></a>
+            </div>
+        </header>
+        <div class="introduction">
+            <section>
+                <a name='introduction' href='#introduction'>
+                    <h1>Introduction</h1>
+                </a>
+
+                <p>A <a href="http://en.cppreference.com/w/cpp/language/union" title="Union declaration - cppreference.com"><code>union</code></a> is a special class type that can hold only one of its non-static data members at a time. It's just big enough to accommodate the largest of its members.</p>
+                <blockquote>
+                    <p>
+                        <strong>9 [class]/5</strong>
+                        A <em>union</em> is a class defined with the class-key union; it holds at most one data member at a time (9.5). <em>[...]</em>
+                    </p>
+                    <p>
+                        <strong>9.5 [class.union]/1</strong>
+                        In a union, at most one of the non-static data members can be active at any time, that is, the value of at most one of the non-static data members can be stored in a union at any time. <em>[...]</em> The size of a union is sufficient to contain the largest of its non-static data members. Each non-static data member is allocated as if it were the sole member of a struct. All non-static data members of a union object have the same address.
+                    </p>
+                </blockquote>
+                <p>In <strong>C++98</strong>, members of a <code>union</code> where restricted to trivial object types. For these types, lifetime begins when appropriate storage is obtained, and ends when the storage is reused or released.</p>
+                <blockquote>
+                    <p>
+                        <strong>3.8 [basic.life]/1</strong>
+                        <em>[...]</em> The lifetime of an object of type <code>T</code> begins when:
+                    </p>
+                    <ul>
+                        <li>storage with the proper alignment and size for type <code>T</code> is obtained, and</li>
+                        <li>if the object has non-trivial initialization, its initialization is complete.</li>
+                    </ul>
+                    <p>The lifetime of an object of type <code>T</code> ends when:</p>
+                    <ul>
+                        <li>if <code>T</code> is a class type with a non-trivial destructor (12.4), the destructor call starts, or</li>
+                        <li>the storage which the object occupies is reused or released.</li>
+                    </ul>
+                </blockquote>
+                <p>This special guarantee allows the active member of a <code>union</code> to be changed by simply assigning to it, effectively reusing the storage &mdash;that's at least the spirit, if not the letter, of the standard&mdash;.</p>
+                <p>Furthermore, a <code>union</code> does not know which member &mdash;if any&mdash; is active, so its special member functions have to be implemented without that information. Since members are restricted to trivial types, the special member functions can be implemented in terms of the underlying bytes, independently of the active member.</p>
+                <blockquote>
+                    <p>
+                        <strong>9.5 [class.union]/1</strong>
+                        <em>[...]</em> An object of a class with a non-trivial constructor (12.1), a non-trivial copy constructor (12.8), a non-trivial destructor (12.4), or a non-trivial copy assignment operator (13.5.3, 12.8) cannot be a member of a union, nor can an array of such objects. <em>[...]</em>
+                    </p>
+                </blockquote>
+                <p>In <strong>C++11</strong>, this restriction was lifted; members of a <code>union</code> can now be of any object type. Switching between non-trivial members requires explicitly destroying the currently active member, and using placement <code>new</code> to construct the newly active member.</p>
+                <blockquote>
+                    <p>
+                        <strong>9.5 [class.union]/4</strong>
+                        <em>[Note:</em> In general, one must use explicit destructor calls and placement new operators to change the active member of a union. <em>—end note]</em> <em>[Example:</em> Consider an object <code>u</code> of a union type <code>U</code> having non-static data members <code>m</code> of type <code>M</code> and <code>n</code> of type <code>N</code>. If <code>M</code> has a non-trivial destructor and <code>N</code> has a non-trivial constructor (for instance, if they declare or inherit virtual functions), the active member of <code>u</code> can be safely switched from <code>m</code> to <code>n</code> using the destructor and placement new operator as follows:
+                    </p>
+<pre class="code">
+u.m.~<span style="color:#2b91af;">M</span>();
+<span style="color:blue;">new</span> (&amp;u.n) <span style="color:#2b91af;">N</span>;
+</pre>
+                    <p><em>—end example]</em></p>
+                </blockquote>
+                <p>If a special member function is non-trivial for any of the members, then the <code>union</code> special member function will be implicitly defined as <em>deleted</em> when not user-provided.</p>
+                <blockquote>
+                    <p>
+                        <strong>9.5 [class.union]/2</strong>
+                        <em>[Note:</em> If any non-static data member of a union has a non-trivial default constructor (12.1), copy constructor (12.8), move constructor (12.8), copy assignment operator (12.8), move assignment operator (12.8), or destructor (12.4), the corresponding member function of the union must be user-provided or it will be implicitly deleted (8.4.3) for the union. <em>—end note]</em>
+                    </p>
+                    <p>
+                        <strong>9.5 [class.union]/3</strong>
+                        <em>[Example:</em> Consider the following union:
+                    </p>
+<pre class="code">
+<span style="color:blue;">union</span> U {
+&nbsp;&nbsp;<span style="color:blue;">int</span> i;
+&nbsp;&nbsp;<span style="color:blue;">float</span> f;
+&nbsp;&nbsp;std::<span style="color:#2b91af;">string</span> s;
+};
+</pre>
+                    <p>Since <code>std::string</code> (21.3) declares non-trivial versions of all of the special member functions, <code>U</code> will have an implicitly deleted default constructor, copy/move constructor, copy/move assignment operator, and destructor. To use <code>U</code>, some or all of these member functions must be user-provided. <em>-end example]</em></p>
+                </blockquote>
+                <p>These non-trivial member functions can only be provided &mdash;with their usual semantics&mdash; by knowing if a member is active, and then forwarding to it. A <em>discriminated <code>union</code></em> is a <code>union</code> or <em>union-like class</em> that is self-aware, that is, it contains some form of identifier that lets it know which member &mdash;if any&mdash; is active. A <em>discriminated <code>union</code></em> can provide all special member functions, trivial or not.</p>
+                <p>An instance of <code>eggs::variant&lt;Ts...&gt;</code> is a <em>discriminated <code>union</code></em> with members of object types <code>Ts</code>. It offers a natural interface for switching the active member, and it provides all special member functions with the usual semantics:</p>
+<pre class="code">
+eggs::<span style="color:#2b91af;">variants</span>&lt;<span style="color:#2b91af;">N</span>, <span style="color:#2b91af;">M</span>&gt; u; <span style="color:green;">// u has no active members</span>
+u = <span style="color:#2b91af;">M</span>{}; <span style="color:green;">// u has an active member of type M</span>
+u = <span style="color:#2b91af;">N</span>{}; <span style="color:green;">// u has an active member of type N, the previous active member was destroyed</span>
+
+<span style="color:green;">// all special member functions are provided</span>
+<span style="color:blue;">using</span> U = eggs::<span style="color:#2b91af;">variants</span>&lt;<span style="color:blue;">int</span>, <span style="color:blue;">float</span>, std::<span style="color:#2b91af;">string</span>&gt;;
+</pre>
+            </section>
+        </div>
+
+        <hr>
+        <p>
+            Copyright
+            <em>Agust&iacute;n Berg&eacute;</em>,
+            <em>Fusion Fenix</em> 2014
+        </p>
+
+        <p>
+            Distributed under the Boost Software License, Version 1.0. (See accompanying
+            file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
+        </p>
+    </div>
+</body>
+</html>

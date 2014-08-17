@@ -1,0 +1,147 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+
+    <!-- TITLE -->
+    <title>Eggs.Variant</title>
+
+    <!-- DESCRIPTION -->
+    <meta name="description" content="">
+
+    <!-- CSS3 -->
+    <link rel="stylesheet" type="text/css" href="css/normalize.css?v=2.0" />
+    <link rel="stylesheet" type="text/css" href="css/main.css?v=2.0" />
+
+    <!-- FAVICON -->
+    <link rel="shortcut icon" href="css/img/favicon.ico" type="image/x-icon" />
+</head>
+<body>
+    <div id="container">
+        <header id="head">
+            <div class="top">
+                <img src="logo.png" class="logo" />
+                <a href="http://eggs-cpp.github.io/variant/">
+                    Eggs.Variant
+                </a>
+            </div>
+            <div class="nav">
+                <a href="reference.html"><img src="css/img/prev.png" alt="Prev"></a>
+                <a href="index.html"><img src="css/img/home.png" alt="Home"></a>
+            </div>
+        </header>
+        <div class="config">
+            <section>
+                <a name='config' href='#config'>
+                    <h1>Config</h1>
+                </a>
+
+                <p>Minimal support for broken or incomplete implementations is attained by littering the code with macros. The library uses these macros to downgrade or remove functionality that would otherwise result in a compilation error.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th align="left">Macro</th>
+                            <th align="center">Replacement</th>
+                            <th align="center">Fallback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_CONSTEXPR</span></code></td>
+                            <td align="center"><code><span style="color:blue;">constexpr</span></code></td>
+                            <td align="center">``</td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_STATIC_CONSTEXPR</span></code></td>
+                            <td align="center"><code><span style="color:blue;">static</span> <span style="color:blue;">constexpr</span></code></td>
+                            <td align="center"><code><span style="color:blue;">static</span> <span style="color:blue;">const</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX14_CONSTEXPR</span></code></td>
+                            <td align="center"><code><span style="color:blue;">constexpr</span></code></td>
+                            <td align="center">``</td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_NOEXCEPT</span></code></td>
+                            <td align="center"><code><span style="color:blue;">noexcept</span></code></td>
+                            <td align="center">``</td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_NOEXCEPT_IF(...)</span></code></td>
+                            <td align="center"><code><span style="color:blue;">noexcept</span>(__VA_ARGS__)</code></td>
+                            <td align="center">``</td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_NOEXCEPT_EXPR(...)</span></code></td>
+                            <td align="center"><code><span style="color:blue;">noexcept</span>(__VA_ARGS__)</code></td>
+                            <td align="center"><code><span style="color:blue;">false</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_NORETURN</span></code></td>
+                            <td align="center"><code>[[noreturn]]</code></td>
+                            <td align="center">``</td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX14_HAS_VARIABLE_TEMPLATES</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_STD_HAS_ALIGNED_UNION</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                        <tr>
+                            <td align="left"><code><span style="color:#6f008a;">EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">1</span></code></td>
+                            <td align="center"><code><span style="color:magenta;">0</span></code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <p>The macros are defined to their corresponding <em>replacement</em>, except for known incomplete implementations where they are defined to their corresponding <em>fallback</em> instead. These macros can be overriden by the user by defining them before including any library header.</p>
+
+                <p><em>[Note:</em> The configuration macros are not part of the public interface of the library, and are not leaked into user code.<em>]</em>
+            </section>
+        </div>
+
+        <hr>
+        <p>
+            Copyright
+            <em>Agust&iacute;n Berg&eacute;</em>,
+            <em>Fusion Fenix</em> 2014
+        </p>
+
+        <p>
+            Distributed under the Boost Software License, Version 1.0. (See accompanying
+            file LICENSE_1_0.txt or copy at <a href="http://www.boost.org/LICENSE_1_0.txt">http://www.boost.org/LICENSE_1_0.txt</a>)
+        </p>
+    </div>
+</body>
+</html>
