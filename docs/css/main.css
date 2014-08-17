@@ -1,0 +1,293 @@
+@import url(https://fonts.googleapis.com/css?family=Muli:400,300);
+@import url(https://fonts.googleapis.com/css?family=Share:400,700);
+
+/* ============================== */
+/* BODY */
+/* ============================== */
+
+body {
+    font-family: 'Muli',arial,sans-serif;
+    background-color: #FEFEFE;
+    margin: 0;
+    padding: 0;
+    font-size: 0.875em;
+    color: #616161;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 0.5em;
+    font-family: 'Share';
+}
+
+.title {
+    border-bottom: solid 2px #f5aa10;
+}
+
+#container {
+    margin: 0 auto;
+    width: 60%;
+    min-width: 640px;
+    overflow: auto;
+}
+
+#main {
+    width: 100%;
+}
+
+a {
+    color: #3C6EB4;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+
+/* ============================== */
+/* HEADER */
+/* ============================== */
+#head {
+    overflow: auto;
+    margin: 40px 0;
+}
+
+    #head div.top {
+        font-size: 2.4em;
+        margin-right: 80px;
+    }
+
+    #head div.bottom {
+        height: 38px;
+        margin-right: 80px;
+    }
+
+    #head .logo {
+        vertical-align: bottom;
+    }
+
+    #head a.name {
+        text-decoration: none;
+        color: #555;
+        font-weight: bold;
+        overflow: auto;
+    }
+
+    #head span.slogan {
+        color: #CCC;
+    }
+
+/* ============================== */
+/* HEADER POST */
+/* ============================== */
+#head_post {
+    overflow: auto;
+    margin: 10px 0;
+    text-align: center;
+}
+
+    #head_post a.name {
+        text-decoration: none;
+        color: #555;
+        font-size: 0.9em;
+    }
+
+    #head_post span.slogan {
+        color: #CCC;
+    }
+
+/* ============================== */
+/* FOOTER */
+/* ============================== */
+#foot {
+    text-align: right;
+    font-size: 0.9em;
+}
+
+/* ============================== */
+/* PAGER */
+/* ============================== */
+#pager {
+    overflow: auto;
+}
+
+    #pager a.newer {
+        float: right;
+    }
+
+    #pager a.older {
+        float: left;
+    }
+
+/* ============================== */
+/* POST VIEW*/
+/* ============================== */
+post {
+    margin-bottom: 60px;
+    clear: both;
+    overflow: auto;
+}
+
+    post header.post {
+        margin-bottom: 10px;
+    }
+
+        post header.post h1.title {
+            font-weight: bold;
+            margin: 0;
+        }
+
+            post header.post h1.title a {
+                color: inherit;
+                text-decoration: none;
+            }
+
+        post header.post div.date {
+            font-size: 0.9em;
+            font-weight: bold;
+            text-align: right;
+            text-transform: uppercase;
+            color: #999;
+        }
+
+    post .body {
+        font-size: 1.2em;
+    }
+
+    post .console {
+        background: url("img/console.png") no-repeat scroll 10px center #F1F1F1;
+        display: block;
+        line-height: 50px;
+        margin: 5px 0;
+        padding-left: 60px;
+    }
+
+    post img:not(.captcha) {
+        max-width: 100%;
+    }
+
+    post blockquote {
+        font-size: 1em;
+        width: 80%;
+        margin-left: 2em;
+        padding-left: 0.5em;
+        border-left: 2px solid #C3C3C3;
+    }
+
+    post footer.post {
+        clear: both;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+article pre {
+    border: 1px dashed #ccc;
+    padding: 1em;
+    background: #f4f4f4;
+}
+
+pre, code {
+    font-family: monospace;
+    font-size: 1em;
+}
+
+/* ============================== */
+/* BUTTONS */
+/* ============================== */
+.button, form input[type="submit"] {
+    font-family: 'Share';
+    font-size: 12px;
+    background: #eee;
+    padding: 5px 20px;
+    margin: 5px 0;
+    overflow: hidden;
+    border: solid 1px #ccc;
+    color: #2a2a2a;
+    text-decoration: none;
+    display: inline-block;
+    -webkit-text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+    -moz-text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+    text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.9);
+    -webkit-transition-duration: 0.3s;
+    -moz-transition-duration: 0.3s;
+    transition-duration: 0.3s;
+}
+
+    .button:hover, form input[type="submit"]:hover {
+        text-decoration: none;
+        background: #f5aa10;
+        color: #fff;
+        border-color: #666;
+        -webkit-text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+        -moz-text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.9);
+        text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.8);
+        -webkit-transition: 0.2s;
+        -moz-transition: 0.2s;
+        transition: 0.2s;
+    }
+
+/* ============================== */
+/* TABLES */
+/* ============================== */
+table {
+    border: 1px solid #999;
+}
+
+    table th, table td {
+        background: #f4f4f4;
+        padding: 5px 15px;
+    }
+
+    table thead {
+        border-bottom: 1px solid #999;
+    }
+
+    table th {
+        font-weight: bold;
+        background: #eaeaea;
+    }
+
+    table td, table th {
+        border-right: 1px solid #999;
+    }
+
+pre.code {
+    -moz-border-radius: 0 0 0 0 !important;
+    -webkit-border-radius: 0 0 0 0 !important;
+    background-color: #F4F4F4 !important;
+    border: 1px dashed #CCC;
+    float: none !important;
+    height: auto !important;
+    line-height: 1.1em !important;
+    margin: 1em 0px !important;
+    outline: 0 !important;
+    overflow: visible !important;
+    padding: 1em;
+    position: static !important;
+    text-align: left !important;
+    vertical-align: baseline !important;
+    width: 100% !important;
+    box-sizing: content-box !important;
+    font-family: monospace !important;
+    font-weight: normal !important;
+    font-style: normal !important;
+    font-size: 1em !important;
+    min-height: inherit !important;
+    box-sizing: border-box !important;
+}
+
+/* ============================== */
+/* REFERENCE */
+/* ============================== */
+.reference ul {
+	list-style: none;
+}
+
+.reference ul li {
+	margin: 14px 0;
+}
+
+.reference ul li ul {
+	list-style: disc;
+}
