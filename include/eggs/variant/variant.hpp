@@ -436,6 +436,78 @@ namespace eggs { namespace variants
         >;
 
         ///////////////////////////////////////////////////////////////////////
+        namespace conditionally_deleted_adl
+        {
+            template <bool CopyCnstr, bool MoveCnstr = CopyCnstr>
+            struct conditionally_deleted_cnstr
+            {};
+
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+            template <>
+            struct conditionally_deleted_cnstr<true, false>
+            {
+                conditionally_deleted_cnstr() = default;
+                conditionally_deleted_cnstr(conditionally_deleted_cnstr const&) = delete;
+                conditionally_deleted_cnstr(conditionally_deleted_cnstr&&) = default;
+                conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr const&) = default;
+                conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr&&) = default;
+            };
+
+            template <>
+            struct conditionally_deleted_cnstr<false, true>
+            {
+                conditionally_deleted_cnstr() = default;
+                conditionally_deleted_cnstr(conditionally_deleted_cnstr const&) = default;
+                conditionally_deleted_cnstr(conditionally_deleted_cnstr&&) = delete;
+                conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr const&) = default;
+                conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr&&) = default;
+            };
+
+            template <>
+            struct conditionally_deleted_cnstr<true, true>
+            {
+                conditionally_deleted_cnstr() = default;
+                conditionally_deleted_cnstr(conditionally_deleted_cnstr const&) = delete;
+                conditionally_deleted_cnstr(conditionally_deleted_cnstr&&) = delete;
+                conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr const&) = default;
+                conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr&&) = default;
+            };
+#endif
+
+            template <bool CopyAssign, bool MoveAssign = CopyAssign>
+            struct conditionally_deleted_assign
+            {};
+
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+            template <>
+            struct conditionally_deleted_assign<true, false>
+            {
+                conditionally_deleted_assign() = default;
+                conditionally_deleted_assign& operator=(conditionally_deleted_assign const&) = delete;
+                conditionally_deleted_assign& operator=(conditionally_deleted_assign&&) = default;
+            };
+
+            template <>
+            struct conditionally_deleted_assign<false, true>
+            {
+                conditionally_deleted_assign() = default;
+                conditionally_deleted_assign& operator=(conditionally_deleted_assign const&) = default;
+                conditionally_deleted_assign& operator=(conditionally_deleted_assign&&) = delete;
+            };
+
+            template <>
+            struct conditionally_deleted_assign<true, true>
+            {
+                conditionally_deleted_assign() = default;
+                conditionally_deleted_assign& operator=(conditionally_deleted_assign const&) = delete;
+                conditionally_deleted_assign& operator=(conditionally_deleted_assign&&) = delete;
+            };
+#endif
+        }
+        using conditionally_deleted_adl::conditionally_deleted_cnstr;
+        using conditionally_deleted_adl::conditionally_deleted_assign;
+
+        ///////////////////////////////////////////////////////////////////////
         struct hash
         {
             using result_type = std::size_t;
@@ -462,6 +534,14 @@ namespace eggs { namespace variants
     //! requirements of `Destructible`.
     template <typename ...Ts>
     class variant
+      : detail::conditionally_deleted_cnstr<
+            !detail::all_of<detail::pack<std::is_copy_constructible<Ts>...>>::value
+          , !detail::all_of<detail::pack<std::is_move_constructible<Ts>...>>::value
+        >
+      , detail::conditionally_deleted_assign<
+            !detail::all_of<detail::pack<std::is_copy_assignable<Ts>...>>::value
+          , !detail::all_of<detail::pack<std::is_move_assignable<Ts>...>>::value
+        >
     {
         static_assert(
             !detail::any_of<detail::pack<
