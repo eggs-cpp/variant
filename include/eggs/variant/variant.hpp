@@ -421,14 +421,16 @@ namespace eggs { namespace variants
         template <typename ...Ts>
         using storage = _storage<
             pack<Ts...>
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
           , all_of<pack<std::is_trivially_copyable<Ts>...>>::value
+          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+#  else
+          , all_of<pack<std::is_pod<Ts>...>>::value
+          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+#  endif
 #else
           , all_of<pack<std::is_pod<Ts>...>>::value
-#endif
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
-#else
           , all_of<pack<std::is_pod<Ts>...>>::value
 #endif
         >;
@@ -1862,7 +1864,7 @@ namespace std
     //!  `std::hash<T>()(*v.target<T>())`; otherwise it evaluates to an
     //!  unspecified value.
     template <typename ...Ts>
-    struct hash<::eggs::variants::variant<Ts...>>
+    struct hash< ::eggs::variants::variant<Ts...>>
     {
         using argument_type = ::eggs::variants::variant<Ts...>;
         using result_type = std::size_t;

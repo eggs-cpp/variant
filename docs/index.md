@@ -15,7 +15,7 @@ The library requires a standard conformant implementation of **C++11**; a few ad
 The library was successfully tested with the following configurations [*]:
 
  - _Clang_ 3.3, 3.4 (both with _libc++_ and _libstdc++_)
- - _GCC_ 4.6, 4.7, 4.8, 4.9
+ - _GCC_ 4.8, 4.9
  - _MSVC_ 2013
 
 [*] Only _Clang_ with _libc++_ implement enough functionality to support every feature of the library.

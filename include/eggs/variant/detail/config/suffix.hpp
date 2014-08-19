@@ -24,7 +24,7 @@
 #  undef EGGS_CXX14_CONSTEXPR_DEFINED
 #endif
 
-/// defaulted/deleted functions support
+/// defaulted functions support
 #ifdef EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS_DEFINED
 #  undef EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
 #  undef EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS_DEFINED

@@ -38,7 +38,7 @@
 #  define EGGS_CXX14_CONSTEXPR_DEFINED
 #endif
 
-/// defaulted/deleted functions support
+/// defaulted functions support
 #ifndef EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
 #  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
 #    define EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS 0
