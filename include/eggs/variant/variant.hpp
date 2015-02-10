@@ -943,7 +943,7 @@ namespace eggs { namespace variants
         }
 
         //! template <std::size_t I, class ...Args>
-        //! void emplace(Args&&... args);
+        //! void emplace_n(Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -967,7 +967,7 @@ namespace eggs { namespace variants
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
         >
-        void emplace(Args&&... args)
+        void emplace_n(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -979,7 +979,7 @@ namespace eggs { namespace variants
         }
 
         //! template <std::size_t I, class U, class ...Args>
-        //! void emplace(std::initializer_list<U> il, Args&&... args);
+        //! void emplace_n(std::initializer_list<U> il, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -1010,7 +1010,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        void emplace(std::initializer_list<U> il, Args&&... args)
+        void emplace_n(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
