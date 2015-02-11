@@ -19,7 +19,7 @@
 #endif
 
 #ifndef EGGS_CXX11_STATIC_CONSTEXPR
-#  if defined(_MSC_FULL_VER)
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
 #    define EGGS_CXX11_STATIC_CONSTEXPR static const
 #  else
 #    define EGGS_CXX11_STATIC_CONSTEXPR static constexpr
@@ -40,7 +40,7 @@
 
 /// defaulted functions support
 #ifndef EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000  // No defaulted move constructors or assignment before VS2015
 #    define EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS 0
 #  else
 #    define EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS 1
@@ -50,7 +50,7 @@
 
 /// deleted functions support
 #ifndef EGGS_CXX11_HAS_DELETED_FUNCTIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 180000000  // Deleted functions not available before VS2013
 #    define EGGS_CXX11_HAS_DELETED_FUNCTIONS 0
 #  else
 #    define EGGS_CXX11_HAS_DELETED_FUNCTIONS 1
@@ -60,7 +60,7 @@
 
 /// noexcept support
 #ifndef EGGS_CXX11_NOEXCEPT
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000  // noexcept added VS2015
 #    define EGGS_CXX11_NOEXCEPT
 #  else
 #    define EGGS_CXX11_NOEXCEPT noexcept
@@ -69,7 +69,7 @@
 #endif
 
 #ifndef EGGS_CXX11_NOEXCEPT_IF
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000  // noexcept added VS2015
 #    define EGGS_CXX11_NOEXCEPT_IF(...)
 #  else
 #    define EGGS_CXX11_NOEXCEPT_IF(...) noexcept(__VA_ARGS__)
@@ -78,7 +78,7 @@
 #endif
 
 #ifndef EGGS_CXX11_NOEXCEPT_EXPR
-#  if defined(_MSC_FULL_VER)
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512  // noexcept(expr) buggy before this
 #    define EGGS_CXX11_NOEXCEPT_EXPR(...) false
 #  else
 #    define EGGS_CXX11_NOEXCEPT_EXPR(...) noexcept(__VA_ARGS__)
@@ -146,7 +146,7 @@
 
 /// std::integer_sequence support
 #ifndef EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE
-#  if __cplusplus < 201402L
+#  if __cplusplus < 201402L && _MSC_FULL_VER < 190000000  // VS2015 has integer_sequence
 #    define EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE 0
 #  else
 #    define EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE 1
