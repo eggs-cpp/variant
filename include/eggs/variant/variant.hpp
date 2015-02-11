@@ -68,7 +68,11 @@ namespace eggs { namespace variants
             struct is_nothrow_swappable
               : std::integral_constant<
                     bool
-                  , EGGS_CXX11_NOEXCEPT_EXPR(swap(std::declval<T&>(), std::declval<T&>()))
+#if defined(_MSC_FULL_VER)  // Dinkumware unfortunately declares a generic swap which is ambiguous below
+                    , std::is_nothrow_move_constructible<T>::value && std::is_nothrow_move_assignable<T>::value
+#else
+                    , EGGS_CXX11_NOEXCEPT_EXPR(swap(std::declval<T&>(), std::declval<T&>()))
+#endif
                 >
             {};
         }

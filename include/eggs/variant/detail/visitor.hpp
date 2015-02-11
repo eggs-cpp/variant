@@ -41,6 +41,10 @@ namespace eggs { namespace variants { namespace detail
         R operator()(pack<Ts...>, std::size_t which, Args&&... args) const
         {
             using function_ptr = R(*)(Args...);
+            /* &F::template call<Ts>... is either:
+            1. template <typename T> static R F::call(F f, Ms... ms, void* ptr, ...);
+            2. template <typename T> static R call(F f, Ms... ms, void const* ptr, ...)
+            */
             EGGS_CXX11_STATIC_CONSTEXPR function_ptr table[] = {
                 &F::template call<Ts>...};
 

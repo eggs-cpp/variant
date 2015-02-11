@@ -96,7 +96,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
 
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730  // VS2013 ICEs when choosing between T&& and std::initializer_list
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
         v.emplace_n<1>("42");
 #else
         v.emplace_n<1>({ '4', '2' });
@@ -117,7 +117,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730  // VS2013 ICEs when choosing between T&& and std::initializer_list
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
         v.emplace_n<1>("42");
 #else
         v.emplace_n<1>({ '4', '2' });
@@ -138,7 +138,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730  // VS2013 ICEs when choosing between T&& and std::initializer_list
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
         v.emplace_n<1>("42");
 #else
         v.emplace_n<1>({ '4', '2' });
@@ -248,7 +248,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
 
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730  // VS2013 ICEs when choosing between T&& and std::initializer_list
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
         v.emplace<std::string>("42");
 #else
         v.emplace<std::string>({ '4', '2' });
@@ -269,7 +269,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730  // VS2013 ICEs when choosing between T&& and std::initializer_list
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
         v.emplace<std::string>("42");
 #else
         v.emplace<std::string>({ '4', '2' });
@@ -290,7 +290,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
-#if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730  // VS2013 ICEs when choosing between T&& and std::initializer_list
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
         v.emplace<std::string>("42");
 #else
         v.emplace<std::string>({ '4', '2' });
