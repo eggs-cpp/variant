@@ -41,10 +41,8 @@ namespace eggs { namespace variants { namespace detail
         R operator()(pack<Ts...>, std::size_t which, Args&&... args) const
         {
             using function_ptr = R(*)(Args...);
-            /* &F::template call<Ts>... is either:
-            1. template <typename T> static R F::call(F f, Ms... ms, void* ptr, ...);
-            2. template <typename T> static R call(F f, Ms... ms, void const* ptr, ...)
-            */
+            // TODO FIXME: VS2013 generates failed to resolve overload errors here
+            // Indeed so did VS2015 until the very most recent CTP
             EGGS_CXX11_STATIC_CONSTEXPR function_ptr table[] = {
                 &F::template call<Ts>...};
 
