@@ -28,7 +28,12 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
 
 TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
 {
-    eggs::variant<int, std::string> v(in_place<1>, {'4', '2'});
+    eggs::variant<int, std::string> v(in_place<1>,
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
+      "42");
+#else
+    { '4', '2' });
+#endif
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 1u);
@@ -50,7 +55,12 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
 
 TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
 {
-    eggs::variant<int, std::string> v(in_place<std::string>, {'4', '2'});
+    eggs::variant<int, std::string> v(in_place<std::string>, 
+#if defined(_MSC_FULL_VER) && _MSC_FULL_VER <= 190022310  // VS2013 ICEs when choosing between T&& and std::initializer_list
+      "42");
+#else
+    { '4', '2' });
+#endif
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 1u);
