@@ -1946,9 +1946,9 @@ namespace std
 
         std::size_t operator()(::eggs::variants::variant<Ts...> const& v) const
         {
+            ::eggs::variants::detail::hash h;
             return bool(v)
-              ? ::eggs::variants::apply<std::size_t>(
-                    ::eggs::variants::detail::hash{}, v)
+              ? ::eggs::variants::apply<std::size_t>(h, v)
               : 0u;
         }
     };
