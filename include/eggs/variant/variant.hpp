@@ -690,6 +690,7 @@ namespace eggs { namespace variants
                 std::forward<Args>(args)...}
         {}
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
         //! explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
         //!
@@ -730,6 +731,7 @@ namespace eggs { namespace variants
           : _storage{std::integral_constant<std::size_t, I + 1>{},
                 il, std::forward<Args>(args)...}
         {}
+#endif
 
         //! template <class T, class ...Args>
         //! explicit variant(unspecified<T>, Args&&... args);
@@ -754,6 +756,7 @@ namespace eggs { namespace variants
                 >>{}, std::forward<Args>(args)...}
         {}
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
         //! explicit variant(unspecified<T>, std::initializer_list<U> il, Args&&... args);
         //!
@@ -785,6 +788,7 @@ namespace eggs { namespace variants
                     detail::empty, typename std::remove_cv<Ts>::type...
                 >>{}, il, std::forward<Args>(args)...}
         {}
+#endif
 
         //! ~variant();
         //!
@@ -978,6 +982,7 @@ namespace eggs { namespace variants
             _storage.emplace(t_which{}, std::forward<Args>(args)...);
         }
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
         //! void emplace(std::initializer_list<U> il, Args&&... args);
         //!
@@ -1021,7 +1026,9 @@ namespace eggs { namespace variants
 
             _storage.emplace(t_which{}, il, std::forward<Args>(args)...);
         }
+#endif
 
+#if EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
         //! template <class T, class ...Args>
         //! void emplace(Args&&... args);
         //!
@@ -1041,6 +1048,7 @@ namespace eggs { namespace variants
             _storage.emplace(t_which{}, std::forward<Args>(args)...);
         }
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
         //! void emplace(std::initializer_list<U> il, Args&&... args);
         //!
@@ -1069,6 +1077,8 @@ namespace eggs { namespace variants
 
             _storage.emplace(t_which{}, il, std::forward<Args>(args)...);
         }
+#endif
+#endif
 
         //! void swap(variant& rhs) noexcept(see below);
         //!

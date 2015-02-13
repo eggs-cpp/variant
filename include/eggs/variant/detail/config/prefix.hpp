@@ -120,6 +120,26 @@
 #  define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS_DEFINED
 #endif
 
+/// overloading on std::initializer_list support
+#ifndef EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
+#    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 0
+#  else
+#    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 1
+#  endif
+#  define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING_DEFINED
+#endif
+
+/// overloading on template arguments support
+#ifndef EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
+#  if defined(_MSC_FULL_VER)
+#    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 0
+#  else
+#    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 1
+#  endif
+#  define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING_DEFINED
+#endif
+
 /// variable templates support
 #ifndef EGGS_CXX14_HAS_VARIABLE_TEMPLATES
 #  if __cplusplus < 201402L

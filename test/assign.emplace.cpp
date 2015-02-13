@@ -71,7 +71,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
-            v.emplace<Dtor>();
+            v.emplace<0>();
 
             REQUIRE(bool(v) == true);
             REQUIRE(v.which() == 0u);
@@ -87,6 +87,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
     }
 }
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST
 TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
     SECTION("empty target")
@@ -141,7 +142,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
-            v.emplace<Dtor>();
+            v.emplace<0>();
 
             REQUIRE(bool(v) == true);
             REQUIRE(v.which() == 0u);
@@ -156,7 +157,9 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         Dtor::called = false;
     }
 }
+#endif
 
+#if EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 {
     SECTION("empty target")
@@ -211,7 +214,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
-            v.emplace<Dtor>();
+            v.emplace<0>();
 
             REQUIRE(bool(v) == true);
             REQUIRE(v.which() == 0u);
@@ -227,6 +230,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
     }
 }
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST
 TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
     SECTION("empty target")
@@ -281,7 +285,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
-            v.emplace<Dtor>();
+            v.emplace<0>();
 
             REQUIRE(bool(v) == true);
             REQUIRE(v.which() == 0u);
@@ -296,3 +300,5 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         Dtor::called = false;
     }
 }
+#endif
+#endif

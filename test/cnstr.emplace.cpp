@@ -26,6 +26,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
     CHECK(*v.target<int>() == 42);
 }
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST
 TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(in_place<1>, {'4', '2'});
@@ -36,6 +37,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&
     REQUIRE(v.target<std::string>() != nullptr);
     CHECK(*v.target<std::string>() == "42");
 }
+#endif
 
 TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
 {
@@ -48,6 +50,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
     CHECK(*v.target<int>() == 42);
 }
 
+#if EGGS_CXX11_HAS_INITIALIZER_LIST
 TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(in_place<std::string>, {'4', '2'});
@@ -58,3 +61,4 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&
     REQUIRE(v.target<std::string>() != nullptr);
     CHECK(*v.target<std::string>() == "42");
 }
+#endif

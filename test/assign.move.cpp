@@ -110,13 +110,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v1;
-            v1.emplace<Throw>();
+            v1.emplace<1>();
 
             REQUIRE(bool(v1) == true);
             REQUIRE(v1.which() == 1u);
 
             eggs::variant<Dtor, Throw> v2;
-            v2.emplace<Dtor>();
+            v2.emplace<0>();
 
             REQUIRE(bool(v2) == true);
             REQUIRE(v2.which() == 0u);

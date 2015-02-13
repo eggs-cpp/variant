@@ -119,7 +119,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
             REQUIRE(v1.which() == 1u);
 
             eggs::variant<Dtor, Throw> v2;
-            v2.emplace<Dtor>();
+            v2.emplace<0>();
 
             REQUIRE(bool(v2) == true);
             REQUIRE(v2.which() == 0u);

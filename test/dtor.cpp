@@ -26,7 +26,7 @@ TEST_CASE("variant<Ts...>::~variant()", "[variant.dtor]")
     {
         {
             eggs::variant<int, Dtor> v;
-            v.emplace<Dtor>();
+            v.emplace<1>();
 
             REQUIRE(Dtor::called == false);
         }
