@@ -1,7 +1,8 @@
 **Eggs.Variant**
 ==================
 
-This directory contains the library test files. In order to run them, follow these steps from the library root directory:
+This directory contains the library test files. In order to run them, follow
+these steps from the library root directory:
 
 >     mkdir build
 >     cd build
