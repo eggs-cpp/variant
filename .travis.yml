@@ -1,13 +1,25 @@
 language: cpp
 
-compiler: clang
+compiler:
+  - clang
+  - gcc
 
 branches:
   only:
     - master
     - develop
 
-before_script:
+# Install dependencies
+before_install:
+  - export CHECKOUT_PATH=`pwd`;
+  - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
+  - sudo apt-get update -qq
+  - if [ "$CXX" = "clang++" ]; then sudo apt-get install -qq libstdc++-4.8-dev clang-3.5; fi
+  - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq libstdc++-4.9-dev g++-4.9; fi
+  - if [ "$CXX" = "g++" ]; then export CXX="g++-4.9" CC="gcc-4.9"; fi
+  - cd $CHECKOUT_PATH
+
+install:
   - mkdir build
   - cd build
   - cmake ..
