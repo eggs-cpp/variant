@@ -191,14 +191,27 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     template <typename R>
-    struct _void_guard
-    {};
+    struct _invoke_guard
+    {
+        template <typename ...Ts>
+        EGGS_CXX11_CONSTEXPR R operator()(Ts&&... vs)
+            EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
+                _invoke(std::forward<Ts>(vs)...)))
+        {
+            return _invoke(std::forward<Ts>(vs)...);
+        }
+    };
 
     template <>
-    struct _void_guard<void>
+    struct _invoke_guard<void>
     {
-        template <typename T>
-        void operator,(T const&) const EGGS_CXX11_NOEXCEPT {}
+        template <typename ...Ts>
+        EGGS_CXX11_CONSTEXPR void operator()(Ts&&... vs)
+            EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
+                _invoke(std::forward<Ts>(vs)...)))
+        {
+            _invoke(std::forward<Ts>(vs)...);
+        }
     };
 
     template <typename Variant>
@@ -232,7 +245,7 @@ namespace eggs { namespace variants { namespace detail
         {
             using value_type = typename std::remove_cv<
                 typename std::remove_reference<T>::type>::type;
-            return _void_guard<R>(), _invoke(
+            return _invoke_guard<R>{}(
                 std::forward<F>(f), std::forward<Ms>(ms)...
               , std::forward<T>(*static_cast<value_type*>(ptr)));
         }
@@ -242,7 +255,7 @@ namespace eggs { namespace variants { namespace detail
         {
             using value_type = typename std::remove_cv<
                 typename std::remove_reference<T>::type>::type const;
-            return _void_guard<R>(), _invoke(
+            return _invoke_guard<R>{}(
                 std::forward<F>(f), std::forward<Ms>(ms)...
               , std::forward<T>(*static_cast<value_type*>(ptr)));
         }
