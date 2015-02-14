@@ -14,6 +14,8 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX11_NOEXCEPT_EXPR(...)`                | `noexcept(__VA_ARGS__)` | `false`
 `EGGS_CXX11_NORETURN`                          | `[[noreturn]]`          | ``
 `EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS`        | `1`                     | `0`
+`EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING`  | `1`                     | `0`
+`EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING` | `1`                     | `0`
 `EGGS_CXX14_HAS_VARIABLE_TEMPLATES`            | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_ALIGNED_UNION`             | `1`                     | `0`
 `EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE`          | `1`                     | `0`

@@ -1,7 +1,9 @@
 **Eggs.Variant**
 ==================
 
-This directory contains the base files used to generate the documentation for the library. The process is not fully automatic, it requires some manual interaction. See the generated docs at http://eggs-cpp.github.io/variant/.
+This directory contains the base files used to generate the documentation for
+the library. The process is not fully automatic, it requires some manual
+interaction. See the generated docs at http://eggs-cpp.github.io/variant/.
 
 ---
 
