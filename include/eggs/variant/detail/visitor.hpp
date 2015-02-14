@@ -194,7 +194,7 @@ namespace eggs { namespace variants { namespace detail
     struct _invoke_guard
     {
         template <typename ...Ts>
-        EGGS_CXX11_CONSTEXPR R operator()(Ts&&... vs)
+        EGGS_CXX11_CONSTEXPR R operator()(Ts&&... vs) const
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
                 _invoke(std::forward<Ts>(vs)...)))
         {
@@ -206,7 +206,7 @@ namespace eggs { namespace variants { namespace detail
     struct _invoke_guard<void>
     {
         template <typename ...Ts>
-        EGGS_CXX11_CONSTEXPR void operator()(Ts&&... vs)
+        EGGS_CXX14_CONSTEXPR void operator()(Ts&&... vs) const
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
                 _invoke(std::forward<Ts>(vs)...)))
         {
