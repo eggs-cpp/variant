@@ -78,7 +78,7 @@
 #endif
 
 #ifndef EGGS_CXX11_NOEXCEPT_EXPR
-#  if defined(_MSC_FULL_VER)
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
 #    define EGGS_CXX11_NOEXCEPT_EXPR(...) false
 #  else
 #    define EGGS_CXX11_NOEXCEPT_EXPR(...) noexcept(__VA_ARGS__)
@@ -122,7 +122,7 @@
 
 /// overloading on std::initializer_list support
 #ifndef EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190021730
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
 #    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 0
 #  else
 #    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 1
@@ -132,7 +132,7 @@
 
 /// overloading on template arguments support
 #ifndef EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
-#  if defined(_MSC_FULL_VER)
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
 #    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 0
 #  else
 #    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 1
@@ -188,7 +188,7 @@
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
 #  if defined(__GLIBCXX__)
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
-#  elif defined (_CPPLIB_VER)
+#  elif defined (_CPPLIB_VER) && _CPPLIB_VER < 650
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
 #  else
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 1

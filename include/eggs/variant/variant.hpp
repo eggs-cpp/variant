@@ -65,17 +65,20 @@ namespace eggs { namespace variants
             using std::swap;
 
             template <typename T>
-            struct is_nothrow_swappable
-              : std::integral_constant<
-                    bool
-                  , EGGS_CXX11_NOEXCEPT_EXPR(swap(std::declval<T&>(), std::declval<T&>()))
-                >
-            {};
+            struct _is_nothrow_swappable
+            {
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    EGGS_CXX11_NOEXCEPT_EXPR(
+                        swap(std::declval<T&>(), std::declval<T&>()));
+            };
         }
 
         template <typename T>
         struct is_nothrow_swappable
-          : swap_adl::is_nothrow_swappable<T>
+          : std::integral_constant<
+                bool
+              , swap_adl::_is_nothrow_swappable<T>::value
+            >
         {};
 
         ///////////////////////////////////////////////////////////////////////
