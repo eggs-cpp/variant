@@ -888,12 +888,14 @@ namespace eggs { namespace variants
     //!  indexing is zero-based.
     //!
     //! \throws `bad_variant_access` if the `I`th member of `v` is not active.
-    template <std::size_t I, typename ...Ts>
-    variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v)
+    template <
+        std::size_t I, typename ...Ts
+      , typename T = typename variant_element<I, variant<Ts...>>::type
+    >
+    T& get(variant<Ts...>& v)
     {
-        using value_type = variant_element_t<I, variant<Ts...>>;
-        if (value_type* value = v.template target<value_type>())
-            return *value;
+        if (v.which() == I)
+            return *static_cast<T*>(v.target());
         throw bad_variant_access{};
     }
 
@@ -906,12 +908,14 @@ namespace eggs { namespace variants
     //!  where indexing is zero-based.
     //!
     //! \throws `bad_variant_access` if the `I`th member of `v` is not active.
-    template <std::size_t I, typename ...Ts>
-    variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v)
+    template <
+        std::size_t I, typename ...Ts
+      , typename T = typename variant_element<I, variant<Ts...>>::type
+    >
+    T const& get(variant<Ts...> const& v)
     {
-        using value_type = variant_element_t<I, variant<Ts...>>;
-        if (value_type const* value = v.template target<value_type>())
-            return *value;
+        if (v.which() == I)
+            return *static_cast<T const*>(v.target());
         throw bad_variant_access{};
     }
 
@@ -920,11 +924,13 @@ namespace eggs { namespace variants
     //!
     //! \effects Equivalent to return `std::forward<variant_element_t<I,
     //!  variant<Ts...>>&&>(get<I>(v))`.
-    template <std::size_t I, typename ...Ts>
-    variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v)
+    template <
+        std::size_t I, typename ...Ts
+      , typename T = typename variant_element<I, variant<Ts...>>::type
+    >
+    T&& get(variant<Ts...>&& v)
     {
-        using value_type = variant_element_t<I, variant<Ts...>>;
-        return std::forward<value_type&&>(get<I>(v));
+        return std::forward<T>(get<I>(v));
     }
 
     //! template <class T, class ...Ts>

@@ -87,6 +87,21 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
     }
 }
 
+TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
+{
+    eggs::variant<int, int> v;
+
+    REQUIRE(bool(v) == false);
+    REQUIRE(v.which() == npos);
+
+    v.emplace<0>(42);
+
+    CHECK(bool(v) == true);
+    CHECK(v.which() == 0u);
+    CHECK(v.target_type() == typeid(int));
+    REQUIRE(v.target() != nullptr);
+}
+
 #if EGGS_CXX11_HAS_INITIALIZER_LIST
 TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
@@ -156,6 +171,21 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         }
         Dtor::called = false;
     }
+}
+
+TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
+{
+    eggs::variant<std::string, std::string> v;
+
+    REQUIRE(bool(v) == false);
+    REQUIRE(v.which() == npos);
+
+    v.emplace<1>({'4', '2'});
+
+    CHECK(bool(v) == true);
+    CHECK(v.which() == 1u);
+    CHECK(v.target_type() == typeid(std::string));
+    REQUIRE(v.target() != nullptr);
 }
 #endif
 
