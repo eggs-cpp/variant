@@ -63,8 +63,8 @@ namespace eggs { namespace variants
         EGGS_CXX11_CONSTEXPR explicit nullvariant_t(int) EGGS_CXX11_NOEXCEPT {}
     };
 
-    //! constexpr nullvariant_t nullvariant(unspecified);
-    EGGS_CXX11_CONSTEXPR nullvariant_t nullvariant{0};
+    //! static constexpr nullvariant_t nullvariant(unspecified);
+    EGGS_CXX11_STATIC_CONSTEXPR nullvariant_t nullvariant{0};
 }}
 
 #include <eggs/variant/detail/config/suffix.hpp>
