@@ -717,11 +717,13 @@ namespace eggs { namespace variants
             return _storage.which() != 0 ? _storage.which() - 1 : npos;
         }
 
-        //! std::type_info const& target_type() const noexcept;
+        //! constexpr std::type_info const& target_type() const noexcept;
         //!
         //! \returns If `*this` has an active member of type `T`, `typeid(T)`;
         //!  otherwise `typeid(void)`.
-        std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT
+        //!
+        //! \remarks This function shall be a `constexpr` function.
+        EGGS_CXX11_CONSTEXPR std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0
               ? detail::type_id{}(
@@ -816,7 +818,7 @@ namespace eggs { namespace variants
 
         EGGS_CXX11_CONSTEXPR explicit operator bool() const EGGS_CXX11_NOEXCEPT { return false; }
         EGGS_CXX11_CONSTEXPR std::size_t which() const EGGS_CXX11_NOEXCEPT { return npos; }
-        std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT { return typeid(void); }
+        EGGS_CXX11_CONSTEXPR std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT { return typeid(void); }
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
         EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
     };

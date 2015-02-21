@@ -29,6 +29,7 @@ namespace eggs { namespace variants { namespace detail
     struct pack
     {
         using type = pack;
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Ts);
     };
 
 #if EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE

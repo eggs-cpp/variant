@@ -32,6 +32,7 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
         constexpr bool vb = bool(v);
         constexpr std::size_t vw = v.which();
         constexpr void const* vt = v.target();
+        constexpr std::type_info const& vtt = v.target_type();
     }
 #endif
 }
@@ -52,6 +53,7 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
         constexpr bool vb = bool(v);
         constexpr std::size_t vw = v.which();
         constexpr void const* vt = v.target();
+        constexpr std::type_info const& vtt = v.target_type();
     }
 #endif
 }

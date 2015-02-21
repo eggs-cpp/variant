@@ -38,14 +38,34 @@ namespace eggs { namespace variants { namespace detail
     struct visitor<F, R(Args...)>
     {
         template <typename ...Ts>
-        R operator()(pack<Ts...>, std::size_t which, Args&&... args) const
+        struct _table
         {
-            using function_ptr = R(*)(Args...);
-            EGGS_CXX11_STATIC_CONSTEXPR function_ptr table[] = {
-                &F::template call<Ts>...};
+            static EGGS_CXX11_CONSTEXPR R (*value[pack<Ts...>::size])(Args...)
+#if EGGS_CXX11_HAS_CONSTEXPR
+                = {&F::template call<Ts>...};
+#else
+                ;
+#endif
+        };
 
-            assert(which < sizeof...(Ts) && "discriminator out of bounds");
-            return table[which](std::forward<Args>(args)...);
+        static int _assert_in_range_failure(std::size_t index, std::size_t size)
+        {
+            assert(index < size && "discriminator out of range");
+            return 0;
+        }
+
+        static EGGS_CXX11_CONSTEXPR int _assert_in_range(
+            std::size_t index, std::size_t size)
+        {
+            return index < size ? 0 : _assert_in_range_failure(index, size);
+        }
+
+        template <typename ...Ts>
+        EGGS_CXX11_CONSTEXPR R operator()(pack<Ts...>, std::size_t which,
+            Args&&... args) const
+        {
+            return _assert_in_range(which, sizeof...(Ts)),
+                _table<Ts...>::value[which](std::forward<Args>(args)...);
         }
 
         EGGS_CXX11_NORETURN R operator()(pack<>, std::size_t, Args&&...) const
@@ -53,6 +73,16 @@ namespace eggs { namespace variants { namespace detail
             std::terminate();
         }
     };
+
+    template <typename F, typename R, typename ...Args>
+    template <typename ...Ts>
+    EGGS_CXX11_CONSTEXPR R (*visitor<F, R(Args...)>::_table<Ts...>::
+        value[pack<Ts...>::size])(Args...)
+#if EGGS_CXX11_HAS_CONSTEXPR
+        ;
+#else
+        = {&F::template call<Ts>...};
+#endif
 
     ///////////////////////////////////////////////////////////////////////////
     struct copy_construct
@@ -140,7 +170,7 @@ namespace eggs { namespace variants { namespace detail
       : visitor<type_id, std::type_info const&()>
     {
         template <typename T>
-        static std::type_info const& call()
+        static EGGS_CXX11_CONSTEXPR std::type_info const& call()
         {
             return typeid(T);
         }
