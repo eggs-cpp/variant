@@ -147,13 +147,13 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
         template <std::size_t I, typename ...Args>
-        _storage(std::integral_constant<std::size_t, I> which, Args&&... args)
+        _storage(index<I> which, Args&&... args)
         {
             emplace(which, std::forward<Args>(args)...);
         }
 
         template <std::size_t I, typename ...Args>
-        void emplace(std::integral_constant<std::size_t, I> which, Args&&... args)
+        void emplace(index<I> which, Args&&... args)
         {
             ::new (&_buffer) typename at_index<
                 I, pack<empty, Ts...>
@@ -236,13 +236,13 @@ namespace eggs { namespace variants { namespace detail
         }
 
         template <std::size_t I, typename ...Args>
-        _storage(std::integral_constant<std::size_t, I> which, Args&&... args)
+        _storage(index<I> which, Args&&... args)
         {
             emplace(which, std::forward<Args>(args)...);
         }
 
         template <std::size_t I, typename ...Args>
-        void emplace(std::integral_constant<std::size_t, I> which, Args&&... args)
+        void emplace(index<I> which, Args&&... args)
         {
             _which = 0;
 
@@ -360,7 +360,7 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
         template <std::size_t I, typename ...Args>
-        _storage(std::integral_constant<std::size_t, I> which, Args&&... args)
+        _storage(index<I> which, Args&&... args)
         {
             emplace(which, std::forward<Args>(args)...);
         }
@@ -371,7 +371,7 @@ namespace eggs { namespace variants { namespace detail
         }
 
         template <std::size_t I, typename ...Args>
-        void emplace(std::integral_constant<std::size_t, I> which, Args&&... args)
+        void emplace(index<I> which, Args&&... args)
         {
             _destroy();
             base_type::emplace(which, std::forward<Args>(args)...);

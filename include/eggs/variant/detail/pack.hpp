@@ -135,6 +135,9 @@ namespace eggs { namespace variants { namespace detail
     {};
 
     ///////////////////////////////////////////////////////////////////////////
+    template <std::size_t I>
+    using index = std::integral_constant<std::size_t, I>;
+
     template <std::size_t I, typename T>
     struct _indexed {};
 
@@ -159,7 +162,7 @@ namespace eggs { namespace variants { namespace detail
     empty _index_of(...);
 
     template <typename T, std::size_t I>
-    std::integral_constant<std::size_t, I> _index_of(_indexed<I, T> const&);
+    index<I> _index_of(_indexed<I, T> const&);
 
     template <typename T, typename Ts>
     struct index_of

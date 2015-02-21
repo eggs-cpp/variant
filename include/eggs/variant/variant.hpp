@@ -258,8 +258,7 @@ namespace eggs { namespace variants
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
 #endif
-          : _storage{std::integral_constant<std::size_t, I + 1>{},
-                std::forward<Args>(args)...}
+          : _storage{detail::index<I + 1>{}, std::forward<Args>(args)...}
         {}
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -300,8 +299,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value)
 #endif
-          : _storage{std::integral_constant<std::size_t, I + 1>{},
-                il, std::forward<Args>(args)...}
+          : _storage{detail::index<I + 1>{}, il, std::forward<Args>(args)...}
         {}
 #endif
 
@@ -384,7 +382,7 @@ namespace eggs { namespace variants
         //!
         variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT
         {
-            _storage.emplace(std::integral_constant<std::size_t, 0>{});
+            _storage.emplace(detail::index<0>{});
             return *this;
         }
 
@@ -504,8 +502,7 @@ namespace eggs { namespace variants
 #endif
         {
             using t_which = detail::index_of<T, detail::pack<
-                    detail::empty, typename std::remove_cv<Ts>::type...
-                >>;
+                detail::empty, typename std::remove_cv<Ts>::type...>>;
 
             if (_storage.which() == t_which{})
             {
@@ -549,7 +546,7 @@ namespace eggs { namespace variants
                 std::is_nothrow_constructible<T, Args&&...>::value)
 #endif
         {
-            using t_which = std::integral_constant<std::size_t, I + 1>;
+            using t_which = detail::index<I + 1>;
 
             _storage.emplace(t_which{}, std::forward<Args>(args)...);
         }
@@ -594,7 +591,7 @@ namespace eggs { namespace variants
             >::value)
 #endif
         {
-            using t_which = std::integral_constant<std::size_t, I + 1>;
+            using t_which = detail::index<I + 1>;
 
             _storage.emplace(t_which{}, il, std::forward<Args>(args)...);
         }
@@ -615,7 +612,8 @@ namespace eggs { namespace variants
                 std::is_nothrow_constructible<T, Args&&...>::value)
 #endif
         {
-            using t_which = detail::index_of<T, detail::pack<detail::empty, Ts...>>;
+            using t_which = detail::index_of<T, detail::pack<
+                detail::empty, Ts...>>;
 
             _storage.emplace(t_which{}, std::forward<Args>(args)...);
         }
@@ -645,7 +643,8 @@ namespace eggs { namespace variants
             >::value)
 #endif
         {
-            using t_which = detail::index_of<T, detail::pack<detail::empty, Ts...>>;
+            using t_which = detail::index_of<T, detail::pack<
+                detail::empty, Ts...>>;
 
             _storage.emplace(t_which{}, il, std::forward<Args>(args)...);
         }
@@ -744,10 +743,10 @@ namespace eggs { namespace variants
         template <typename T>
         T* target() EGGS_CXX11_NOEXCEPT
         {
-            EGGS_CXX11_CONSTEXPR std::size_t t_which = detail::index_of<
-                T, detail::pack<Ts...>>::value + 1;
+            using t_which = detail::index_of<T, detail::pack<
+                detail::empty, Ts...>>;
 
-            return _storage.which() == t_which
+            return _storage.which() == t_which{}
               ? static_cast<T*>(_storage.target())
               : nullptr;
         }
@@ -762,10 +761,10 @@ namespace eggs { namespace variants
         template <typename T>
         T const* target() const EGGS_CXX11_NOEXCEPT
         {
-            EGGS_CXX11_CONSTEXPR std::size_t t_which = detail::index_of<
-                T, detail::pack<Ts...>>::value + 1;
+            using t_which = detail::index_of<T, detail::pack<
+                detail::empty, Ts...>>;
 
-            return _storage.which() == t_which
+            return _storage.which() == t_which{}
               ? static_cast<T const*>(_storage.target())
               : nullptr;
         }
@@ -1200,10 +1199,10 @@ namespace eggs { namespace variants
     >
     bool operator==(variant<Ts...> const& lhs, T const& rhs)
     {
-        EGGS_CXX11_CONSTEXPR std::size_t rhs_which = detail::index_of<
-            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value;
+        using rhs_which = detail::index_of<T, detail::pack<
+            typename std::remove_cv<Ts>::type...>>;
 
-        return lhs.which() == rhs_which
+        return lhs.which() == rhs_which{}
           ? *lhs.template target<T>() == rhs
           : false;
     }
@@ -1282,12 +1281,12 @@ namespace eggs { namespace variants
     >
     bool operator<(variant<Ts...> const& lhs, T const& rhs)
     {
-        EGGS_CXX11_CONSTEXPR std::size_t rhs_which = detail::index_of<
-            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value;
+        using rhs_which = detail::index_of<T, detail::pack<
+            typename std::remove_cv<Ts>::type...>>;
 
-        return lhs.which() == rhs_which
+        return lhs.which() == rhs_which{}
           ? *lhs.template target<T>() < rhs
-          : bool(lhs) ? lhs.which() < rhs_which : true;
+          : bool(lhs) ? lhs.which() < rhs_which{} : true;
     }
 
     //! template <class T, class ...Ts>
@@ -1310,12 +1309,12 @@ namespace eggs { namespace variants
     >
     bool operator<(T const& lhs, variant<Ts...> const& rhs)
     {
-        EGGS_CXX11_CONSTEXPR std::size_t lhs_which = detail::index_of<
-            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value;
+        using lhs_which = detail::index_of<T, detail::pack<
+            typename std::remove_cv<Ts>::type...>>;
 
-        return lhs_which == rhs.which()
+        return lhs_which{} == rhs.which()
           ? lhs < *rhs.template target<T>()
-          : bool(rhs) ? lhs_which < rhs.which() : false;
+          : bool(rhs) ? lhs_which{} < rhs.which() : false;
     }
 
     //! template <class ...Ts, class T>
