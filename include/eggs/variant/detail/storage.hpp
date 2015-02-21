@@ -22,83 +22,163 @@
 
 namespace eggs { namespace variants { namespace detail
 {
+    template <typename Ts, bool IsTriviallyDestructible>
+    struct _union;
+
+#if EGGS_CXX11_HAS_UNRESTRICTED_UNIONS
     ///////////////////////////////////////////////////////////////////////////
-    namespace conditionally_deleted_adl
+    template <bool IsTriviallyDestructible>
+    struct _union<pack<>, IsTriviallyDestructible>
+    {};
+
+    template <typename T, typename ...Ts>
+    struct _union<pack<T, Ts...>, true>
+    {
+        template <typename ...Args>
+        EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
+          : _head(std::forward<Args>(args)...)
+        {}
+
+        template <std::size_t I, typename ...Args>
+        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
+          : _tail(index<I - 1>{}, std::forward<Args>(args)...)
+        {}
+
+        EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+        EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+    private:
+        union
+        {
+            char _target;
+            T _head;
+            _union<pack<Ts...>, true> _tail;
+        };
+    };
+
+    template <typename T, typename ...Ts>
+    struct _union<pack<T, Ts...>, false>
+    {
+        template <typename ...Args>
+        EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
+          : _head(std::forward<Args>(args)...)
+        {}
+
+        template <std::size_t I, typename ...Args>
+        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
+          : _tail(index<I - 1>{}, std::forward<Args>(args)...)
+        {}
+
+        ~_union() {}
+
+        EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+        EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+    private:
+        union
+        {
+            char _target;
+            T _head;
+            _union<pack<Ts...>, false> _tail;
+        };
+    };
+#else
+    ///////////////////////////////////////////////////////////////////////////
+    namespace conditionally_deleted
     {
         template <bool CopyCnstr, bool MoveCnstr = CopyCnstr>
-        struct conditionally_deleted_cnstr
+        struct cnstr
         {};
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
         template <>
-        struct conditionally_deleted_cnstr<true, false>
+        struct cnstr<true, false>
         {
-            conditionally_deleted_cnstr() EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr(conditionally_deleted_cnstr const&) EGGS_CXX11_NOEXCEPT = delete;
-            conditionally_deleted_cnstr(conditionally_deleted_cnstr&&) EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr const&) EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr&&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr() EGGS_CXX11_NOEXCEPT = default;
+            cnstr(cnstr const&) EGGS_CXX11_NOEXCEPT = delete;
+            cnstr(cnstr&&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr& operator=(cnstr const&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr& operator=(cnstr&&) EGGS_CXX11_NOEXCEPT = default;
         };
 
         template <>
-        struct conditionally_deleted_cnstr<false, true>
+        struct cnstr<false, true>
         {
-            conditionally_deleted_cnstr() EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr(conditionally_deleted_cnstr const&) EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr(conditionally_deleted_cnstr&&) EGGS_CXX11_NOEXCEPT = delete;
-            conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr const&) EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr&&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr() EGGS_CXX11_NOEXCEPT = default;
+            cnstr(cnstr const&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr(cnstr&&) EGGS_CXX11_NOEXCEPT = delete;
+            cnstr& operator=(cnstr const&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr& operator=(cnstr&&) EGGS_CXX11_NOEXCEPT = default;
         };
 
         template <>
-        struct conditionally_deleted_cnstr<true, true>
+        struct cnstr<true, true>
         {
-            conditionally_deleted_cnstr() EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr(conditionally_deleted_cnstr const&) EGGS_CXX11_NOEXCEPT = delete;
-            conditionally_deleted_cnstr(conditionally_deleted_cnstr&&) EGGS_CXX11_NOEXCEPT = delete;
-            conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr const&) EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_cnstr& operator=(conditionally_deleted_cnstr&&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr() EGGS_CXX11_NOEXCEPT = default;
+            cnstr(cnstr const&) EGGS_CXX11_NOEXCEPT = delete;
+            cnstr(cnstr&&) EGGS_CXX11_NOEXCEPT = delete;
+            cnstr& operator=(cnstr const&) EGGS_CXX11_NOEXCEPT = default;
+            cnstr& operator=(cnstr&&) EGGS_CXX11_NOEXCEPT = default;
         };
-#endif
+#  endif
 
         template <bool CopyAssign, bool MoveAssign = CopyAssign>
-        struct conditionally_deleted_assign
+        struct assign
         {};
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
         template <>
-        struct conditionally_deleted_assign<true, false>
+        struct assign<true, false>
         {
-            conditionally_deleted_assign() EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_assign& operator=(conditionally_deleted_assign const&) EGGS_CXX11_NOEXCEPT = delete;
-            conditionally_deleted_assign& operator=(conditionally_deleted_assign&&) EGGS_CXX11_NOEXCEPT = default;
+            assign() EGGS_CXX11_NOEXCEPT = default;
+            assign& operator=(assign const&) EGGS_CXX11_NOEXCEPT = delete;
+            assign& operator=(assign&&) EGGS_CXX11_NOEXCEPT = default;
         };
 
         template <>
-        struct conditionally_deleted_assign<false, true>
+        struct assign<false, true>
         {
-            conditionally_deleted_assign() EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_assign& operator=(conditionally_deleted_assign const&) EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_assign& operator=(conditionally_deleted_assign&&) EGGS_CXX11_NOEXCEPT = delete;
+            assign() EGGS_CXX11_NOEXCEPT = default;
+            assign& operator=(assign const&) EGGS_CXX11_NOEXCEPT = default;
+            assign& operator=(assign&&) EGGS_CXX11_NOEXCEPT = delete;
         };
 
         template <>
-        struct conditionally_deleted_assign<true, true>
+        struct assign<true, true>
         {
-            conditionally_deleted_assign() EGGS_CXX11_NOEXCEPT = default;
-            conditionally_deleted_assign& operator=(conditionally_deleted_assign const&) EGGS_CXX11_NOEXCEPT = delete;
-            conditionally_deleted_assign& operator=(conditionally_deleted_assign&&) EGGS_CXX11_NOEXCEPT = delete;
+            assign() EGGS_CXX11_NOEXCEPT = default;
+            assign& operator=(assign const&) EGGS_CXX11_NOEXCEPT = delete;
+            assign& operator=(assign&&) EGGS_CXX11_NOEXCEPT = delete;
         };
-#endif
+#  endif
     }
 
-    using conditionally_deleted_adl::conditionally_deleted_cnstr;
-    using conditionally_deleted_adl::conditionally_deleted_assign;
+    template <bool CopyCnstr, bool MoveCnstr = CopyCnstr>
+    using conditionally_deleted_cnstr =
+        conditionally_deleted::cnstr<CopyCnstr, MoveCnstr>;
+
+        template <bool CopyAssign, bool MoveAssign = CopyAssign>
+    using conditionally_deleted_assign =
+        conditionally_deleted::assign<CopyAssign, MoveAssign>;
 
     ///////////////////////////////////////////////////////////////////////////
-#if EGGS_CXX11_STD_HAS_ALIGNED_UNION
+#  if EGGS_CXX11_STD_HAS_ALIGNED_UNION
     using std::aligned_union;
-#else
+#  else
     template <std::size_t ...Vs>
     struct _static_max;
 
@@ -119,14 +199,11 @@ namespace eggs { namespace variants { namespace detail
           , _static_max<std::alignment_of<Types>::value...>::value
         >
     {};
-#endif
+#  endif
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Ts, bool TriviallyCopyable, bool TriviallyDestructible>
-    struct _storage;
-
-    template <typename ...Ts>
-    struct _storage<pack<Ts...>, true, true>
+    template <typename ...Ts, bool IsTriviallyDestructible>
+    struct _union<pack<Ts...>, IsTriviallyDestructible>
       : conditionally_deleted_cnstr<
             !all_of<pack<std::is_copy_constructible<Ts>...>>::value
           , !all_of<pack<std::is_move_constructible<Ts>...>>::value
@@ -136,34 +213,69 @@ namespace eggs { namespace variants { namespace detail
           , !all_of<pack<std::is_move_assignable<Ts>...>>::value
         >
     {
-    public:
-        _storage() EGGS_CXX11_NOEXCEPT
-          : _which{0}
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename at_index<I, pack<Ts...>>::type
+        >
+        _union(index<I> which, Args&&... args)
+        {
+            ::new (target()) T(std::forward<Args>(args)...);
+        }
+
+        void* target() EGGS_CXX11_NOEXCEPT
+        {
+            return &_buffer;
+        }
+
+        void const* target() const EGGS_CXX11_NOEXCEPT
+        {
+            return &_buffer;
+        }
+
+        typename aligned_union<0, Ts...>::type _buffer;
+    };
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <
+        typename Ts, typename Union
+      , bool TriviallyCopyable, bool TriviallyDestructible>
+    struct _storage;
+
+    template <typename ...Ts, typename Union>
+    struct _storage<pack<Ts...>, Union, true, true>
+      : Union
+    {
+        using base_type = Union;
+
+        EGGS_CXX11_CONSTEXPR _storage() EGGS_CXX11_NOEXCEPT
+          : base_type{index<0>{}}
+          , _which{0}
         {}
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-        _storage(_storage const& rhs) EGGS_CXX11_NOEXCEPT = default;
-        _storage(_storage&& rhs) EGGS_CXX11_NOEXCEPT = default;
+        _storage(_storage const& rhs) = default;
+        _storage(_storage&& rhs) = default;
 #endif
 
         template <std::size_t I, typename ...Args>
-        _storage(index<I> which, Args&&... args)
-        {
-            emplace(which, std::forward<Args>(args)...);
-        }
+        EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
+          : base_type{which, std::forward<Args>(args)...}
+          , _which{which}
+        {}
 
         template <std::size_t I, typename ...Args>
         void emplace(index<I> which, Args&&... args)
         {
-            ::new (&_buffer) typename at_index<
+            ::new (target()) typename at_index<
                 I, pack<empty, Ts...>
             >::type(std::forward<Args>(args)...);
             _which = which;
         }
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-        _storage& operator=(_storage const& rhs) EGGS_CXX11_NOEXCEPT = default;
-        _storage& operator=(_storage&& rhs) EGGS_CXX11_NOEXCEPT = default;
+        _storage& operator=(_storage const& rhs) = default;
+        _storage& operator=(_storage&& rhs) = default;
 #endif
 
         void swap(_storage& rhs)
@@ -171,36 +283,27 @@ namespace eggs { namespace variants { namespace detail
             std::swap(*this, rhs);
         }
 
-        std::size_t which() const
+        EGGS_CXX11_CONSTEXPR std::size_t which() const
         {
             return _which;
         }
 
-        void* target()
-        {
-            return &_buffer;
-        }
-
-        void const* target() const
-        {
-            return &_buffer;
-        }
+        using base_type::target;
 
     protected:
         std::size_t _which;
-        typename aligned_union<0, Ts...>::type _buffer;
     };
 
-    template <typename ...Ts>
-    struct _storage<pack<Ts...>, false, true>
-      : _storage<pack<Ts...>, true, true>
+    template <typename ...Ts, typename Union>
+    struct _storage<pack<Ts...>, Union, false, true>
+      : _storage<pack<Ts...>, Union, true, true>
     {
-        using base_type = _storage<pack<Ts...>, true, true>;
+        using base_type = _storage<pack<Ts...>, Union, true, true>;
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-        _storage() EGGS_CXX11_NOEXCEPT = default;
+        _storage() = default;
 #else
-        _storage() EGGS_CXX11_NOEXCEPT
+        EGGS_CXX11_CONSTEXPR _storage() EGGS_CXX11_NOEXCEPT
           : base_type{}
         {}
 #endif
@@ -215,7 +318,7 @@ namespace eggs { namespace variants { namespace detail
         {
             detail::copy_construct{}(
                 pack<empty, Ts...>{}, rhs._which
-              , &_buffer, &rhs._buffer
+              , target(), rhs.target()
             );
             _which = rhs._which;
         }
@@ -230,16 +333,15 @@ namespace eggs { namespace variants { namespace detail
         {
             detail::move_construct{}(
                 pack<empty, Ts...>{}, rhs._which
-              , &_buffer, &rhs._buffer
+              , target(), rhs.target()
             );
             _which = rhs._which;
         }
 
         template <std::size_t I, typename ...Args>
-        _storage(index<I> which, Args&&... args)
-        {
-            emplace(which, std::forward<Args>(args)...);
-        }
+        EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
+          : base_type{which, std::forward<Args>(args)...}
+        {}
 
         template <std::size_t I, typename ...Args>
         void emplace(index<I> which, Args&&... args)
@@ -261,14 +363,14 @@ namespace eggs { namespace variants { namespace detail
             {
                 detail::copy_assign{}(
                     pack<empty, Ts...>{}, _which
-                  , &_buffer, &rhs._buffer
+                  , target(), rhs.target()
                 );
             } else {
                 _which = 0;
 
                 detail::copy_construct{}(
                     pack<empty, Ts...>{}, rhs._which
-                  , &_buffer, &rhs._buffer
+                  , target(), rhs.target()
                 );
                 _which = rhs._which;
             }
@@ -287,14 +389,14 @@ namespace eggs { namespace variants { namespace detail
             {
                 detail::move_assign{}(
                     pack<empty, Ts...>{}, _which
-                  , &_buffer, &rhs._buffer
+                  , target(), rhs.target()
                 );
             } else {
                 _which = 0;
 
                 detail::move_construct{}(
                     pack<empty, Ts...>{}, rhs._which
-                  , &_buffer, &rhs._buffer
+                  , target(), rhs.target()
                 );
                 _which = rhs._which;
             }
@@ -307,7 +409,7 @@ namespace eggs { namespace variants { namespace detail
             {
                 detail::swap{}(
                     pack<empty, Ts...>{}, _which
-                  , &_buffer, &rhs._buffer
+                  , target(), rhs.target()
                 );
             } else if (_which == 0) {
                 *this = std::move(rhs);
@@ -320,23 +422,25 @@ namespace eggs { namespace variants { namespace detail
             }
         }
 
+        using base_type::which;
+        using base_type::target;
+
     protected:
         using base_type::_which;
-        using base_type::_buffer;
     };
 
-    template <typename ...Ts>
-    struct _storage<pack<Ts...>, false, false>
-      : _storage<pack<Ts...>, false, true>
+    template <typename ...Ts, typename Union>
+    struct _storage<pack<Ts...>, Union, false, false>
+      : _storage<pack<Ts...>, Union, false, true>
     {
-        using base_type = _storage<pack<Ts...>, false, true>;
+        using base_type = _storage<pack<Ts...>, Union, false, true>;
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-        _storage() EGGS_CXX11_NOEXCEPT = default;
+        _storage() = default;
         _storage(_storage const& rhs) = default;
         _storage(_storage&& rhs) = default;
 #else
-        _storage() EGGS_CXX11_NOEXCEPT
+        EGGS_CXX11_CONSTEXPR _storage() EGGS_CXX11_NOEXCEPT
           : base_type{}
         {}
 
@@ -423,23 +527,33 @@ namespace eggs { namespace variants { namespace detail
             }
         }
 
+        using base_type::which;
+        using base_type::target;
+
     protected:
         void _destroy()
         {
             detail::destroy{}(
                 pack<empty, Ts...>{}, _which
-              , &_buffer
+              , target()
             );
         }
 
     protected:
         using base_type::_which;
-        using base_type::_buffer;
     };
 
     template <typename ...Ts>
     using storage = _storage<
         pack<Ts...>
+      , _union<
+            pack<empty, Ts...>
+#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+#  else
+          , all_of<pack<std::is_pod<Ts>...>>::value
+#  endif
+        >
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
 #  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
       , all_of<pack<std::is_trivially_copyable<Ts>...>>::value

@@ -9,6 +9,15 @@
 /// no header guards
 
 /// constexpr support
+#ifndef EGGS_CXX11_HAS_CONSTEXPR
+#  if defined(_MSC_FULL_VER)
+#    define EGGS_CXX11_HAS_CONSTEXPR 0
+#  else
+#    define EGGS_CXX11_HAS_CONSTEXPR 1
+#  endif
+#  define EGGS_CXX11_HAS_CONSTEXPR_DEFINED
+#endif
+
 #ifndef EGGS_CXX11_CONSTEXPR
 #  if defined(_MSC_FULL_VER)
 #    define EGGS_CXX11_CONSTEXPR
@@ -19,7 +28,7 @@
 #endif
 
 #ifndef EGGS_CXX11_STATIC_CONSTEXPR
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if defined(_MSC_FULL_VER)
 #    define EGGS_CXX11_STATIC_CONSTEXPR static const
 #  else
 #    define EGGS_CXX11_STATIC_CONSTEXPR static constexpr
@@ -27,10 +36,21 @@
 #  define EGGS_CXX11_STATIC_CONSTEXPR_DEFINED
 #endif
 
+#ifndef EGGS_CXX14_HAS_CONSTEXPR
+#  if __cplusplus < 201402L
+#    define EGGS_CXX14_HAS_CONSTEXPR 0
+#  elif defined(__GNUC__) && !defined(__clang__)
+#    define EGGS_CXX14_HAS_CONSTEXPR
+#  else
+#    define EGGS_CXX14_HAS_CONSTEXPR 1
+#  endif
+#  define EGGS_CXX14_HAS_CONSTEXPR_DEFINED
+#endif
+
 #ifndef EGGS_CXX14_CONSTEXPR
 #  if __cplusplus < 201402L
 #    define EGGS_CXX14_CONSTEXPR
-#  elif defined __GNUC__ && !defined(__clang__)
+#  elif defined(__GNUC__) && !defined(__clang__)
 #    define EGGS_CXX14_CONSTEXPR
 #  else
 #    define EGGS_CXX14_CONSTEXPR constexpr
@@ -108,18 +128,6 @@
 #  define EGGS_CXX11_NORETURN_DEFINED
 #endif
 
-/// sfinae for expressions support
-#ifndef EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-#  if defined(_MSC_FULL_VER)
-#    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
-#  elif defined __GNUC__ && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9)) && !defined(__clang__)
-#    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
-#  else
-#    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 1
-#  endif
-#  define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS_DEFINED
-#endif
-
 /// overloading on std::initializer_list support
 #ifndef EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 #  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
@@ -140,11 +148,33 @@
 #  define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING_DEFINED
 #endif
 
+/// sfinae for expressions support
+#ifndef EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+#  if defined(_MSC_FULL_VER)
+#    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
+#  elif defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9)) && !defined(__clang__)
+#    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
+#  else
+#    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 1
+#  endif
+#  define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS_DEFINED
+#endif
+
+/// unrestricted unions support
+#ifndef EGGS_CXX11_HAS_UNRESTRICTED_UNIONS
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
+#    define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS 0
+#  else
+#    define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS 1
+#  endif
+#  define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS_DEFINED
+#endif
+
 /// variable templates support
 #ifndef EGGS_CXX14_HAS_VARIABLE_TEMPLATES
 #  if __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
-#  elif defined __GNUC__ && !defined(__clang__)
+#  elif defined(__GNUC__) && !defined(__clang__)
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
 #  elif defined(__clang__)
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES __has_feature(cxx_variable_templates)
@@ -188,7 +218,7 @@
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
 #  if defined(__GLIBCXX__)
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
-#  elif defined (_CPPLIB_VER) && _CPPLIB_VER < 650
+#  elif defined(_CPPLIB_VER) && _CPPLIB_VER < 650
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
 #  else
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 1

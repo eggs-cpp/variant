@@ -4,8 +4,10 @@ Minimal support for broken or incomplete implementations is attained by litterin
 
 Macro                                          | Replacement             | Fallback
 :--------------------------------------------- | :---------------------: | :-------------:
+`EGGS_CXX11_HAS_CONSTEXPR`                     | `1`                     | `0`
 `EGGS_CXX11_CONSTEXPR`                         | `constexpr`             | ``
 `EGGS_CXX11_STATIC_CONSTEXPR`                  | `static constexpr`      | `static const`
+`EGGS_CXX14_HAS_CONSTEXPR`                     | `1`                     | `0`
 `EGGS_CXX14_CONSTEXPR`                         | `constexpr`             | ``
 `EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS`           | `1`                     | `0`
 `EGGS_CXX11_HAS_DELETED_FUNCTIONS`             | `1`                     | `0`
@@ -13,9 +15,10 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX11_NOEXCEPT_IF(...)`                  | `noexcept(__VA_ARGS__)` | ``
 `EGGS_CXX11_NOEXCEPT_EXPR(...)`                | `noexcept(__VA_ARGS__)` | `false`
 `EGGS_CXX11_NORETURN`                          | `[[noreturn]]`          | ``
-`EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS`        | `1`                     | `0`
 `EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING`  | `1`                     | `0`
 `EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING` | `1`                     | `0`
+`EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS`        | `1`                     | `0`
+`EGGS_CXX11_HAS_UNRESTRICTED_UNIONS`           | `1`                     | `0`
 `EGGS_CXX14_HAS_VARIABLE_TEMPLATES`            | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_ALIGNED_UNION`             | `1`                     | `0`
 `EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE`          | `1`                     | `0`

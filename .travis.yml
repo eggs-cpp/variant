@@ -4,10 +4,15 @@ compiler:
   - clang
   - gcc
 
+env:
+ - CXXFLAGS=-std=c++11
+ - CXXFLAGS=-std=c++1y
+
 branches:
   only:
     - master
     - develop
+    - constexpr
 
 # Install dependencies
 before_install:

@@ -134,21 +134,23 @@ namespace eggs { namespace variants
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = std::size_t(-1);
 
     public:
-        //! variant() noexcept;
+        //! constexpr variant() noexcept;
         //!
         //! \postconditions `*this` does not have an active member.
         //!
-        //! \remarks No member is initialized.
-        variant() EGGS_CXX11_NOEXCEPT
+        //! \remarks No member is initialized. For every object types `Ts...`
+        //!  this constructor shall be a `constexpr` constructor.
+        EGGS_CXX11_CONSTEXPR variant() EGGS_CXX11_NOEXCEPT
           : _storage{}
         {}
 
-        //! variant(nullvariant_t) noexcept;
+        //! constexpr variant(nullvariant_t) noexcept;
         //!
         //! \postconditions `*this` does not have an active member.
         //!
-        //! \remarks No member is initialized.
-        variant(nullvariant_t) EGGS_CXX11_NOEXCEPT
+        //! \remarks No member is initialized. For every object types `Ts...`
+        //!  this constructor shall be a `constexpr` constructor.
+        EGGS_CXX11_CONSTEXPR variant(nullvariant_t) EGGS_CXX11_NOEXCEPT
           : _storage{}
         {}
 
@@ -194,7 +196,7 @@ namespace eggs { namespace variants
 #endif
 
         //! template <class U>
-        //! variant(U&& v);
+        //! constexpr variant(U&& v);
         //!
         //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
         //!
@@ -210,7 +212,9 @@ namespace eggs { namespace variants
         //!
         //! \remarks This constructor shall not participate in overload
         //!  resolution unless `T` occurs exactly once in
-        //!  `std::remove_cv_t<Ts>...`.
+        //!  `std::remove_cv_t<Ts>...`. If `T`'s selected constructor is a
+        //!  `constexpr` constructor, this constructor shall be a `constexpr`
+        //!  constructor.
         template <
             typename U
           , typename T = typename std::remove_cv<
@@ -218,7 +222,8 @@ namespace eggs { namespace variants
           , typename Enable = typename std::enable_if<detail::contains<
                 T, detail::pack<typename std::remove_cv<Ts>::type...>
             >::value>::type
-        > variant(U&& v)
+        >
+        EGGS_CXX11_CONSTEXPR variant(U&& v)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, U&&>::value)
@@ -229,7 +234,7 @@ namespace eggs { namespace variants
         {}
 
         //! template <std::size_t I, class ...Args>
-        //! explicit variant(unspecified<I>, Args&&... args);
+        //! constexpr explicit variant(unspecified<I>, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -246,12 +251,14 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks The first argument shall be the expression `in_place<I>`.
+        //!  If `T`'s selected constructor is a `constexpr` constructor, this
+        //!  constructor shall be a `constexpr` constructor.
         template <
             std::size_t I, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
         >
-        explicit variant(
+        EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
@@ -263,7 +270,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
-        //! explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
+        //! constexpr explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -282,7 +289,8 @@ namespace eggs { namespace variants
         //! \remarks The first argument shall be the expression `in_place<I>`.
         //!  This function shall not participate in overload resolution unless
         //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
-        //!  is `true`.
+        //!  is `true`. If `T`'s selected constructor is a `constexpr`
+        //!  constructor, this constructor shall be a `constexpr` constructor.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -291,7 +299,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        explicit variant(
+        EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_t(detail::pack_c<std::size_t, I>)
           , std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
@@ -304,7 +312,7 @@ namespace eggs { namespace variants
 #endif
 
         //! template <class T, class ...Args>
-        //! explicit variant(unspecified<T>, Args&&... args);
+        //! constexpr explicit variant(unspecified<T>, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -313,8 +321,10 @@ namespace eggs { namespace variants
         //!  of `T` in `Ts...`.
         //!
         //! \remarks The first argument shall be the expression `in_place<T>`.
+        //!  If `T`'s selected constructor is a `constexpr` constructor, this
+        //!  constructor shall be a `constexpr` constructor.
         template <typename T, typename ...Args>
-        explicit variant(
+        EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_t(detail::pack<T>)
           , Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
@@ -328,7 +338,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
-        //! explicit variant(unspecified<T>, std::initializer_list<U> il, Args&&... args);
+        //! constexpr explicit variant(unspecified<T>, std::initializer_list<U> il, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -339,14 +349,15 @@ namespace eggs { namespace variants
         //! \remarks The first argument shall be the expression `in_place<T>`.
         //!  This function shall not participate in overload resolution unless
         //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
-        //!  is `true`.
+        //!  is `true`. If `T`'s selected constructor is a `constexpr`
+        //!  constructor, this constructor shall be a `constexpr` constructor.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = typename std::enable_if<std::is_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        explicit variant(
+        EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_t(detail::pack<T>)
           , std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
@@ -685,19 +696,23 @@ namespace eggs { namespace variants
             _storage.swap(rhs._storage);
         }
 
-        //! explicit operator bool() const noexcept;
+        //! constexpr explicit operator bool() const noexcept;
         //!
         //! \returns `true` if and only if `*this` has an active member.
-        explicit operator bool() const EGGS_CXX11_NOEXCEPT
+        //!
+        //! \remarks This function shall be a `constexpr` function.
+        EGGS_CXX11_CONSTEXPR explicit operator bool() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0;
         }
 
-        //! std::size_t which() const noexcept;
+        //! constexpr std::size_t which() const noexcept;
         //!
         //! \returns The zero-based index of the active member if `*this` has
         //!  one. Otherwise, returns `npos`.
-        std::size_t which() const EGGS_CXX11_NOEXCEPT
+        //!
+        //! \remarks This function shall be a `constexpr` function.
+        EGGS_CXX11_CONSTEXPR std::size_t which() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0 ? _storage.which() - 1 : npos;
         }
@@ -715,20 +730,24 @@ namespace eggs { namespace variants
               : typeid(void);
         }
 
-        //! void* target() noexcept;
+        //! constexpr void* target() noexcept;
         //!
         //! \returns If `*this` has an active member, a pointer to the active
         //!  member; otherwise a null pointer.
-        void* target() EGGS_CXX11_NOEXCEPT
+        //!
+        //! \remarks This function shall be a `constexpr` function.
+        EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0 ? _storage.target() : nullptr;
         }
 
-        //! void const* target() const noexcept;
+        //! constexpr void const* target() const noexcept;
         //!
         //! \returns If `*this` has an active member, a pointer to the active
         //!  member; otherwise a null pointer.
-        void const* target() const EGGS_CXX11_NOEXCEPT
+        //!
+        //! \remarks This function shall be a `constexpr` function.
+        EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0 ? _storage.target() : nullptr;
         }
@@ -780,26 +799,26 @@ namespace eggs { namespace variants
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = std::size_t(-1);
 
     public:
-        variant() EGGS_CXX11_NOEXCEPT {}
-        variant(nullvariant_t) EGGS_CXX11_NOEXCEPT {}
+        EGGS_CXX11_CONSTEXPR variant() EGGS_CXX11_NOEXCEPT {}
+        EGGS_CXX11_CONSTEXPR variant(nullvariant_t) EGGS_CXX11_NOEXCEPT {}
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-        variant(variant const&) EGGS_CXX11_NOEXCEPT = default;
-        variant(variant&&) EGGS_CXX11_NOEXCEPT = default;
+        variant(variant const&) = default;
+        variant(variant&&) = default;
 #endif
 
         variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT { return *this; }
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-        variant& operator=(variant const&) EGGS_CXX11_NOEXCEPT = default;
-        variant& operator=(variant&&) EGGS_CXX11_NOEXCEPT = default;
+        variant& operator=(variant const&) = default;
+        variant& operator=(variant&&) = default;
 #endif
 
         void swap(variant&) EGGS_CXX11_NOEXCEPT {}
 
-        explicit operator bool() const EGGS_CXX11_NOEXCEPT { return false; }
-        std::size_t which() const EGGS_CXX11_NOEXCEPT { return npos; }
+        EGGS_CXX11_CONSTEXPR explicit operator bool() const EGGS_CXX11_NOEXCEPT { return false; }
+        EGGS_CXX11_CONSTEXPR std::size_t which() const EGGS_CXX11_NOEXCEPT { return npos; }
         std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT { return typeid(void); }
-        void* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
-        void const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
+        EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
+        EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
     };
 
     ///////////////////////////////////////////////////////////////////////////
