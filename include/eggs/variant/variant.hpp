@@ -9,6 +9,7 @@
 #ifndef EGGS_VARIANT_VARIANT_HPP
 #define EGGS_VARIANT_VARIANT_HPP
 
+#include <eggs/variant/detail/apply.hpp>
 #include <eggs/variant/detail/pack.hpp>
 #include <eggs/variant/detail/storage.hpp>
 #include <eggs/variant/detail/visitor.hpp>
@@ -85,10 +86,42 @@ namespace eggs { namespace variants
         struct access
         {
             template <typename ...Ts, typename Storage = detail::storage<Ts...>>
+            EGGS_CXX14_CONSTEXPR static Storage& storage(
+                variant<Ts...>& v) EGGS_CXX11_NOEXCEPT
+            {
+                return v._storage;
+            }
+
+            EGGS_CXX14_CONSTEXPR static detail::empty_storage storage(
+                variant<>& v) EGGS_CXX11_NOEXCEPT
+            {
+                return detail::empty_storage();
+            }
+
+            template <typename ...Ts, typename Storage = detail::storage<Ts...>>
             EGGS_CXX11_CONSTEXPR static Storage const& storage(
                 variant<Ts...> const& v) EGGS_CXX11_NOEXCEPT
             {
                 return v._storage;
+            }
+
+            EGGS_CXX11_CONSTEXPR static detail::empty_storage storage(
+                variant<> const& v) EGGS_CXX11_NOEXCEPT
+            {
+                return detail::empty_storage();
+            }
+
+            template <typename ...Ts, typename Storage = detail::storage<Ts...>>
+            EGGS_CXX14_CONSTEXPR static Storage&& storage(
+                variant<Ts...>&& v) EGGS_CXX11_NOEXCEPT
+            {
+                return std::move(v._storage);
+            }
+
+            EGGS_CXX14_CONSTEXPR static detail::empty_storage storage(
+                variant<>&& v) EGGS_CXX11_NOEXCEPT
+            {
+                return detail::empty_storage();
             }
 
             template <
@@ -1647,7 +1680,7 @@ namespace eggs { namespace variants
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <class R, class F, class ...Vs>
-    //! R apply(F&& f, Vs&&... vs);
+    //! constexpr R apply(F&& f, Vs&&... vs);
     //!
     //! Let `Vi` be the `i`-th type in `Vs...`, `Ui` be `std::decay_t<Vi>`,
     //! where all indexing is zero-based.
@@ -1664,22 +1697,27 @@ namespace eggs { namespace variants
     //!  indices of the active members of `vs...`.
     //!
     //! \throws `bad_variant_access` if any of `vs...` has no active member.
+    //!
+    //! \remarks If the selected function is a constant expression, then this
+    //!  function shall be a `constexpr` function.
     template <
         typename R
       , typename F, typename ...Vs
       , typename Enable = typename std::enable_if<
-            sizeof...(Vs) != 0 && detail::all_of<detail::pack<
+            detail::pack<Vs...>::size != 0
+         && detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
         >::type
     >
-    R apply(F&& f, Vs&&... vs)
+    EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
-        return detail::apply<R>(std::forward<F>(f), std::forward<Vs>(vs)...);
+        return detail::apply<R>(std::forward<F>(f),
+            detail::access::storage(std::forward<Vs>(vs))...);
     }
 
     //! template <class F, class ...Vs>
-    //! R apply(F&& f, Vs&&... vs);
+    //! constexpr R apply(F&& f, Vs&&... vs);
     //!
     //! Let `FD` be `std::decay_t<F>`, `R` be the strong result type of `FD`:
     //! - if `FD` is a pointer to function type, `R` shall be the return type
@@ -1693,17 +1731,20 @@ namespace eggs { namespace variants
     //!  std::forward<Vs>(vs)...)`.
     //!
     //! \remarks This function shall not participate in overload resolution
-    //!  unless `FD` has a strong result type.
+    //!  unless `FD` has a strong result type. If the selected function is a
+    //!  constant expression, then this function shall be a `constexpr`
+    //!  function.
     template <
         typename F, typename ...Vs
       , typename R = detail::weak_result<typename std::decay<F>::type>
       , typename Enable = typename std::enable_if<
-            sizeof...(Vs) != 0 && detail::all_of<detail::pack<
+            detail::pack<Vs...>::size != 0
+         && detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
         >::type
     >
-    R apply(F&& f, Vs&&... vs)
+    EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
         return apply<R>(std::forward<F>(f), std::forward<Vs>(vs)...);
     }

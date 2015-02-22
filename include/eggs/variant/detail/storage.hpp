@@ -34,6 +34,8 @@ namespace eggs { namespace variants { namespace detail
     template <typename T, typename ...Ts>
     struct _union<pack<T, Ts...>, true>
     {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1 + sizeof...(Ts);
+
         template <typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
           : _head(std::forward<Args>(args)...)
@@ -94,6 +96,8 @@ namespace eggs { namespace variants { namespace detail
     template <typename T, typename ...Ts>
     struct _union<pack<T, Ts...>, false>
     {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1 + sizeof...(Ts);
+
         template <typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
           : _head(std::forward<Args>(args)...)
@@ -269,6 +273,8 @@ namespace eggs { namespace variants { namespace detail
           , !all_of<pack<std::is_move_assignable<Ts>...>>::value
         >
     {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Ts);
+
         template <
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
@@ -643,6 +649,16 @@ namespace eggs { namespace variants { namespace detail
       , all_of<pack<std::is_pod<Ts>...>>::value
 #endif
     >;
+
+    struct empty_storage
+    {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1;
+
+        static EGGS_CXX11_CONSTEXPR std::size_t which()
+        {
+            return 0;
+        }
+    };
 }}}
 
 #include <eggs/variant/detail/config/suffix.hpp>

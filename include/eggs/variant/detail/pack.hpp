@@ -84,6 +84,9 @@ namespace eggs { namespace variants { namespace detail
     {};
 #endif
 
+    template <std::size_t N>
+    using make_index_pack = typename _make_index_pack<N>::type;
+
     template <typename Ts>
     struct _index_pack;
 
@@ -96,12 +99,12 @@ namespace eggs { namespace variants { namespace detail
     using index_pack = typename _index_pack<Ts>::type;
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Is>
+    template <typename Vs>
     struct _make_typed_pack;
 
-    template <typename T, T ...Is>
-    struct _make_typed_pack<pack_c<T, Is...>>
-      : pack<std::integral_constant<T, Is>...>
+    template <typename T, T ...Vs>
+    struct _make_typed_pack<pack_c<T, Vs...>>
+      : pack<std::integral_constant<T, Vs>...>
     {};
 
     template <typename Ts>
