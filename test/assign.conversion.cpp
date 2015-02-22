@@ -12,6 +12,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "constexpr.hpp"
 #include "dtor.hpp"
 #include "throw.hpp"
 
@@ -35,6 +36,19 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v;
+                v = ConstexprTrivial(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -52,6 +66,19 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
+                v = ConstexprTrivial(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -86,6 +113,19 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(43);
+                v = ConstexprTrivial(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 }
 
@@ -104,6 +144,19 @@ TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
         CHECK(v.which() == npos);
         CHECK(v.target() == nullptr);
         CHECK(v.target_type() == typeid(void));
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<ConstexprTrivial> v;
+                v = nullvariant;
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("non-empty target")
@@ -120,6 +173,19 @@ TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
         CHECK(v.which() == npos);
         CHECK(v.target() == nullptr);
         CHECK(v.target_type() == typeid(void));
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<ConstexprTrivial> v(ConstexprTrivial(43));
+                v = nullvariant;
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("initializer-list")
@@ -151,4 +217,17 @@ TEST_CASE("variant<>::operator=(nullvariant_t)", "[variant.assign]")
     CHECK(v.which() == npos);
     CHECK(v.target() == nullptr);
     CHECK(v.target_type() == typeid(void));
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+    SECTION("constexpr")
+    {
+        struct test { static constexpr int call()
+        {
+            eggs::variant<> v;
+            v = nullvariant;
+            return 0;
+        }};
+        constexpr int c = test::call();
+    }
+#endif
 }

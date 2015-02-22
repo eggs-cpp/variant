@@ -13,6 +13,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "constexpr.hpp"
 #include "dtor.hpp"
 #include "throw.hpp"
 
@@ -38,6 +39,20 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         CHECK(bool(v1) == false);
         CHECK(bool(v2) == false);
         CHECK(v2.which() == v1.which());
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1;
+                eggs::variant<int, ConstexprTrivial> v2(ConstexprTrivial(42));
+                v2 = std::move(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("empty target")
@@ -60,6 +75,20 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         CHECK(v2.which() == v1.which());
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+                eggs::variant<int, ConstexprTrivial> v2;
+                v2 = std::move(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -83,6 +112,20 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         CHECK(v2.which() == v1.which());
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+                eggs::variant<int, ConstexprTrivial> v2(ConstexprTrivial(43));
+                v2 = std::move(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -131,6 +174,20 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+                eggs::variant<int, ConstexprTrivial> v2(43);
+                v2 = std::move(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
@@ -180,4 +237,18 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
     CHECK(bool(v1) == false);
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+    SECTION("constexpr")
+    {
+        struct test { static constexpr int call()
+        {
+            eggs::variant<> v1;
+            eggs::variant<> v2;
+            v2 = std::move(v1);
+            return 0;
+        }};
+        constexpr int c = test::call();
+    }
+#endif
 }

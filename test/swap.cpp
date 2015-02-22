@@ -12,6 +12,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "constexpr.hpp"
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
@@ -34,6 +35,20 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         REQUIRE(v1.target<int>() != nullptr);
         CHECK(*v1.target<int>() == 42);
         CHECK(v2.which() == npos);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1;
+                eggs::variant<int, ConstexprTrivial> v2(ConstexprTrivial(42));
+                v2.swap(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("empty target")
@@ -53,6 +68,20 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v2.which() == 0u);
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+                eggs::variant<int, ConstexprTrivial> v2;
+                v2.swap(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -75,6 +104,20 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v2.which() == 0u);
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+                eggs::variant<int, ConstexprTrivial> v2(ConstexprTrivial(43));
+                v2.swap(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -97,6 +140,20 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v2.which() == 0u);
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+                eggs::variant<int, ConstexprTrivial> v2(43);
+                v2.swap(v1);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 }
 
@@ -114,4 +171,18 @@ TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
 
     CHECK(v1.which() == npos);
     CHECK(v2.which() == npos);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+    SECTION("constexpr")
+    {
+        struct test { static constexpr int call()
+        {
+            eggs::variant<> v1;
+            eggs::variant<> v2;
+            v2.swap(v1);
+            return 0;
+        }};
+        constexpr int c = test::call();
+    }
+#endif
 }

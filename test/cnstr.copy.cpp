@@ -13,6 +13,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "constexpr.hpp"
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
@@ -32,7 +33,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
     CHECK(*v1.target<int>() == 42);
     REQUIRE(v2.target<int>() != nullptr);
     CHECK(*v2.target<int>() == 42);
-    
+
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     SECTION("trivially_copyable")
     {
@@ -54,6 +55,14 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
         CHECK(*v2.target<int>() == 42);
     }
 #endif
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+    SECTION("constexpr")
+    {
+        constexpr eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
+        constexpr eggs::variant<int, ConstexprTrivial> v2(v1);
+    }
+#endif
 }
 
 TEST_CASE("variant<>::variant(variant<> const&)", "[variant.cnstr]")
@@ -67,4 +76,12 @@ TEST_CASE("variant<>::variant(variant<> const&)", "[variant.cnstr]")
 
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+    SECTION("constexpr")
+    {
+        constexpr eggs::variant<> v1;
+        constexpr eggs::variant<> v2(v1);
+    }
+#endif
 }

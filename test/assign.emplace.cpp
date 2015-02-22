@@ -12,6 +12,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "constexpr.hpp"
 #include "dtor.hpp"
 #include "throw.hpp"
 
@@ -33,6 +34,19 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v;
+                v.emplace<1>(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -50,6 +64,19 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
+                v.emplace<1>(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -84,6 +111,19 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(43);
+                v.emplace<1>(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 }
 
@@ -119,6 +159,19 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v;
+                v.emplace<1>({4, 2});
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -136,6 +189,19 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
+                v.emplace<1>({4, 2});
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -170,6 +236,19 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(43);
+                v.emplace<1>({4, 2});
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 }
 
@@ -206,6 +285,19 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v;
+                v.emplace<ConstexprTrivial>(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -223,6 +315,19 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
+                v.emplace<ConstexprTrivial>(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -257,6 +362,19 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(43);
+                v.emplace<ConstexprTrivial>(42);
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 }
 
@@ -277,6 +395,19 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v;
+                v.emplace<ConstexprTrivial>({4, 2});
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("same target")
@@ -294,6 +425,19 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
+                v.emplace<ConstexprTrivial>({4, 2});
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 
     SECTION("different target")
@@ -328,6 +472,19 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, ConstexprTrivial> v(43);
+                v.emplace<ConstexprTrivial>({4, 2});
+                return 0;
+            }};
+            constexpr int c = test::call();
+        }
+#endif
     }
 }
 #endif

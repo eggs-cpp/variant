@@ -54,6 +54,34 @@ namespace eggs { namespace variants { namespace detail
             return &_target;
         }
 
+        EGGS_CXX14_CONSTEXPR T& get(index<0>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_head;
+        }
+
+        EGGS_CXX11_CONSTEXPR T const& get(index<0>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_head;
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<T, Ts...>>::type
+        >
+        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_tail.get(index<I - 1>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<T, Ts...>>::type
+        >
+        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_tail.get(index<I - 1>{});
+        }
+
     private:
         union
         {
@@ -86,6 +114,34 @@ namespace eggs { namespace variants { namespace detail
         EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
         {
             return &_target;
+        }
+
+        EGGS_CXX14_CONSTEXPR T& get(index<0>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_head;
+        }
+
+        EGGS_CXX11_CONSTEXPR T const& get(index<0>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_head;
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<T, Ts...>>::type
+        >
+        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_tail.get(index<I - 1>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<T, Ts...>>::type
+        >
+        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_tail.get(index<I - 1>{});
         }
 
     private:
@@ -232,6 +288,24 @@ namespace eggs { namespace variants { namespace detail
             return &_buffer;
         }
 
+        template <
+            std::size_t I
+          , typename T = typename at_index<I, pack<Ts...>>::type
+        >
+        T& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return *static_cast<T*>(target());
+        }
+
+        template <
+            std::size_t I
+          , typename T = typename at_index<I, pack<Ts...>>::type
+        >
+        T const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return *static_cast<T const*>(target());
+        }
+
         typename aligned_union<0, Ts...>::type _buffer;
     };
 #endif
@@ -265,12 +339,9 @@ namespace eggs { namespace variants { namespace detail
         {}
 
         template <std::size_t I, typename ...Args>
-        void emplace(index<I> which, Args&&... args)
+        EGGS_CXX14_CONSTEXPR void emplace(index<I> which, Args&&... args)
         {
-            ::new (target()) typename at_index<
-                I, pack<empty, Ts...>
-            >::type(std::forward<Args>(args)...);
-            _which = which;
+            *this = _storage(which, std::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
@@ -278,9 +349,11 @@ namespace eggs { namespace variants { namespace detail
         _storage& operator=(_storage&& rhs) = default;
 #endif
 
-        void swap(_storage& rhs)
+        EGGS_CXX14_CONSTEXPR void swap(_storage& rhs)
         {
-            std::swap(*this, rhs);
+            _storage tmp(std::move(*this));
+            *this = std::move(rhs);
+            rhs = std::move(tmp);
         }
 
         EGGS_CXX11_CONSTEXPR std::size_t which() const
@@ -289,6 +362,7 @@ namespace eggs { namespace variants { namespace detail
         }
 
         using base_type::target;
+        using base_type::get;
 
     protected:
         std::size_t _which;
@@ -347,8 +421,10 @@ namespace eggs { namespace variants { namespace detail
         void emplace(index<I> which, Args&&... args)
         {
             _which = 0;
-
-            base_type::emplace(which, std::forward<Args>(args)...);
+            ::new (target()) typename at_index<
+                I, pack<empty, Ts...>
+            >::type(std::forward<Args>(args)...);
+            _which = which;
         }
 
         _storage& operator=(_storage const& rhs)

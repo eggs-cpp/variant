@@ -154,7 +154,7 @@ namespace eggs { namespace variants
           : _storage{}
         {}
 
-        //! variant(variant const& rhs);
+        //! constexpr variant(variant const& rhs);
         //!
         //! \requires `std::is_copy_constructible_v<T>` is `true` for all `T`
         //!  in `Ts...`.
@@ -168,12 +168,13 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
-        //!  `T` in `Ts...`, then this copy constructor shall be trivial.
+        //!  `T` in `Ts...`, then this copy constructor shall be a trivial
+        //!  `constexpr` constructor.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant const& rhs) = default;
 #endif
 
-        //! variant(variant&& rhs) noexcept(see below);
+        //! constexpr variant(variant&& rhs) noexcept(see below);
         //!
         //! \requires `std::is_move_constructible_v<T>` is `true` for all `T`
         //!  in `Ts...`.
@@ -190,7 +191,8 @@ namespace eggs { namespace variants
         //! \remarks The expression inside `noexcept` is equivalent to the
         //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`. If
         //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-        //!  `Ts...`, then this move constructor shall be trivial.
+        //!  `Ts...`, then this move constructor shall be a trivial
+        //!  `constexpr` constructor.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant&& rhs) = default;
 #endif
@@ -382,7 +384,7 @@ namespace eggs { namespace variants
         ~variant() = default;
 #endif
 
-        //! variant& operator=(nullvariant_t) noexcept;
+        //! constexpr variant& operator=(nullvariant_t) noexcept;
         //!
         //! \effects If `*this` has an active member of type `T`, destroys the
         //!  active member by calling `T::~T()`.
@@ -391,13 +393,16 @@ namespace eggs { namespace variants
         //!
         //! \postconditions `*this` does not have an active member.
         //!
-        variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT
+        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...`, then this function shall be a `constexpr`
+        //!  function.
+        EGGS_CXX14_CONSTEXPR variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT
         {
             _storage.emplace(detail::index<0>{});
             return *this;
         }
 
-        //! variant& operator=(variant const& rhs);
+        //! constexpr variant& operator=(variant const& rhs);
         //!
         //! \requires `std::is_copy_constructible_v<T>` and
         //!  `std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`.
@@ -424,12 +429,12 @@ namespace eggs { namespace variants
         //!
         //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
         //!  `T` in `Ts...`, then this copy assignment operator shall be
-        //!  trivial.
+        //!  a trivial `constexpr` assignment operator.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const& rhs) = default;
 #endif
 
-        //! variant& operator=(variant&& rhs) noexcept(see below);
+        //! constexpr variant& operator=(variant&& rhs) noexcept(see below);
         //!
         //! \requires `std::is_move_constructible_v<T>` and
         //!  `std::is_move_assignable_v<T>` is `true` for all `T` in `Ts...`.
@@ -463,13 +468,14 @@ namespace eggs { namespace variants
         //!  logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
         //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-        //!  `Ts...`, then this move assignment operator shall be trivial.
+        //!  `Ts...`, then this move assignment operator shall be a trivial
+        //!  `constexpr` assignment operator.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant&& rhs) = default;
 #endif
 
         //! template <class U>
-        //! variant& operator=(U&& v);
+        //! constexpr variant& operator=(U&& v);
         //!
         //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
         //!
@@ -497,7 +503,10 @@ namespace eggs { namespace variants
         //!
         //! \remarks This operator shall not participate in overload
         //!  resolution unless `T` occurs exactly once in
-        //!  `std::remove_cv_t<Ts>...`.
+        //!  `std::remove_cv_t<Ts>...`. If `std::is_trivially_copyable_v<T>`
+        //!  is `true` for all `T` in `Ts...` and `T`'s selected constructor
+        //!  is a `constexpr` constructor, then this function shall be a
+        //!  `constexpr` function.
         template <
             typename U
           , typename T = typename std::remove_cv<
@@ -506,7 +515,7 @@ namespace eggs { namespace variants
                 T, detail::pack<typename std::remove_cv<Ts>::type...>
             >::value>::type
         >
-        variant& operator=(U&& v)
+        EGGS_CXX14_CONSTEXPR variant& operator=(U&& v)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_assignable<T, U&&>::value
                   && std::is_nothrow_constructible<T, U&&>::value)
@@ -517,9 +526,9 @@ namespace eggs { namespace variants
 
             if (_storage.which() == t_which{})
             {
-                T* active_member_ptr = static_cast<T*>(_storage.target());
+                T& active_member = _storage.get(t_which{});
 
-                *active_member_ptr = std::forward<U>(v);
+                active_member = std::forward<U>(v);
             } else {
                 _storage.emplace(t_which{}, std::forward<U>(v));
             }
@@ -527,7 +536,7 @@ namespace eggs { namespace variants
         }
 
         //! template <std::size_t I, class ...Args>
-        //! void emplace(Args&&... args);
+        //! constexpr void emplace(Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -546,12 +555,16 @@ namespace eggs { namespace variants
         //! \exceptionsafety If an exception is thrown during the call to
         //!  `T`'s constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed.
+        //!
+        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...` and `T`'s selected constructor is a `constexpr`
+        //!  constructor, then this function shall be a `constexpr` function.
         template <
             std::size_t I, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
         >
-        void emplace(Args&&... args)
+        EGGS_CXX14_CONSTEXPR void emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -564,7 +577,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
-        //! void emplace(std::initializer_list<U> il, Args&&... args);
+        //! constexpr void emplace(std::initializer_list<U> il, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -586,7 +599,10 @@ namespace eggs { namespace variants
         //!
         //! \remarks This function shall not participate in overload resolution
         //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
-        //!  Args&&...>` is `true`.
+        //!  Args&&...>` is `true`. If `std::is_trivially_copyable_v<T>` is
+        //!  `true` for all `T` in `Ts...` and `T`'s selected constructor is a
+        //!  `constexpr` constructor, then this function shall be a `constexpr`
+        //!  function.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -595,7 +611,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        void emplace(std::initializer_list<U> il, Args&&... args)
+        EGGS_CXX14_CONSTEXPR void emplace(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
@@ -610,14 +626,18 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
         //! template <class T, class ...Args>
-        //! void emplace(Args&&... args);
+        //! constexpr void emplace(Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \effects Equivalent to `emplace<I>(std::forward<Args>(args)...)`
         //!  where `I` is the zero-based index of `T` in `Ts...`.
+        //!
+        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...` and `T`'s selected constructor is a `constexpr`
+        //!  constructor, then this function shall be a `constexpr` function.
         template <typename T, typename ...Args>
-        void emplace(Args&&... args)
+        EGGS_CXX14_CONSTEXPR void emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -631,7 +651,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
-        //! void emplace(std::initializer_list<U> il, Args&&... args);
+        //! constexpr void emplace(std::initializer_list<U> il, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -640,14 +660,17 @@ namespace eggs { namespace variants
         //!
         //! \remarks This function shall not participate in overload resolution
         //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
-        //!  Args&&...>` is `true`.
+        //!  Args&&...>` is `true`. If `std::is_trivially_copyable_v<T>` is
+        //!  `true` for all `T` in `Ts...` and `T`'s selected constructor is a
+        //!  `constexpr` constructor, then this function shall be a `constexpr`
+        //!  function.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = typename std::enable_if<std::is_constructible<
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        void emplace(std::initializer_list<U> il, Args&&... args)
+        EGGS_CXX14_CONSTEXPR void emplace(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
@@ -662,7 +685,7 @@ namespace eggs { namespace variants
 #endif
 #endif
 
-        //! void swap(variant& rhs) noexcept(see below);
+        //! constexpr void swap(variant& rhs) noexcept(see below);
         //!
         //! \requires Lvalues of `T` shall be swappable and
         //!  `std::is_move_constructible_v<T>` is `true` for all `T` in
@@ -684,8 +707,10 @@ namespace eggs { namespace variants
         //! \remarks The expression inside `noexcept` is equivalent to the
         //!  logical AND of `noexcept(swap(std::declval<Ts&>>(),
         //!  std::declval<Ts&>()))...` where `std::swap` is in scope and
-        //!  `std::is_nothrow_move_constructible_v<Ts>...`.
-        void swap(variant& rhs)
+        //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
+        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+        //!  `Ts...`, then this function shall be a `constexpr` function.
+        EGGS_CXX14_CONSTEXPR void swap(variant& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(detail::all_of<detail::pack<
                 detail::is_nothrow_swappable<Ts>...
@@ -808,13 +833,13 @@ namespace eggs { namespace variants
         variant(variant&&) = default;
 #endif
 
-        variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT { return *this; }
+        EGGS_CXX14_CONSTEXPR variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT { return *this; }
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const&) = default;
         variant& operator=(variant&&) = default;
 #endif
 
-        void swap(variant&) EGGS_CXX11_NOEXCEPT {}
+        EGGS_CXX14_CONSTEXPR void swap(variant&) EGGS_CXX11_NOEXCEPT {}
 
         EGGS_CXX11_CONSTEXPR explicit operator bool() const EGGS_CXX11_NOEXCEPT { return false; }
         EGGS_CXX11_CONSTEXPR std::size_t which() const EGGS_CXX11_NOEXCEPT { return npos; }
@@ -1516,7 +1541,7 @@ namespace eggs { namespace variants
     //!
     //! \effects Calls `x.swap(y)`.
     template <typename ...Ts>
-    void swap(variant<Ts...>& x, variant<Ts...>& y)
+    EGGS_CXX14_CONSTEXPR void swap(variant<Ts...>& x, variant<Ts...>& y)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(x.swap(y)))
     {
         x.swap(y);
