@@ -24,6 +24,9 @@ struct Constexpr
 #  endif
 
     constexpr Constexpr(Constexpr const& rhs) : x(rhs.x) {} // not trivially copyable
+
+    constexpr bool operator==(Constexpr rhs) const { return x == rhs.x; }
+    constexpr bool operator<(Constexpr rhs) const { return x < rhs.x; }
 };
 
 struct ConstexprTrivial

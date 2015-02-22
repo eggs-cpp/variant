@@ -16,6 +16,7 @@
 #include <cassert>
 #include <cstddef>
 #include <exception>
+#include <memory>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -146,26 +147,6 @@ namespace eggs { namespace variants { namespace detail
         }
     };
 
-    struct equal_to
-      : visitor<equal_to, bool(void const*, void const*)>
-    {
-        template <typename T>
-        static bool call(void const* ptr, void const* other)
-        {
-            return *static_cast<T const*>(ptr) == *static_cast<T const*>(other);
-        }
-    };
-
-    struct less
-      : visitor<less, bool(void const*, void const*)>
-    {
-        template <typename T>
-        static bool call(void const* ptr, void const* other)
-        {
-            return *static_cast<T const*>(ptr) < *static_cast<T const*>(other);
-        }
-    };
-
     struct type_id
       : visitor<type_id, std::type_info const&()>
     {
@@ -173,6 +154,28 @@ namespace eggs { namespace variants { namespace detail
         static EGGS_CXX11_CONSTEXPR std::type_info const& call()
         {
             return typeid(T);
+        }
+    };
+
+    template <typename Union>
+    struct equal_to
+      : visitor<equal_to<Union>, bool(Union const&, Union const&)>
+    {
+        template <typename I>
+        static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
+        {
+            return lhs.get(I{}) == rhs.get(I{});
+        }
+    };
+
+    template <typename Union>
+    struct less
+      : visitor<less<Union>, bool(Union const&, Union const&)>
+    {
+        template <typename I>
+        static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
+        {
+            return lhs.get(I{}) < rhs.get(I{});
         }
     };
 

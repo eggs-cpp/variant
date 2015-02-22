@@ -12,6 +12,7 @@
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
+#include "constexpr.hpp"
 
 using eggs::variants::nullvariant;
 
@@ -32,6 +33,16 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
         REQUIRE(*v2.target<int>() == 42);
 
         CHECK(v1 == v2);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
+            constexpr eggs::variant<int, Constexpr> v2(Constexpr(42));
+            constexpr bool veb = v1 == v2;
+            constexpr bool vneb = v1 != v2;
+        }
+#endif
     }
 
     SECTION("empty member")
@@ -46,6 +57,16 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
         REQUIRE(*v2.target<int>() == 42);
 
         CHECK(v1 != v2);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1;
+            constexpr eggs::variant<int, Constexpr> v2(Constexpr(42));
+            constexpr bool veb = v1 == v2;
+            constexpr bool vneb = v1 != v2;
+        }
+#endif
     }
 
     SECTION("different members")
@@ -61,6 +82,16 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
         REQUIRE(*v2.target<int>() == 42);
 
         CHECK(v1 != v2);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(42);
+            constexpr eggs::variant<int, Constexpr> v2(Constexpr(42));
+            constexpr bool veb = v1 == v2;
+            constexpr bool vneb = v1 != v2;
+        }
+#endif
     }
 }
 
@@ -74,6 +105,15 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(*v1.target<int>() == 42);
 
         CHECK(v1 == 42);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
+            constexpr bool veb = v1 == Constexpr(42);
+            constexpr bool vneb = v1 != Constexpr(42);
+        }
+#endif
     }
 
     SECTION("empty member")
@@ -83,6 +123,15 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(v1.which() == npos);
 
         CHECK(v1 != 42);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1;
+            constexpr bool veb = v1 == Constexpr(42);
+            constexpr bool vneb = v1 != Constexpr(42);
+        }
+#endif
     }
 
     SECTION("different members")
@@ -93,6 +142,15 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(*v1.target<std::string>() == "");
 
         CHECK(v1 != 42);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(42);
+            constexpr bool veb = v1 == Constexpr(42);
+            constexpr bool vneb = v1 != Constexpr(42);
+        }
+#endif
     }
 }
 
@@ -106,6 +164,15 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(*v1.target<int>() == 42);
 
         CHECK(42 == v1);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
+            constexpr bool veb = Constexpr(42) == v1;
+            constexpr bool vneb = Constexpr(42) != v1;
+        }
+#endif
     }
 
     SECTION("empty member")
@@ -115,6 +182,15 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(v1.which() == npos);
 
         CHECK(42 != v1);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1;
+            constexpr bool veb = Constexpr(42) == v1;
+            constexpr bool vneb = Constexpr(42) != v1;
+        }
+#endif
     }
 
     SECTION("different members")
@@ -125,6 +201,15 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(*v1.target<std::string>() == "");
 
         CHECK(42 != v1);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(42);
+            constexpr bool veb = Constexpr(42) == v1;
+            constexpr bool vneb = Constexpr(42) != v1;
+        }
+#endif
     }
 }
 
@@ -137,6 +222,15 @@ TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
         REQUIRE(v1.which() == npos);
 
         CHECK(v1 == nullvariant);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1;
+            constexpr bool veb = v1 == nullvariant;
+            constexpr bool vneb = v1 != nullvariant;
+        }
+#endif
     }
 
     SECTION("non-empty members")
@@ -147,6 +241,15 @@ TEST_CASE("operator==(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
         REQUIRE(*v1.target<int>() == 42);
 
         CHECK(v1 != nullvariant);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
+            constexpr bool veb = v1 == nullvariant;
+            constexpr bool vneb = v1 != nullvariant;
+        }
+#endif
     }
 }
 
@@ -159,6 +262,15 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(v1.which() == npos);
 
         CHECK(nullvariant == v1);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1;
+            constexpr bool veb = nullvariant == v1;
+            constexpr bool vneb = nullvariant != v1;
+        }
+#endif
     }
 
     SECTION("non-empty members")
@@ -169,6 +281,15 @@ TEST_CASE("operator==(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(*v1.target<int>() == 42);
 
         CHECK(nullvariant != v1);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        SECTION("constexpr")
+        {
+            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
+            constexpr bool veb = nullvariant == v1;
+            constexpr bool vneb = nullvariant != v1;
+        }
+#endif
     }
 }
 
@@ -183,4 +304,14 @@ TEST_CASE("operator==(variant<> const&, variant<> const&)", "[variant.rel]")
     REQUIRE(v2.which() == npos);
 
     CHECK(v1 == v2);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+    SECTION("constexpr")
+    {
+        constexpr eggs::variant<> v1;
+        constexpr eggs::variant<> v2;
+        constexpr bool veb = v1 == v2;
+        constexpr bool vneb = v1 != v2;
+    }
+#endif
 }

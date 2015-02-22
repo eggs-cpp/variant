@@ -17,7 +17,11 @@
 
 namespace eggs { namespace variants { namespace detail
 {
-    struct empty {};
+    struct empty
+    {
+        EGGS_CXX11_CONSTEXPR bool operator==(empty) const { return true; }
+        EGGS_CXX11_CONSTEXPR bool operator<(empty) const { return false; }
+    };
 
     template <typename T>
     struct identity
@@ -90,6 +94,23 @@ namespace eggs { namespace variants { namespace detail
 
     template <typename Ts>
     using index_pack = typename _index_pack<Ts>::type;
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Is>
+    struct _make_typed_pack;
+
+    template <typename T, T ...Is>
+    struct _make_typed_pack<pack_c<T, Is...>>
+      : pack<std::integral_constant<T, Is>...>
+    {};
+
+    template <typename Ts>
+    struct _typed_index_pack
+      : _make_typed_pack<index_pack<Ts>>
+    {};
+
+    template <typename Ts>
+    using typed_index_pack = typename _typed_index_pack<Ts>::type;
 
     ///////////////////////////////////////////////////////////////////////////
     template <typename Vs>
