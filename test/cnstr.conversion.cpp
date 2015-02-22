@@ -25,7 +25,6 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
     CHECK(bool(v) == true);
     CHECK(v.which() == 0u);
     CHECK(v.target_type() == typeid(int));
-    CHECK(v.target() == v.target<int>());
     REQUIRE(v.target<int>() != nullptr);
     CHECK(*v.target<int>() == 42);
 
@@ -35,7 +34,18 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr bool vb = bool(v);
         constexpr std::size_t vw = v.which();
+        constexpr bool vttb = v.target<Constexpr>()->x == 42;
         constexpr std::type_info const& vtt = v.target_type();
+
+#  if EGGS_CXX14_HAS_CONSTEXPR
+        struct test { static constexpr int call()
+        {
+            eggs::variant<int, Constexpr> v(Constexpr(42));
+            v.target<Constexpr>()->x = 43;
+            return 0;
+        }};
+        constexpr int c = test::call();
+#  endif
     }
 #endif
 }

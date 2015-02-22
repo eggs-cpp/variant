@@ -15,13 +15,15 @@
 #if EGGS_CXX11_HAS_CONSTEXPR
 struct Constexpr
 {
-    constexpr Constexpr() {}
-    constexpr Constexpr(int) {}
+    int x;
+
+    constexpr Constexpr() : x(0) {}
+    constexpr Constexpr(int i) : x(i) {}
 #  if EGGS_CXX14_HAS_CONSTEXPR
-    constexpr Constexpr(std::initializer_list<int>) {}
+    constexpr Constexpr(std::initializer_list<int> is) : x(*is.begin()) {}
 #  endif
 
-    constexpr Constexpr(Constexpr const&) {} // not trivially copyable
+    constexpr Constexpr(Constexpr const& rhs) : x(rhs.x) {} // not trivially copyable
 };
 
 struct ConstexprTrivial

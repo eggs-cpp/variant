@@ -780,38 +780,42 @@ namespace eggs { namespace variants
         }
 
         //! template <class T>
-        //! T* target() noexcept;
+        //! constexpr T* target() noexcept;
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
+        //!
+        //! \remarks This function shall be a `constexpr` function.
         template <typename T>
-        T* target() EGGS_CXX11_NOEXCEPT
+        EGGS_CXX14_CONSTEXPR T* target() EGGS_CXX11_NOEXCEPT
         {
             using t_which = detail::index_of<T, detail::pack<
                 detail::empty, Ts...>>;
 
             return _storage.which() == t_which{}
-              ? static_cast<T*>(_storage.target())
+              ? &_storage.get(t_which{})
               : nullptr;
         }
 
         //! template <class T>
-        //! T const* target() const noexcept;
+        //! constexpr T const* target() const noexcept;
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
+        //!
+        //! \remarks This function shall be a `constexpr` function.
         template <typename T>
-        T const* target() const EGGS_CXX11_NOEXCEPT
+        EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT
         {
             using t_which = detail::index_of<T, detail::pack<
                 detail::empty, Ts...>>;
 
             return _storage.which() == t_which{}
-              ? static_cast<T const*>(_storage.target())
+              ? &_storage.get(t_which{})
               : nullptr;
         }
 
