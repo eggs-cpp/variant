@@ -50,6 +50,16 @@ namespace eggs { namespace variants
           : std::logic_error{what_arg}
         {}
     };
+
+    namespace detail
+    {
+        ///////////////////////////////////////////////////////////////////////
+        template <typename T>
+        EGGS_CXX11_NORETURN inline T throw_bad_variant_access()
+        {
+            throw bad_variant_access{};
+        }
+    }
 }}
 
 #include <eggs/variant/detail/config/suffix.hpp>

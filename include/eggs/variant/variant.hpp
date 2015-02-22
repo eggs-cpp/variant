@@ -82,6 +82,30 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        struct access
+        {
+            template <
+                typename ...Ts, size_t I
+              , typename T = typename at_index<I, pack<Ts...>>::type
+            >
+            EGGS_CXX14_CONSTEXPR static T& get(
+                variant<Ts...>& v, index<I>) EGGS_CXX11_NOEXCEPT
+            {
+                return v._storage.get(index<I + 1>{});
+            }
+
+            template <
+                typename ...Ts, size_t I
+              , typename T = typename at_index<I, pack<Ts...>>::type
+            >
+            EGGS_CXX11_CONSTEXPR static T const& get(
+                variant<Ts...> const& v, index<I>) EGGS_CXX11_NOEXCEPT
+            {
+                return v._storage.get(index<I + 1>{});
+            }
+        };
+
+        ///////////////////////////////////////////////////////////////////////
         struct hash
         {
             using result_type = std::size_t;
@@ -820,6 +844,7 @@ namespace eggs { namespace variants
         }
 
     private:
+        friend struct detail::access;
         detail::storage<Ts...> _storage;
     };
 
@@ -929,7 +954,7 @@ namespace eggs { namespace variants
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <std::size_t I, class ...Ts>
-    //! variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v);
+    //! constexpr variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v);
     //!
     //! \requires `I < sizeof...(Ts)`.
     //!
@@ -937,19 +962,21 @@ namespace eggs { namespace variants
     //!  indexing is zero-based.
     //!
     //! \throws `bad_variant_access` if the `I`th member of `v` is not active.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
       , typename T = typename variant_element<I, variant<Ts...>>::type
     >
-    T& get(variant<Ts...>& v)
+    EGGS_CXX14_CONSTEXPR T& get(variant<Ts...>& v)
     {
-        if (v.which() == I)
-            return *static_cast<T*>(v.target());
-        throw bad_variant_access{};
+        return v.which() == I
+          ? detail::access::get(v, detail::index<I>{})
+          : detail::throw_bad_variant_access<T&>();
     }
 
     //! template <std::size_t I, class ...Ts>
-    //! variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v);
+    //! constexpr variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v);
     //!
     //! \requires `I < sizeof...(Ts)`.
     //!
@@ -957,33 +984,37 @@ namespace eggs { namespace variants
     //!  where indexing is zero-based.
     //!
     //! \throws `bad_variant_access` if the `I`th member of `v` is not active.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
       , typename T = typename variant_element<I, variant<Ts...>>::type
     >
-    T const& get(variant<Ts...> const& v)
+    EGGS_CXX11_CONSTEXPR T const& get(variant<Ts...> const& v)
     {
-        if (v.which() == I)
-            return *static_cast<T const*>(v.target());
-        throw bad_variant_access{};
+        return v.which() == I
+          ? detail::access::get(v, detail::index<I>{})
+          : detail::throw_bad_variant_access<T const&>();
     }
 
     //! template <std::size_t I, class ...Ts>
-    //! variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v);
+    //! constexpr variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v);
     //!
     //! \effects Equivalent to return `std::forward<variant_element_t<I,
     //!  variant<Ts...>>&&>(get<I>(v))`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
       , typename T = typename variant_element<I, variant<Ts...>>::type
     >
-    T&& get(variant<Ts...>&& v)
+    EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
         return std::forward<T>(get<I>(v));
     }
 
     //! template <class T, class ...Ts>
-    //! T& get(variant<Ts...>& v);
+    //! constexpr T& get(variant<Ts...>& v);
     //!
     //! \requires The type `T` occurs exactly once in `Ts...`.
     //!
@@ -991,16 +1022,22 @@ namespace eggs { namespace variants
     //!
     //! \throws `bad_variant_access` if the active member of `v` is not of
     //!  type `T`.
-    template <typename T, typename ...Ts>
-    T& get(variant<Ts...>& v)
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        typename T, typename ...Ts
+      , std::size_t I = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+    >
+    EGGS_CXX14_CONSTEXPR T& get(variant<Ts...>& v)
     {
-        if (T* value = v.template target<T>())
-            return *value;
-        throw bad_variant_access{};
+        return v.which() == I
+          ? detail::access::get(v, detail::index<I>{})
+          : detail::throw_bad_variant_access<T&>();
     }
 
     //! template <class T, class ...Ts>
-    //! T const& get(variant<Ts...> const& v);
+    //! constexpr T const& get(variant<Ts...> const& v);
     //!
     //! \requires The type `T` occurs exactly once in `Ts...`.
     //!
@@ -1009,20 +1046,28 @@ namespace eggs { namespace variants
     //!
     //! \throws `bad_variant_access` if the active member of `v` is not of
     //!  type `T`.
-    template <typename T, typename ...Ts>
-    T const& get(variant<Ts...> const& v)
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        typename T, typename ...Ts
+      , std::size_t I = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+    >
+    EGGS_CXX11_CONSTEXPR T const& get(variant<Ts...> const& v)
     {
-        if (T const* value = v.template target<T>())
-            return *value;
-        throw bad_variant_access{};
+        return v.which() == I
+          ? detail::access::get(v, detail::index<I>{})
+          : detail::throw_bad_variant_access<T const&>();
     }
 
     //! template <class T, class ...Ts>
-    //! T&& get(variant<Ts...>&& v);
+    //! constexpr T&& get(variant<Ts...>&& v);
     //!
     //! \effects Equivalent to return `std::forward<T&&>(get<T>(v))`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
     template <typename T, typename ...Ts>
-    T&& get(variant<Ts...>&& v)
+    EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
         return std::forward<T&&>(get<T>(v));
     }
