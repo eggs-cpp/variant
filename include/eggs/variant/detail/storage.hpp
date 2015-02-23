@@ -317,16 +317,28 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
-    template <
-        typename Ts, typename Union
-      , bool TriviallyCopyable, bool TriviallyDestructible>
+    template <typename Ts, bool TriviallyCopyable, bool TriviallyDestructible>
     struct _storage;
 
-    template <typename ...Ts, typename Union>
-    struct _storage<pack<Ts...>, Union, true, true>
-      : Union
+    template <typename ...Ts>
+    struct _storage<pack<Ts...>, true, true>
+      : _union<
+            pack<Ts...>
+#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+#  else
+          , all_of<pack<std::is_pod<Ts>...>>::value
+#  endif
+        >
     {
-        using base_type = Union;
+        using base_type = _union<
+            pack<Ts...>
+#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
+#  else
+          , all_of<pack<std::is_pod<Ts>...>>::value
+#  endif
+        >;
 
         EGGS_CXX11_CONSTEXPR _storage() EGGS_CXX11_NOEXCEPT
           : base_type{index<0>{}}
@@ -374,11 +386,11 @@ namespace eggs { namespace variants { namespace detail
         std::size_t _which;
     };
 
-    template <typename ...Ts, typename Union>
-    struct _storage<pack<Ts...>, Union, false, true>
-      : _storage<pack<Ts...>, Union, true, true>
+    template <typename ...Ts>
+    struct _storage<pack<Ts...>, false, true>
+      : _storage<pack<Ts...>, true, true>
     {
-        using base_type = _storage<pack<Ts...>, Union, true, true>;
+        using base_type = _storage<pack<Ts...>, true, true>;
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         _storage() = default;
@@ -397,7 +409,7 @@ namespace eggs { namespace variants { namespace detail
           : base_type{}
         {
             detail::copy_construct{}(
-                pack<empty, Ts...>{}, rhs._which
+                pack<Ts...>{}, rhs._which
               , target(), rhs.target()
             );
             _which = rhs._which;
@@ -412,7 +424,7 @@ namespace eggs { namespace variants { namespace detail
           : base_type{}
         {
             detail::move_construct{}(
-                pack<empty, Ts...>{}, rhs._which
+                pack<Ts...>{}, rhs._which
               , target(), rhs.target()
             );
             _which = rhs._which;
@@ -423,13 +435,14 @@ namespace eggs { namespace variants { namespace detail
           : base_type{which, std::forward<Args>(args)...}
         {}
 
-        template <std::size_t I, typename ...Args>
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename at_index<I, pack<Ts...>>::type
+        >
         void emplace(index<I> which, Args&&... args)
         {
             _which = 0;
-            ::new (target()) typename at_index<
-                I, pack<empty, Ts...>
-            >::type(std::forward<Args>(args)...);
+            ::new (target()) T(std::forward<Args>(args)...);
             _which = which;
         }
 
@@ -444,14 +457,14 @@ namespace eggs { namespace variants { namespace detail
             if (_which == rhs._which)
             {
                 detail::copy_assign{}(
-                    pack<empty, Ts...>{}, _which
+                    pack<Ts...>{}, _which
                   , target(), rhs.target()
                 );
             } else {
                 _which = 0;
 
                 detail::copy_construct{}(
-                    pack<empty, Ts...>{}, rhs._which
+                    pack<Ts...>{}, rhs._which
                   , target(), rhs.target()
                 );
                 _which = rhs._which;
@@ -470,14 +483,14 @@ namespace eggs { namespace variants { namespace detail
             if (_which == rhs._which)
             {
                 detail::move_assign{}(
-                    pack<empty, Ts...>{}, _which
+                    pack<Ts...>{}, _which
                   , target(), rhs.target()
                 );
             } else {
                 _which = 0;
 
                 detail::move_construct{}(
-                    pack<empty, Ts...>{}, rhs._which
+                    pack<Ts...>{}, rhs._which
                   , target(), rhs.target()
                 );
                 _which = rhs._which;
@@ -490,7 +503,7 @@ namespace eggs { namespace variants { namespace detail
             if (_which == rhs._which)
             {
                 detail::swap{}(
-                    pack<empty, Ts...>{}, _which
+                    pack<Ts...>{}, _which
                   , target(), rhs.target()
                 );
             } else if (_which == 0) {
@@ -511,11 +524,11 @@ namespace eggs { namespace variants { namespace detail
         using base_type::_which;
     };
 
-    template <typename ...Ts, typename Union>
-    struct _storage<pack<Ts...>, Union, false, false>
-      : _storage<pack<Ts...>, Union, false, true>
+    template <typename ...Ts>
+    struct _storage<pack<Ts...>, false, false>
+      : _storage<pack<Ts...>, false, true>
     {
-        using base_type = _storage<pack<Ts...>, Union, false, true>;
+        using base_type = _storage<pack<Ts...>, false, true>;
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         _storage() = default;
@@ -546,10 +559,9 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
         template <std::size_t I, typename ...Args>
-        _storage(index<I> which, Args&&... args)
-        {
-            emplace(which, std::forward<Args>(args)...);
-        }
+        EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
+          : base_type{which, std::forward<Args>(args)...}
+        {}
 
         ~_storage()
         {
@@ -616,7 +628,7 @@ namespace eggs { namespace variants { namespace detail
         void _destroy()
         {
             detail::destroy{}(
-                pack<empty, Ts...>{}, _which
+                pack<Ts...>{}, _which
               , target()
             );
         }
@@ -627,15 +639,7 @@ namespace eggs { namespace variants { namespace detail
 
     template <typename ...Ts>
     using storage = _storage<
-        pack<Ts...>
-      , _union<
-            pack<empty, Ts...>
-#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
-#  else
-          , all_of<pack<std::is_pod<Ts>...>>::value
-#  endif
-        >
+        pack<empty, Ts...>
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
 #  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
       , all_of<pack<std::is_trivially_copyable<Ts>...>>::value
