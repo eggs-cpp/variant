@@ -1494,7 +1494,7 @@ namespace eggs { namespace variants
     //! \requires `T` shall meet the requirements of `LessThanComparable`.
     //!
     //! \returns If `lhs` has an active member of type `T`,
-    //!  `*lhs->target<T>() < rhs`; otherwise, if `lhs` has no active member
+    //!  `*lhs.target<T>() < rhs`; otherwise, if `lhs` has no active member
     //!  or if `lhs` has an active member of type `Td` and `Td` occurs in
     //!  `Ts...` before `T`, `true`; otherwise, `false`.
     //!
@@ -1526,7 +1526,7 @@ namespace eggs { namespace variants
     //! \requires `T` shall meet the requirements of `LessThanComparable`.
     //!
     //! \returns If `rhs` has an active member of type `T`,
-    //!  `lhs < *rhs->target<T>()`; otherwise, if `rhs` has an active member
+    //!  `lhs < *rhs.target<T>()`; otherwise, if `rhs` has an active member
     //!  of type `Td` and `Td` occurs in `Ts...` after `T`, `true`;
     //!  otherwise, `false`.
     //!
@@ -1755,6 +1755,9 @@ namespace eggs { namespace variants
     //!   noexcept(noexcept(x.swap(y))
     //!
     //! \effects Calls `x.swap(y)`.
+    //!
+    //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+    //!  `Ts...`, then this function shall be a `constexpr` function.
     template <typename ...Ts>
     EGGS_CXX14_CONSTEXPR void swap(variant<Ts...>& x, variant<Ts...>& y)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(x.swap(y)))

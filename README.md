@@ -27,11 +27,6 @@ feature of the library.
 
 The following is an incomplete list of pending functionality to be implemented:
 
- - Literal `variant<Ts...>` when all `T` in `Ts...` are literal types. A
-   conversion from `void*` to a pointer-to-object type is not allowed in a
-   `constexpr` function, which rules out the aligned storage implementation.
-   Requires an underlying `union` as storage.
-
  - Explicit control over the type of the discriminator, introduced via a
    `basic_variant` class template.
 
