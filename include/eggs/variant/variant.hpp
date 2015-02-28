@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
+#include <memory>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -61,12 +62,47 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
-        namespace swap_adl
+        namespace _addressof
+        {
+            struct _fallback {};
+
+            template <typename T>
+            _fallback operator&(T&&);
+
+            template <typename T>
+            struct has_addressof_operator
+            {
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    (std::is_class<T>::value || std::is_union<T>::value)
+                 && !std::is_same<decltype(&std::declval<T&>()), _fallback>::value;
+            };
+        }
+
+        template <typename T>
+        EGGS_CXX11_CONSTEXPR typename std::enable_if<
+            !_addressof::has_addressof_operator<T>::value
+          , T*
+        >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
+        {
+            return &r;
+        }
+
+        template <typename T>
+        typename std::enable_if<
+            _addressof::has_addressof_operator<T>::value
+          , T*
+        >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
+        {
+            return std::addressof(r);
+        }
+
+        ///////////////////////////////////////////////////////////////////////
+        namespace _swap
         {
             using std::swap;
 
             template <typename T>
-            struct _is_nothrow_swappable
+            struct is_nothrow_swappable
             {
                 EGGS_CXX11_STATIC_CONSTEXPR bool value =
                     EGGS_CXX11_NOEXCEPT_EXPR(
@@ -78,7 +114,7 @@ namespace eggs { namespace variants
         struct is_nothrow_swappable
           : std::integral_constant<
                 bool
-              , swap_adl::_is_nothrow_swappable<T>::value
+              , _swap::is_nothrow_swappable<T>::value
             >
         {};
 
@@ -851,7 +887,8 @@ namespace eggs { namespace variants
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         //!
-        //! \remarks This function shall be a `constexpr` function.
+        //! \remarks Unless `T` is a user-defined type with overloaded unary
+        //!  `operator&`, this function shall be a `constexpr` function.
         template <typename T>
         EGGS_CXX14_CONSTEXPR T* target() EGGS_CXX11_NOEXCEPT
         {
@@ -859,7 +896,7 @@ namespace eggs { namespace variants
                 detail::empty, Ts...>>;
 
             return _storage.which() == t_which{}
-              ? &_storage.get(t_which{})
+              ? detail::addressof(_storage.get(t_which{}))
               : nullptr;
         }
 
@@ -871,7 +908,8 @@ namespace eggs { namespace variants
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         //!
-        //! \remarks This function shall be a `constexpr` function.
+        //! \remarks Unless `T` is a user-defined type with overloaded unary
+        //!  `operator&`, this function shall be a `constexpr` function.
         template <typename T>
         EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT
         {
@@ -879,7 +917,7 @@ namespace eggs { namespace variants
                 detail::empty, Ts...>>;
 
             return _storage.which() == t_which{}
-              ? &_storage.get(t_which{})
+              ? detail::addressof(_storage.get(t_which{}))
               : nullptr;
         }
 
