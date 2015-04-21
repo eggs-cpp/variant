@@ -12,6 +12,7 @@ branches:
   only:
     - master
     - develop
+    - implicit
 
 # Install dependencies
 before_install:

@@ -28,6 +28,19 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
     REQUIRE(v.target<int>() != nullptr);
     CHECK(*v.target<int>() == 42);
 
+#if EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS
+    SECTION("implicit")
+    {
+        eggs::variant<int, std::string> v("42");
+
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 1u);
+        CHECK(v.target_type() == typeid(std::string));
+        REQUIRE(v.target<std::string>() != nullptr);
+        CHECK(*v.target<std::string>() == "42");
+    }
+#endif
+
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
     {

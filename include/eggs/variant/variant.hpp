@@ -62,6 +62,54 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        namespace _variant_adl
+        {
+            template <typename Ts, std::size_t I, typename ...Us>
+            struct _variant;
+
+            template <typename ...Ts, std::size_t I, typename ...Us>
+            struct _variant<pack<Ts...>, I, Us...>
+            {
+                template <std::size_t J, typename ...Args>
+                EGGS_CXX11_CONSTEXPR explicit _variant(
+                    index<J> which, Args&&... args)
+                  : _storage{which, std::forward<Args>(args)...}
+                {}
+
+                detail::storage<Ts...> _storage;
+            };
+
+#if EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS
+            template <typename ...Ts, std::size_t I, typename U, typename ...Us>
+            struct _variant<pack<Ts...>, I, U, Us...>
+              : _variant<pack<Ts...>, I + 1, Us...>
+            {
+                using _base_type = _variant<pack<Ts...>, I + 1, Us...>;
+
+                using _base_type::_base_type;
+
+                EGGS_CXX11_CONSTEXPR _variant(U const& v)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+                    EGGS_CXX11_NOEXCEPT_IF(
+                        std::is_nothrow_constructible<U, U const&>::value)
+#endif
+                  : _base_type{index<I>{}, v}
+                {}
+
+                EGGS_CXX11_CONSTEXPR _variant(U&& v)
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+                    EGGS_CXX11_NOEXCEPT_IF(
+                        std::is_nothrow_constructible<U, U&&>::value)
+#endif
+                  : _base_type{index<I>{}, std::move(v)}
+                {}
+            };
+#endif
+        }
+
+        using _variant_adl::_variant;
+
+        ///////////////////////////////////////////////////////////////////////
         namespace _addressof
         {
             struct _fallback {};
@@ -208,6 +256,7 @@ namespace eggs { namespace variants
     //! requirements of `Destructible`.
     template <typename ...Ts>
     class variant
+      : private detail::_variant<detail::pack<Ts...>, 1, Ts...>
     {
         static_assert(
             !detail::any_of<detail::pack<
@@ -229,6 +278,9 @@ namespace eggs { namespace variants
                 detail::is_null_variant<Ts>...>>::value
           , "variant member has nullvariant_t type");
 
+        using _base_type =
+            detail::_variant<detail::pack<Ts...>, 1, Ts...>;
+
     public:
         //! static constexpr std::size_t npos = std::size_t(-1);
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = std::size_t(-1);
@@ -241,7 +293,7 @@ namespace eggs { namespace variants
         //! \remarks No member is initialized. For every object types `Ts...`
         //!  this constructor shall be a `constexpr` constructor.
         EGGS_CXX11_CONSTEXPR variant() EGGS_CXX11_NOEXCEPT
-          : _storage{}
+          : _base_type{detail::index<0>{}}
         {}
 
         //! constexpr variant(nullvariant_t) noexcept;
@@ -251,7 +303,7 @@ namespace eggs { namespace variants
         //! \remarks No member is initialized. For every object types `Ts...`
         //!  this constructor shall be a `constexpr` constructor.
         EGGS_CXX11_CONSTEXPR variant(nullvariant_t) EGGS_CXX11_NOEXCEPT
-          : _storage{}
+          : _base_type{detail::index<0>{}}
         {}
 
         //! constexpr variant(variant const& rhs);
@@ -297,6 +349,23 @@ namespace eggs { namespace variants
         variant(variant&& rhs) = default;
 #endif
 
+#if EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS
+        //! constexpr variant(T const& v);
+        //! constexpr variant(T&& v);
+        //!
+        //! \requires is_copy_constructible_v<T> is true.
+        //!
+        //! \effects Initializes the active member as if direct-non-list-
+        //!  initializing an object of type `T` with the expression `v`.
+        //!
+        //! \postconditions `*this` has an active member.
+        //!
+        //! \throws Any exception thrown by the selected constructor of `T`.
+        //!
+        //! \remarks If `T`'s selected constructor is a `constexpr`
+        //!  constructor, this constructor shall be a `constexpr` constructor.
+        using _base_type::_base_type;
+#else
         //! template <class U>
         //! constexpr variant(U&& v);
         //!
@@ -330,10 +399,11 @@ namespace eggs { namespace variants
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, U&&>::value)
 #endif
-          : _storage{detail::index_of<T, detail::pack<
+          : _base_type{detail::index_of<T, detail::pack<
                     detail::empty, typename std::remove_cv<Ts>::type...
                 >>{}, std::forward<U>(v)}
         {}
+#endif
 
         //! template <std::size_t I, class ...Args>
         //! constexpr explicit variant(unspecified<I>, Args&&... args);
@@ -367,7 +437,7 @@ namespace eggs { namespace variants
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
 #endif
-          : _storage{detail::index<I + 1>{}, std::forward<Args>(args)...}
+          : _base_type{detail::index<I + 1>{}, std::forward<Args>(args)...}
         {}
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -409,7 +479,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value)
 #endif
-          : _storage{detail::index<I + 1>{}, il, std::forward<Args>(args)...}
+          : _base_type{detail::index<I + 1>{}, il, std::forward<Args>(args)...}
         {}
 #endif
 
@@ -433,7 +503,7 @@ namespace eggs { namespace variants
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
 #endif
-          : _storage{detail::index_of<T, detail::pack<
+          : _base_type{detail::index_of<T, detail::pack<
                     detail::empty, typename std::remove_cv<Ts>::type...
                 >>{}, std::forward<Args>(args)...}
         {}
@@ -467,7 +537,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value)
 #endif
-          : _storage{detail::index_of<T, detail::pack<
+          : _base_type{detail::index_of<T, detail::pack<
                     detail::empty, typename std::remove_cv<Ts>::type...
                 >>{}, il, std::forward<Args>(args)...}
         {}
@@ -923,7 +993,7 @@ namespace eggs { namespace variants
 
     private:
         friend struct detail::access;
-        detail::storage<Ts...> _storage;
+        using _base_type::_storage;
     };
 
     template <>

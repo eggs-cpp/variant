@@ -78,6 +78,20 @@
 #  define EGGS_CXX11_HAS_DELETED_FUNCTIONS_DEFINED
 #endif
 
+/// inheriting constructors support
+#ifndef EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS
+#  if defined(_MSC_FULL_VER)
+#    define EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS 0
+#  elif defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9)) && !defined(__clang__)
+#    define EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS 0
+#  elif defined(__clang__)
+#    define EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS __has_feature(cxx_inheriting_constructors)
+#  else
+#    define EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS 1
+#  endif
+#  define EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS_DEFINED
+#endif
+
 /// noexcept support
 #ifndef EGGS_CXX11_NOEXCEPT
 #  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000

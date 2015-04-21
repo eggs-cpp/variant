@@ -11,6 +11,7 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX14_CONSTEXPR`                         | `constexpr`             | ``
 `EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS`           | `1`                     | `0`
 `EGGS_CXX11_HAS_DELETED_FUNCTIONS`             | `1`                     | `0`
+`EGGS_CXX11_HAS_INHERITING_CONSTRUCTORS`       | `1`                     | `0`
 `EGGS_CXX11_NOEXCEPT`                          | `noexcept`              | ``
 `EGGS_CXX11_NOEXCEPT_IF(...)`                  | `noexcept(__VA_ARGS__)` | ``
 `EGGS_CXX11_NOEXCEPT_EXPR(...)`                | `noexcept(__VA_ARGS__)` | `false`
