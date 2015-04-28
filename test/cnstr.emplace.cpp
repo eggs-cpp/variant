@@ -58,7 +58,7 @@ TEST_CASE("variant<T, T>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
     REQUIRE(v.target() != nullptr);
 }
 
-#if EGGS_CXX11_HAS_INITIALIZER_LIST
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(in_place<1>, {'4', '2'});
@@ -134,7 +134,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
 #endif
 }
 
-#if EGGS_CXX11_HAS_INITIALIZER_LIST
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(in_place<std::string>, {'4', '2'});

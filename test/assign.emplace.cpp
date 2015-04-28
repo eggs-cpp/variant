@@ -142,7 +142,7 @@ TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
     REQUIRE(v.target() != nullptr);
 }
 
-#if EGGS_CXX11_HAS_INITIALIZER_LIST
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
     SECTION("empty target")
@@ -378,7 +378,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
     }
 }
 
-#if EGGS_CXX11_HAS_INITIALIZER_LIST
+#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
     SECTION("empty target")
