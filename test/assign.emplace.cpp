@@ -20,6 +20,12 @@
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
+struct Aggregate
+{
+    int x;
+    float y;
+};
+
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 template <typename ...Ts>
 struct _void
@@ -116,6 +122,36 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             constexpr int c = test::call();
         }
 #endif
+
+        // list-initialization
+        {
+            eggs::variant<Aggregate, std::string> v;
+
+            REQUIRE(bool(v) == false);
+            REQUIRE(v.which() == npos);
+
+            Aggregate& r = v.emplace<0>(42);
+
+            CHECK(bool(v) == true);
+            CHECK(v.which() == 0u);
+            CHECK(v.target_type() == typeid(Aggregate));
+            CHECK(v.target<Aggregate>() == &r);
+            CHECK(r.x == 42);
+            CHECK(r.y == 0.f);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+            // constexpr
+            {
+                struct test { static constexpr int call()
+                {
+                    eggs::variant<int, Aggregate> v;
+                    Aggregate& r = v.emplace<1>(42);
+                    return 0;
+                }};
+                constexpr int c = test::call();
+            }
+#endif
+        }
     }
 
     // same target
@@ -477,6 +513,36 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             constexpr int c = test::call();
         }
 #endif
+
+        // list-initialization
+        {
+            eggs::variant<Aggregate, std::string> v;
+
+            REQUIRE(bool(v) == false);
+            REQUIRE(v.which() == npos);
+
+            Aggregate& r = v.emplace<Aggregate>(42);
+
+            CHECK(bool(v) == true);
+            CHECK(v.which() == 0u);
+            CHECK(v.target_type() == typeid(Aggregate));
+            CHECK(v.target<Aggregate>() == &r);
+            CHECK(r.x == 42);
+            CHECK(r.y == 0.f);
+
+#if EGGS_CXX14_HAS_CONSTEXPR
+            // constexpr
+            {
+                struct test { static constexpr int call()
+                {
+                    eggs::variant<int, Aggregate> v;
+                    Aggregate& r = v.emplace<Aggregate>(42);
+                    return 0;
+                }};
+                constexpr int c = test::call();
+            }
+#endif
+        }
     }
 
     // same target

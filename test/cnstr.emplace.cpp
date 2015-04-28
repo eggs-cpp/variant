@@ -15,6 +15,12 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
+struct Aggregate
+{
+    int x;
+    float y;
+};
+
 TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(eggs::variants::in_place<0>, 42);
@@ -44,6 +50,35 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
 #  endif
     }
 #endif
+
+    // list-initialization
+    {
+        eggs::variant<Aggregate, std::string> v(eggs::variants::in_place<0>, 42);
+
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 0u);
+        CHECK(v.target_type() == typeid(Aggregate));
+        REQUIRE(v.target<Aggregate>() != nullptr);
+        CHECK(v.target<Aggregate>()->x == 42);
+        CHECK(v.target<Aggregate>()->y == 0.f);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        // constexpr
+        {
+            constexpr eggs::variant<int, Aggregate> v(eggs::variants::in_place<1>, 42);
+
+#  if EGGS_CXX14_HAS_CONSTEXPR
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, Aggregate> v(eggs::variants::in_place<1>, 42);
+                v.target<Aggregate>()->x = 43;
+                return 0;
+            }};
+            constexpr int c = test::call();
+#  endif
+        }
+#endif
+    }
 
     // sfinae
     {
@@ -162,6 +197,35 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
 #  endif
     }
 #endif
+
+    // list-initialization
+    {
+        eggs::variant<Aggregate, std::string> v(eggs::variants::in_place<Aggregate>, 42);
+
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 0u);
+        CHECK(v.target_type() == typeid(Aggregate));
+        REQUIRE(v.target<Aggregate>() != nullptr);
+        CHECK(v.target<Aggregate>()->x == 42);
+        CHECK(v.target<Aggregate>()->y == 0.f);
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+        // constexpr
+        {
+            constexpr eggs::variant<int, Aggregate> v(eggs::variants::in_place<Aggregate>, 42);
+
+#  if EGGS_CXX14_HAS_CONSTEXPR
+            struct test { static constexpr int call()
+            {
+                eggs::variant<int, Aggregate> v(eggs::variants::in_place<Aggregate>, 42);
+                v.target<Aggregate>()->x = 43;
+                return 0;
+            }};
+            constexpr int c = test::call();
+#  endif
+        }
+#endif
+    }
 
     // sfinae
     {

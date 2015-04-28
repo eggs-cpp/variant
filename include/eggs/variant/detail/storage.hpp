@@ -37,9 +37,24 @@ namespace eggs { namespace variants { namespace detail
     {
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1 + sizeof...(Ts);
 
-        template <typename ...Args>
+        template <
+            typename ...Args
+          , typename std::enable_if<
+                std::is_constructible<T, Args...>::value, bool
+            >::type = true
+        >
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
           : _head(detail::forward<Args>(args)...)
+        {}
+
+        template <
+            typename ...Args
+          , typename std::enable_if<
+                !std::is_constructible<T, Args...>::value, bool
+            >::type = false
+        >
+        EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
+          : _head{detail::forward<Args>(args)...}
         {}
 
         template <std::size_t I, typename ...Args>
@@ -99,9 +114,24 @@ namespace eggs { namespace variants { namespace detail
     {
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1 + sizeof...(Ts);
 
-        template <typename ...Args>
+        template <
+            typename ...Args
+          , typename std::enable_if<
+                std::is_constructible<T, Args...>::value, bool
+            >::type = true
+        >
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
           : _head(detail::forward<Args>(args)...)
+        {}
+
+        template <
+            typename ...Args
+          , typename std::enable_if<
+                !std::is_constructible<T, Args...>::value, bool
+            >::type = false
+        >
+        EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
+          : _head{detail::forward<Args>(args)...}
         {}
 
         template <std::size_t I, typename ...Args>
@@ -279,10 +309,25 @@ namespace eggs { namespace variants { namespace detail
         template <
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<
+                std::is_constructible<T, Args...>::value, bool
+            >::type = true
         >
         _union(index<I> /*which*/, Args&&... args)
         {
             ::new (target()) T(detail::forward<Args>(args)...);
+        }
+
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<
+                !std::is_constructible<T, Args...>::value, bool
+            >::type = false
+        >
+        _union(index<I> /*which*/, Args&&... args)
+        {
+            ::new (target()) T{detail::forward<Args>(args)...};
         }
 
         void* target() EGGS_CXX11_NOEXCEPT
@@ -569,12 +614,30 @@ namespace eggs { namespace variants { namespace detail
         template <
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<
+                std::is_constructible<T, Args...>::value, bool
+            >::type = true
         >
         T& emplace(index<I> which, Args&&... args)
         {
             _destroy();
             ::new (target()) T(detail::forward<Args>(args)...);
             _which = I;
+            return get(which);
+        }
+
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<
+                !std::is_constructible<T, Args...>::value, bool
+            >::type = false
+        >
+        T& emplace(index<I> which, Args&&... args)
+        {
+            _which = 0;
+            ::new (target()) T{detail::forward<Args>(args)...};
+            _which = which;
             return get(which);
         }
 
