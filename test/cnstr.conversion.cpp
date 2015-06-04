@@ -48,6 +48,17 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 #  endif
     }
 #endif
+
+    SECTION("implicit conversion")
+    {
+        eggs::variant<int, std::string> v("42");
+
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 1u);
+        CHECK(v.target_type() == typeid(std::string));
+        REQUIRE(v.target<std::string>() != nullptr);
+        CHECK(*v.target<std::string>() == "42");
+    }
 }
 
 TEST_CASE("variant<Ts...>::variant(nullvariant_t)", "[variant.cnstr]")

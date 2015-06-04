@@ -127,6 +127,22 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         }
 #endif
     }
+
+    SECTION("implicit conversion")
+    {
+        eggs::variant<int, std::string> v;
+
+        REQUIRE(bool(v) == false);
+        REQUIRE(v.which() == npos);
+
+        v = "42";
+
+        CHECK(bool(v) == true);
+        CHECK(v.which() == 1u);
+        CHECK(v.target_type() == typeid(std::string));
+        REQUIRE(v.target<std::string>() != nullptr);
+        CHECK(*v.target<std::string>() == "42");
+    }
 }
 
 TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")

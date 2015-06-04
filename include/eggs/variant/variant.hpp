@@ -62,6 +62,47 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        namespace _best_match
+        {
+            template <typename Ts, std::size_t I = 0>
+            struct overloads
+            {};
+
+            template <typename T, typename ...Ts, std::size_t I>
+            struct overloads<pack<T, Ts...>, I>
+              : overloads<pack<Ts...>, I + 1>
+            {
+                using fun_ptr = index<I>(*)(T);
+                operator fun_ptr();
+            };
+
+            template <typename F, typename T>
+            auto _invoke(F&&, T&&)
+             -> decltype(std::declval<F>()(std::declval<T>()));
+
+            struct _fallback {};
+
+            _fallback _invoke(...);
+
+            template <
+                typename T, typename U
+              , typename R = decltype(_best_match::_invoke(
+                    std::declval<T>(), std::declval<U>()))
+            >
+            struct result_of : R
+            {};
+
+            template <typename T, typename U>
+            struct result_of<T, U, _fallback>
+            {};
+        }
+
+        template <typename U, typename ...Ts>
+        struct index_of_best_match
+          : _best_match::result_of<_best_match::overloads<Ts...>, U>
+        {};
+
+        ///////////////////////////////////////////////////////////////////////
         namespace _addressof
         {
             struct _fallback {};
@@ -300,7 +341,8 @@ namespace eggs { namespace variants
         //! template <class U>
         //! constexpr variant(U&& v);
         //!
-        //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
+        //! Let `T` be one of the types in `Ts...` for which `U&&` is
+        //!  unambiguously convertible to by overload resolution rules.
         //!
         //! \requires `std::is_constructible_v<T, U&&>` is `true`.
         //!
@@ -313,26 +355,23 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks This constructor shall not participate in overload
-        //!  resolution unless `T` occurs exactly once in
-        //!  `std::remove_cv_t<Ts>...`. If `T`'s selected constructor is a
-        //!  `constexpr` constructor, this constructor shall be a `constexpr`
-        //!  constructor.
+        //!  resolution unless there is a type `T` in `Ts...` for which `U&&`
+        //!  is unambiguously convertible to by overload resolution rules. If
+        //!  `T`'s selected constructor is a `constexpr` constructor, this
+        //!  constructor shall be a `constexpr` constructor.
         template <
             typename U
-          , typename T = typename std::remove_cv<
-                typename std::remove_reference<U>::type>::type
-          , typename Enable = typename std::enable_if<detail::contains<
-                T, detail::pack<typename std::remove_cv<Ts>::type...>
-            >::value>::type
+          , std::size_t I = detail::index_of_best_match<
+                U&&, detail::pack<Ts...>>::value
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
         >
         EGGS_CXX11_CONSTEXPR variant(U&& v)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, U&&>::value)
 #endif
-          : _storage{detail::index_of<T, detail::pack<
-                    detail::empty, typename std::remove_cv<Ts>::type...
-                >>{}, std::forward<U>(v)}
+          : _storage{detail::index<I + 1>{}, std::forward<U>(v)}
         {}
 
         //! template <std::size_t I, class ...Args>
@@ -577,7 +616,8 @@ namespace eggs { namespace variants
         //! template <class U>
         //! constexpr variant& operator=(U&& v);
         //!
-        //! Let `T` be `std::remove_cv_t<std::remove_reference_t<U>>`
+        //! Let `T` be one of the types in `Ts...` for which `U&&` is
+        //!  unambiguously convertible to by overload resolution rules.
         //!
         //! \requires `std::is_constructible_v<T, U&&>` and
         //!  `std::is_assignable_v<T, U&&>` are `true`.
@@ -602,18 +642,17 @@ namespace eggs { namespace variants
         //!  (if any) has been destroyed.
         //!
         //! \remarks This operator shall not participate in overload
-        //!  resolution unless `T` occurs exactly once in
-        //!  `std::remove_cv_t<Ts>...`. If `std::is_trivially_copyable_v<T>`
-        //!  is `true` for all `T` in `Ts...` and `T`'s selected constructor
-        //!  is a `constexpr` constructor, then this function shall be a
-        //!  `constexpr` function.
+        //!  resolution unless there is a type `T` in `Ts...` for which `U&&`
+        //!  is unambiguously convertible to by overload resolution rules. If
+        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+        //!  `Ts...` and `T`'s selected constructor is a `constexpr`
+        //!  constructor, then this function shall be a `constexpr` function.
         template <
             typename U
-          , typename T = typename std::remove_cv<
-                typename std::remove_reference<U>::type>::type
-          , typename Enable = typename std::enable_if<detail::contains<
-                T, detail::pack<typename std::remove_cv<Ts>::type...>
-            >::value>::type
+          , std::size_t I = detail::index_of_best_match<
+                U&&, detail::pack<Ts...>>::value
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
         >
         EGGS_CXX14_CONSTEXPR variant& operator=(U&& v)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
@@ -621,16 +660,11 @@ namespace eggs { namespace variants
                   && std::is_nothrow_constructible<T, U&&>::value)
 #endif
         {
-            using t_which = detail::index_of<T, detail::pack<
-                detail::empty, typename std::remove_cv<Ts>::type...>>;
-
-            if (_storage.which() == t_which{})
+            if (_storage.which() == I + 1)
             {
-                T& active_member = _storage.get(t_which{});
-
-                active_member = std::forward<U>(v);
+                _storage.get(detail::index<I + 1>{}) = std::forward<U>(v);
             } else {
-                _storage.emplace(t_which{}, std::forward<U>(v));
+                _storage.emplace(detail::index<I + 1>{}, std::forward<U>(v));
             }
             return *this;
         }
