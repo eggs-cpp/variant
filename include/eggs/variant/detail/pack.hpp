@@ -151,14 +151,6 @@ namespace eggs { namespace variants { namespace detail
       : any_of<pack_c<bool, (Ts::value)...>>
     {};
 
-    template <typename T, typename Ts>
-    struct contains;
-
-    template <typename T, typename ...Ts>
-    struct contains<T, pack<Ts...>>
-      : any_of<pack<std::is_same<T, Ts>...>>
-    {};
-
     ///////////////////////////////////////////////////////////////////////////
     template <std::size_t I>
     using index = std::integral_constant<std::size_t, I>;

@@ -164,6 +164,16 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
         }
 #endif
     }
+
+    SECTION("implicit conversion")
+    {
+        eggs::variant<int, std::string> v("42");
+
+        REQUIRE(v.which() == 1u);
+        REQUIRE(*v.target<std::string>() == "42");
+
+        CHECK(v < "43");
+    }
 }
 
 TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
@@ -228,6 +238,16 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
             constexpr bool vgteb = Constexpr(41) >= v1;
         }
 #endif
+    }
+
+    SECTION("implicit conversion")
+    {
+        eggs::variant<int, std::string> v("43");
+
+        REQUIRE(v.which() == 1u);
+        REQUIRE(*v.target<std::string>() == "43");
+
+        CHECK("42" < v);
     }
 }
 
