@@ -33,6 +33,16 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
     REQUIRE(v1.target<int>() != nullptr);
     CHECK(*v1.target<int>() == 42);
 
+    SECTION("list-initialization")
+    {
+        eggs::variant<int, std::string> v = {};
+
+        CHECK(bool(v) == false);
+        CHECK(v.which() == npos);
+        CHECK(v.target() == nullptr);
+        CHECK(v.target_type() == typeid(void));
+    }
+
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     SECTION("trivially_copyable")
     {
@@ -82,6 +92,16 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
     CHECK(bool(v1) == false);
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
+
+    SECTION("list-initialization")
+    {
+        eggs::variant<> v = {};
+
+        CHECK(bool(v) == false);
+        CHECK(v.which() == npos);
+        CHECK(v.target() == nullptr);
+        CHECK(v.target_type() == typeid(void));
+    }
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")

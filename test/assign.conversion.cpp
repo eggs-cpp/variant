@@ -16,8 +16,6 @@
 #include "dtor.hpp"
 #include "throw.hpp"
 
-using eggs::variants::nullvariant;
-
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
@@ -143,107 +141,4 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
     }
-}
-
-TEST_CASE("variant<Ts...>::operator=(nullvariant_t)", "[variant.assign]")
-{
-    SECTION("empty target")
-    {
-        eggs::variant<int, std::string> v;
-
-        REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
-
-        v = nullvariant;
-
-        CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
-        CHECK(v.target() == nullptr);
-        CHECK(v.target_type() == typeid(void));
-
-#if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
-        {
-            struct test { static constexpr int call()
-            {
-                eggs::variant<ConstexprTrivial> v;
-                v = nullvariant;
-                return 0;
-            }};
-            constexpr int c = test::call();
-        }
-#endif
-    }
-
-    SECTION("non-empty target")
-    {
-        eggs::variant<int, std::string> v(43);
-
-        REQUIRE(bool(v) == true);
-        REQUIRE(v.which() == 0u);
-        REQUIRE(*v.target<int>() == 43);
-
-        v = nullvariant;
-
-        CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
-        CHECK(v.target() == nullptr);
-        CHECK(v.target_type() == typeid(void));
-
-#if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
-        {
-            struct test { static constexpr int call()
-            {
-                eggs::variant<ConstexprTrivial> v(ConstexprTrivial(43));
-                v = nullvariant;
-                return 0;
-            }};
-            constexpr int c = test::call();
-        }
-#endif
-    }
-
-    SECTION("initializer-list")
-    {
-        eggs::variant<int, std::string> v;
-
-        REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
-
-        v = {};
-
-        CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
-        CHECK(v.target() == nullptr);
-        CHECK(v.target_type() == typeid(void));
-    }
-}
-
-TEST_CASE("variant<>::operator=(nullvariant_t)", "[variant.assign]")
-{
-    eggs::variant<> v;
-
-    REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
-
-    v = nullvariant;
-
-    CHECK(bool(v) == false);
-    CHECK(v.which() == npos);
-    CHECK(v.target() == nullptr);
-    CHECK(v.target_type() == typeid(void));
-
-#if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
-    {
-        struct test { static constexpr int call()
-        {
-            eggs::variant<> v;
-            v = nullvariant;
-            return 0;
-        }};
-        constexpr int c = test::call();
-    }
-#endif
 }

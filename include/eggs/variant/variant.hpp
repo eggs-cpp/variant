@@ -16,7 +16,6 @@
 
 #include <eggs/variant/bad_variant_access.hpp>
 #include <eggs/variant/in_place.hpp>
-#include <eggs/variant/nullvariant.hpp>
 
 #include <cstddef>
 #include <functional>
@@ -265,11 +264,6 @@ namespace eggs { namespace variants
                 std::is_void<Ts>...>>::value
           , "variant member has void type");
 
-        static_assert(
-            !detail::any_of<detail::pack<
-                detail::is_null_variant<Ts>...>>::value
-          , "variant member has nullvariant_t type");
-
     public:
         //! static constexpr std::size_t npos = std::size_t(-1);
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = std::size_t(-1);
@@ -282,16 +276,6 @@ namespace eggs { namespace variants
         //! \remarks No member is initialized. For every object types `Ts...`
         //!  this constructor shall be a `constexpr` constructor.
         EGGS_CXX11_CONSTEXPR variant() EGGS_CXX11_NOEXCEPT
-          : _storage{}
-        {}
-
-        //! constexpr variant(nullvariant_t) noexcept;
-        //!
-        //! \postconditions `*this` does not have an active member.
-        //!
-        //! \remarks No member is initialized. For every object types `Ts...`
-        //!  this constructor shall be a `constexpr` constructor.
-        EGGS_CXX11_CONSTEXPR variant(nullvariant_t) EGGS_CXX11_NOEXCEPT
           : _storage{}
         {}
 
@@ -523,24 +507,6 @@ namespace eggs { namespace variants
         ~variant() = default;
 #endif
 
-        //! constexpr variant& operator=(nullvariant_t) noexcept;
-        //!
-        //! \effects If `*this` has an active member of type `T`, destroys the
-        //!  active member by calling `T::~T()`.
-        //!
-        //! \returns `*this`.
-        //!
-        //! \postconditions `*this` does not have an active member.
-        //!
-        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
-        //!  `T` in `Ts...`, then this function shall be a `constexpr`
-        //!  function.
-        EGGS_CXX14_CONSTEXPR variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT
-        {
-            _storage.emplace(detail::index<0>{});
-            return *this;
-        }
-
         //! constexpr variant& operator=(variant const& rhs);
         //!
         //! \requires `std::is_copy_constructible_v<T>` and
@@ -550,8 +516,8 @@ namespace eggs { namespace variants
         //!  - If both `*this` and `rhs` have an active member of type `T`,
         //!    assigns to the active member the expression `*rhs.target<T>()`;
         //!
-        //!  - otherwise, calls `*this = nullvariant`. Then, if `rhs` has an
-        //!    active member of type `T`, initializes the active member as if
+        //!  - otherwise, calls `*this = {}`. Then, if `rhs` has an active
+        //!    member of type `T`, initializes the active member as if
         //!    direct-non-list-initializing an object of type `T` with the
         //!    expression `*rhs.target<T>()`.
         //!
@@ -583,8 +549,8 @@ namespace eggs { namespace variants
         //!    assigns to the active member the expression
         //!    `std::move(*rhs.target<T>())`;
         //!
-        //!  - otherwise, calls `*this = nullvariant`. Then, if `rhs` has an
-        //!    active member of type `T`, initializes the active member as if
+        //!  - otherwise, calls `*this = {}`. Then, if `rhs` has an active
+        //!    member of type `T`, initializes the active member as if
         //!    direct-non-list-initializing an object of type `T` with the
         //!    expression `std::move(*rhs.target<Tn>())`.
         //!
@@ -626,8 +592,8 @@ namespace eggs { namespace variants
         //!  - If `*this` has an active member of type `T`, assigns to the
         //!    active member the expression `std::forward<U>(v)`;
         //!
-        //!  - otherwise, calls `*this = nullvariant`. Then, initializes the
-        //!    active member as if direct-non-list-initializing an object of
+        //!  - otherwise, calls `*this = {}`. Then, initializes the active
+        //!    member as if direct-non-list-initializing an object of
         //!    type `T` with the expression `std::forward<U>(v)`.
         //!
         //! \returns `*this`.
@@ -678,9 +644,9 @@ namespace eggs { namespace variants
         //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
         //!  Args&&...>` is `true`.
         //!
-        //! \effects Calls `*this = nullvariant`. Then, initializes the active
-        //!  member as if direct-non-list-initializing  an object of type `T`
-        //!  with the arguments `std::forward<Args>(args)...`.
+        //! \effects Calls `*this = {}`. Then, initializes the active member
+        //!  as if direct-non-list-initializing  an object of type `T` with
+        //!  the arguments `std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
         //!
@@ -719,9 +685,9 @@ namespace eggs { namespace variants
         //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
         //!  initializer_list<U>&, Args&&...>` is `true`.
         //!
-        //! \effects Calls `*this = nullvariant`. Then, initializes the active
-        //!  member as if direct-non-list-initializing an object of type `T`
-        //!  with the arguments `il, std::forward<Args>(args)...`.
+        //! \effects Calls `*this = {}`. Then, initializes the active member
+        //!  as if direct-non-list-initializing an object of type `T` with
+        //!  the arguments `il, std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
         //!
@@ -968,13 +934,11 @@ namespace eggs { namespace variants
 
     public:
         EGGS_CXX11_CONSTEXPR variant() EGGS_CXX11_NOEXCEPT {}
-        EGGS_CXX11_CONSTEXPR variant(nullvariant_t) EGGS_CXX11_NOEXCEPT {}
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant const&) = default;
         variant(variant&&) = default;
 #endif
 
-        EGGS_CXX14_CONSTEXPR variant& operator=(nullvariant_t) EGGS_CXX11_NOEXCEPT { return *this; }
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const&) = default;
         variant& operator=(variant&&) = default;
@@ -1310,163 +1274,6 @@ namespace eggs { namespace variants
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
         return !(lhs < rhs);
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    //! template <class ...Ts>
-    //! constexpr bool operator==(variant<Ts...> const& x, nullvariant_t) noexcept;
-    //!
-    //! \returns `!x`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator==(
-        variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
-    {
-        return !x;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator==(nullvariant_t, variant<Ts...> const& x) noexcept;
-    //!
-    //! \returns `!x`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator==(
-        nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
-    {
-        return !x;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator!=(variant<Ts...> const& x, nullvariant_t) noexcept;
-    //!
-    //! \returns `bool(x)`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator!=(
-        variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
-    {
-        return bool(x);
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator!=(nullvariant_t, variant<Ts...> const& x) noexcept;
-    //!
-    //! \returns `bool(x)`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator!=(
-        nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
-    {
-        return bool(x);
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator<(variant<Ts...> const& x, nullvariant_t) noexcept;
-    //!
-    //! \returns `false`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator<(
-        variant<Ts...> const& /*x*/, nullvariant_t) EGGS_CXX11_NOEXCEPT
-    {
-        return false;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator<(nullvariant_t, variant<Ts...> const& x) noexcept;
-    //!
-    //! \returns `bool(x)`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator<(
-        nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
-    {
-        return bool(x);
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator>(variant<Ts...> const& x, nullvariant_t) noexcept;
-    //!
-    //! \returns `bool(x)`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator>(
-        variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
-    {
-        return bool(x);
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator>(nullvariant_t, variant<Ts...> const& x) noexcept;
-    //!
-    //! \returns `false`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator>(
-        nullvariant_t, variant<Ts...> const& /*x*/) EGGS_CXX11_NOEXCEPT
-    {
-        return false;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator<=(variant<Ts...> const& x, nullvariant_t) noexcept;
-    //!
-    //! \returns `!x`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator<=(
-        variant<Ts...> const& x, nullvariant_t) EGGS_CXX11_NOEXCEPT
-    {
-        return !x;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator<=(nullvariant_t, variant<Ts...> const& x) noexcept;
-    //!
-    //! \returns `true`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator<=(
-        nullvariant_t, variant<Ts...> const& /*x*/) EGGS_CXX11_NOEXCEPT
-    {
-        return true;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator>=(variant<Ts...> const& x, nullvariant_t) noexcept;
-    //!
-    //! \returns `true`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator>=(
-        variant<Ts...> const& /*x*/, nullvariant_t) EGGS_CXX11_NOEXCEPT
-    {
-        return true;
-    }
-
-    //! template <class ...Ts>
-    //! constexpr bool operator>=(nullvariant_t, variant<Ts...> const& x) noexcept;
-    //!
-    //! \returns `!x`
-    //!
-    //! \remarks This function shall be a `constexpr` function.
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR bool operator>=(
-        nullvariant_t, variant<Ts...> const& x) EGGS_CXX11_NOEXCEPT
-    {
-        return !x;
     }
 
     ///////////////////////////////////////////////////////////////////////////

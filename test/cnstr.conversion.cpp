@@ -14,8 +14,6 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-using eggs::variants::nullvariant;
-
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
@@ -59,56 +57,4 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
     }
-}
-
-TEST_CASE("variant<Ts...>::variant(nullvariant_t)", "[variant.cnstr]")
-{
-    eggs::variant<int, std::string> v(nullvariant);
-
-    CHECK(bool(v) == false);
-    CHECK(v.which() == npos);
-    CHECK(v.target() == nullptr);
-    CHECK(v.target_type() == typeid(void));
-
-    SECTION("initializer-list")
-    {
-        eggs::variant<int, std::string> v = {};
-
-        CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
-        CHECK(v.target() == nullptr);
-        CHECK(v.target_type() == typeid(void));
-    }
-
-#if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
-    {
-        constexpr eggs::variant<int, Constexpr> v(nullvariant);
-        constexpr bool vb = bool(v);
-        constexpr std::size_t vw = v.which();
-        constexpr void const* vt = v.target();
-        constexpr std::type_info const& vtt = v.target_type();
-    }
-#endif
-}
-
-TEST_CASE("variant<>::variant(nullvariant_t)", "[variant.cnstr]")
-{
-    eggs::variant<> v(nullvariant);
-
-    CHECK(bool(v) == false);
-    CHECK(v.which() == npos);
-    CHECK(v.target() == nullptr);
-    CHECK(v.target_type() == typeid(void));
-
-#if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
-    {
-        constexpr eggs::variant<int, Constexpr> v(nullvariant);
-        constexpr bool vb = bool(v);
-        constexpr std::size_t vw = v.which();
-        constexpr void const* vt = v.target();
-        constexpr std::type_info const& vtt = v.target_type();
-    }
-#endif
 }

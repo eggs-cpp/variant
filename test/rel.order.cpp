@@ -14,8 +14,6 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-using eggs::variants::nullvariant;
-
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.rel]")
@@ -248,106 +246,6 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(*v.target<std::string>() == "43");
 
         CHECK("42" < v);
-    }
-}
-
-TEST_CASE("operator<(variant<Ts...> const&, nullvariant_t)", "[variant.rel]")
-{
-    SECTION("empty member")
-    {
-        eggs::variant<int, std::string> const v1;
-
-        REQUIRE(v1.which() == npos);
-
-        CHECK((v1 < nullvariant) == false);
-        CHECK(v1 <= nullvariant);
-        CHECK((v1 > nullvariant) == false);
-        CHECK(v1 >= nullvariant);
-
-#if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
-        {
-            constexpr eggs::variant<int, Constexpr> v1;
-            constexpr bool vltb = v1 < nullvariant;
-            constexpr bool vgtb = v1 > nullvariant;
-            constexpr bool vlteb = v1 <= nullvariant;
-            constexpr bool vgteb = v1 >= nullvariant;
-        }
-#endif
-    }
-
-    SECTION("non-empty members")
-    {
-        eggs::variant<int, std::string> const v1(42);
-
-        REQUIRE(v1.which() == 0u);
-        REQUIRE(*v1.target<int>() == 42);
-
-        CHECK((v1 < nullvariant) == false);
-        CHECK((v1 <= nullvariant) == false);
-        CHECK(v1 > nullvariant);
-        CHECK(v1 >= nullvariant);
-
-#if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
-        {
-            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
-            constexpr bool vltb = v1 < nullvariant;
-            constexpr bool vgtb = v1 > nullvariant;
-            constexpr bool vlteb = v1 <= nullvariant;
-            constexpr bool vgteb = v1 >= nullvariant;
-        }
-#endif
-    }
-}
-
-TEST_CASE("operator<(nullvariant_t, variant<Ts...> const&)", "[variant.rel]")
-{
-    SECTION("empty member")
-    {
-        eggs::variant<int, std::string> const v1;
-
-        REQUIRE(v1.which() == npos);
-
-        CHECK((nullvariant < v1) == false);
-        CHECK(nullvariant <= v1);
-        CHECK((nullvariant > v1) == false);
-        CHECK(nullvariant >= v1);
-
-#if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
-        {
-            constexpr eggs::variant<int, Constexpr> v1;
-            constexpr bool vltb = nullvariant < v1;
-            constexpr bool vgtb = nullvariant > v1;
-            constexpr bool vlteb = nullvariant <= v1;
-            constexpr bool vgteb = nullvariant >= v1;
-        }
-#endif
-    }
-
-    SECTION("non-empty members")
-    {
-        eggs::variant<int, std::string> const v1(42);
-
-        REQUIRE(v1.which() == 0u);
-        REQUIRE(*v1.target<int>() == 42);
-
-        CHECK(nullvariant < v1);
-        CHECK(nullvariant <= v1);
-        CHECK((nullvariant > v1) == false);
-        CHECK((nullvariant >= v1) == false);
-
-#if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
-        {
-            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
-            constexpr bool vltb = nullvariant < v1;
-            constexpr bool vgtb = nullvariant > v1;
-            constexpr bool vlteb = nullvariant <= v1;
-            constexpr bool vgteb = nullvariant >= v1;
-        }
-#endif
     }
 }
 
