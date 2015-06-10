@@ -48,10 +48,6 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
 &nbsp;&nbsp;<span style="color:#2b91af;">in_place_t</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
 
-&nbsp;&nbsp;<span style="color:green;">// No-active-member state indicator</span>
-&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-nullvariant"><span style="color:#2b91af;">nullvariant_t</span></a> {<em>see below</em>};
-&nbsp;&nbsp;<span style="color:blue;">static</span> <span style="color:blue;">constexpr</span> <span style="color:#2b91af;">nullvariant_t</span> <a href="#eggs-nullvariant"><span style="color:magenta;">nullvariant</span></a>(<em>unspecified</em>);
-
 &nbsp;&nbsp;<span style="color:green;">// Class bad_variant_access</span>
 &nbsp;&nbsp;<span style="color:blue;">class</span> <a href="#eggs-bad-variant-access"><span style="color:#2b91af;">bad_variant_access</span></a>;
 
@@ -63,37 +59,35 @@
 
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:green;">// Constructors</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-1">variant</a>() <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-2">variant</a>(<span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-2">variant</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-9">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:green;">// Destructor</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#eggs-variant-dtor-1">~variant</a>();
 
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:green;">// Assignment</span>
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-1"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-2"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-3"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-1"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-2"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-4"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-3"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-5">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-4">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-6">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-5">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-7">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-6">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-8">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-7">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:green;">// Swap</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-swap-1">swap</a>(<span style="color:#2b91af;">variant</span>&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
@@ -164,57 +158,31 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-1-6">operator&gt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 
-&nbsp;&nbsp;<span style="color:green;">// Comparison with nullvariant</span>
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-1">operator==</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-2">operator==</a>(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-3">operator!=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-4">operator!=</a>(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-5">operator&lt;</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-6">operator&lt;</a>(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-7">operator&gt;</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-8">operator&gt;</a>(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-9">operator&lt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-10">operator&lt;=</a>(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-11">operator&gt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-12">operator&gt;=</a>(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;) <span style="color:blue;">noexcept</span>;
-
 &nbsp;&nbsp;<span style="color:green;">// Comparison with Ts</span>
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-1">operator==</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-1">operator==</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-2">operator==</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-2">operator==</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-3">operator!=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-3">operator!=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-4">operator!=</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-4">operator!=</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-5">operator&lt;</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-5">operator&lt;</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-6">operator&lt;</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-6">operator&lt;</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-7">operator&gt;</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-7">operator&gt;</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-8">operator&gt;</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-8">operator&gt;</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-9">operator&lt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-9">operator&lt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-10">operator&lt;=</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-10">operator&lt;=</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-11">operator&gt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-11">operator&gt;=</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-3-12">operator&gt;=</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <a href="#eggs-rel-2-12">operator&gt;=</a>(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp;, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 
 &nbsp;&nbsp;<span style="color:green;">// Calling a function with variants of arguments</span>
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">R</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">F</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Vs</span>&gt;
@@ -247,37 +215,35 @@
 
 &nbsp;&nbsp;<span style="color:green;">// Constructors</span>
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-1">variant</a>() <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-2">variant</a>(<span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-2">variant</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-9">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;<span style="color:green;">// Destructor</span>
 &nbsp;&nbsp;<a href="#eggs-variant-dtor-1">~variant</a>();
 
 &nbsp;&nbsp;<span style="color:green;">// Assignment</span>
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-1"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-2"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-3"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-1"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-2"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-4"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <a href="#eggs-variant-assign-3"><span style="color:blue;">operator</span>=</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-5">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-4">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-6">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-5">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-7">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-6">emplace</a>(<span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-8">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-assign-7">emplace</a>(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;<span style="color:green;">// Swap</span>
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> <a href="#eggs-variant-swap-1">swap</a>(<span style="color:#2b91af;">variant</span>&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
@@ -307,13 +273,6 @@
                 </ul>
 
                 <a name="eggs-variant-cnstr-2"></a>
-                <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:blue;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Postconditions:</em> <code>*this</code> does not have an active member.</li>
-                    <li><em>Remarks:</em> No member is initialized. For every object types <code>Ts...</code> this constructor shall be a <code>constexpr</code> constructor.</li>
-                </ul>
-
-                <a name="eggs-variant-cnstr-3"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>std::is_copy_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
@@ -323,7 +282,7 @@
                     <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy constructor shall be a trivial <code>constexpr</code> constructor.</li>
                 </ul>
 
-                <a name="eggs-variant-cnstr-4"></a>
+                <a name="eggs-variant-cnstr-3"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">variant</span>&amp;&amp; rhs) <span style="color:blue;">noexcept</span>(<em>see below</em>);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>std::is_move_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
@@ -333,7 +292,7 @@
                     <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>.  If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move constructor shall be a trivial <code>constexpr</code> constructor.</li>
                 </ul>
 
-                <a name="eggs-variant-cnstr-5"></a>
+                <a name="eggs-variant-cnstr-4"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">U</span>&amp;&amp; v);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules.</li>
@@ -344,7 +303,7 @@
                     <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
-                <a name="eggs-variant-cnstr-6"></a>
+                <a name="eggs-variant-cnstr-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
@@ -355,7 +314,7 @@
                     <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;I&gt;</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
-                <a name="eggs-variant-cnstr-7"></a>
+                <a name="eggs-variant-cnstr-6"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
@@ -366,7 +325,7 @@
                     <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;I&gt;</code>. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
-                <a name="eggs-variant-cnstr-8"></a>
+                <a name="eggs-variant-cnstr-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
@@ -374,7 +333,7 @@
                     <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;T&gt;</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
-                <a name="eggs-variant-cnstr-9"></a>
+                <a name="eggs-variant-cnstr-8"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
@@ -394,15 +353,6 @@
                 <a name="eggs-variant-assign" href="#eggs-variant-assign"><h2>Assignment</h2></a>
 
                 <a name="eggs-variant-assign-1"></a>
-                <pre class="code"><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Effects:</em> If <code>*this</code> has an active member of type <code>T</code>, destroys the active member by calling <code>T::~T()</code>.</li>
-                    <li><em>Returns:</em> <code>*this</code>.</li>
-                    <li><em>Postconditions:</em> <code>*this</code> does not have an active member.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-variant-assign-2"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>std::is_copy_constructible_v&lt;T&gt;</code> and <code>std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
@@ -410,7 +360,7 @@
                         <em>Effects:</em>
                         <ul>
                             <li>If both <code>*this</code> and <code>rhs</code> have an active member of type <code>T</code>, assigns to the active member the expression <code>*rhs.target&lt;T&gt;()</code>;</li>
-                            <li>otherwise, calls <code>*this = nullvariant</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>.</li>
+                            <li>otherwise, calls <code>*this = {}</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>.</li>
                         </ul>
                     </li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
@@ -419,7 +369,7 @@
                     <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
                 </ul>
 
-                <a name="eggs-variant-assign-3"></a>
+                <a name="eggs-variant-assign-2"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">variant</span>&amp;&amp; rhs) <span style="color:blue;">noexcept</span>(<em>see below</em>);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>std::is_move_constructible_v&lt;T&gt;</code> and <code>std::is_move_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
@@ -427,7 +377,7 @@
                         <em>Effects:</em>
                         <ul>
                             <li>If both <code>*this</code> and <code>rhs</code> have an active member of type <code>T</code>, assigns to the active member the expression <code>std::move(*rhs.target&lt;T&gt;())</code>;</li>
-                            <li>otherwise, calls <code>*this = nullvariant</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;Tn&gt;())</code>.</li>
+                            <li>otherwise, calls <code>*this = {}</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;Tn&gt;())</code>.</li>
                         </ul>
                     </li>
                     <li><code>bool(rhs)</code> is unchanged.</li>
@@ -437,7 +387,7 @@
                     <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_assignable_v&lt;Ts&gt;...</code> and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
                 </ul>
 
-                <a name="eggs-variant-assign-4"></a>
+                <a name="eggs-variant-assign-3"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> variant&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">U</span>&amp;&amp; v);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules.</li>
@@ -446,7 +396,7 @@
                         <em>Effects:</em>
                         <ul>
                             <li>If <code>*this</code> has an active member of type <em><code>T</code></em>, assigns to the active member the expression <code>std::forward&lt;U&gt;(v)</code>;</li>
-                            <li>otherwise, calls <code>*this = nullvariant</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the expression <code>std::forward&lt;U&gt;(v)</code>.</li>
+                            <li>otherwise, calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the expression <code>std::forward&lt;U&gt;(v)</code>.</li>
                         </ul>
                     </li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
@@ -455,31 +405,31 @@
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
-                <a name="eggs-variant-assign-5"></a>
+                <a name="eggs-variant-assign-4"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> emplace(<span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
                     <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
-                    <li><em>Effects:</em> Calls <code>*this = nullvariant</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
+                    <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
                     <li><em>Exception Safety:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed.</li>
                     <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
-                <a name="eggs-variant-assign-6"></a>
+                <a name="eggs-variant-assign-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> emplace(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
                     <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
-                    <li><em>Effects:</em> Calls <code>*this = nullvariant</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
+                    <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
                     <li><em>Exception Safety:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed.</li>
                     <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
-                <a name="eggs-variant-assign-7"></a>
+                <a name="eggs-variant-assign-6"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> emplace(<span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
@@ -487,7 +437,7 @@
                     <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
-                <a name="eggs-variant-assign-8"></a>
+                <a name="eggs-variant-assign-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> emplace(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
@@ -576,16 +526,6 @@
 <span style="color:#2b91af;">in_place_t</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
 </pre>
                 <p>The struct <code>in_place_t</code> is an empty structure type used as a unique type to disambiguate constructor and function overloading. Specifically, <code>variant&lt;Ts...&gt;</code> has a constructor with an unspecified first parameter that matches an expression of the form <code>in_place&lt;T&gt;</code>, followed by a parameter pack; this indicates that <code>T</code> should be constructed in-place (as if by a call to a placement new expression) with the forwarded pack expansion as arguments for the initialization of <code>T</code>.</p>
-            </section>
-
-            <section>
-                <a name="eggs-nullvariant" href="#eggs-nullvariant"><h1>No-value state indicator</h1></a>
-<pre class="code">
-<span style="color:blue;">struct</span> <span style="color:#2b91af;">nullvariant_t</span> {<em>see below</em>};
-<span style="color:blue;">static</span> <span style="color:blue;">constexpr</span> <span style="color:#2b91af;">nullvariant_t</span> <span style="color:magenta;">nullvariant</span>(<em>unspecified</em>);
-</pre>
-                <p>The struct <code>nullvariant_t</code> is an empty structure type used as a unique type to indicate the state of not having an active member for <code>variant</code> objects. In particular, <code>variant&lt;Ts...&gt;</code> has a constructor with <code>nullvariant_t</code> as a single argument; this indicates that a variant object with no active member shall be constructed.</p>
-                <p>Type <code>nullvariant_t</code> shall not have a default constructor. It shall be a literal type. Constant <code>nullvariant</code> shall be initialized with an argument of literal type. </p>
             </section>
 
             <section>
@@ -763,97 +703,9 @@
             </section>
 
             <section>
-                <a name="eggs-rel-2" href="#eggs-rel-2"><h1>Comparison with <code>nullvariant</code></h1></a>
+                <a name="eggs-rel-2" href="#eggs-rel-2"><h1>Comparison with <code>Ts</code></h1></a>
 
                 <a name="eggs-rel-2-1"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>==(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>!x</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-2"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>==(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>!x</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-3"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>!=(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>bool(x)</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-4"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>!=(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>bool(x)</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-5"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>false</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-6"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>bool(x)</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-7"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>bool(x)</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-8"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>false</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-9"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;=(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>!x</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-10"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;=(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>true</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-11"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;=(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x, <span style="color:#2b91af;">nullvariant_t</span>) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>true</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-
-                <a name="eggs-rel-2-12"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;=(<span style="color:#2b91af;">nullvariant_t</span>, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; x) <span style="color:blue;">noexcept</span>;</pre>
-                <ul>
-                    <li><em>Returns:</em> <code>!x</code></li>
-                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
-                </ul>
-            </section>
-
-            <section>
-                <a name="eggs-rel-3" href="#eggs-rel-3"><h1>Comparison with <code>Ts</code></h1></a>
-
-                <a name="eggs-rel-3-1"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts, <span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>==(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules.</li>
@@ -862,28 +714,28 @@
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>lhs</code> has an active member of type <code>T</code> and <code>*lhs.target<T>() == rhs</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-2"></a>
+                <a name="eggs-rel-2-2"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>==(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>rhs == lhs</code></li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>rhs</code> has an active member of type <code>T</code> and <code>lhs == *rhs.target<T>()</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-3"></a>
+                <a name="eggs-rel-2-3"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts, <span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>!=(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>!(lhs == rhs)</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>lhs</code> has an active member of type <code>T</code> and <code>*lhs.target<T>() == rhs</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-4"></a>
+                <a name="eggs-rel-2-4"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>!=(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>!(lhs == rhs)</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>rhs</code> has an active member of type <code>T</code> and <code>lhs == *rhs.target<T>()</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-5"></a>
+                <a name="eggs-rel-2-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts, <span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules.</li>
@@ -892,7 +744,7 @@
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>lhs</code> has an active member of type <code>T</code> and <code>*lhs.target<T>() < rhs</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-6"></a>
+                <a name="eggs-rel-2-6"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules.</li>
@@ -901,42 +753,42 @@
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>rhs</code> has an active member of type <code>T</code> and <code>lhs < *rhs.target<T>()</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-7"></a>
+                <a name="eggs-rel-2-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts, <span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>rhs &lt; lhs</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>lhs</code> has an active member of type <code>T</code> and <code>*lhs.target<T>() < rhs</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-8"></a>
+                <a name="eggs-rel-2-8"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>rhs &lt; lhs</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>rhs</code> has an active member of type <code>T</code> and <code>lhs < *rhs.target<T>()</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-9"></a>
+                <a name="eggs-rel-2-9"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts, <span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;=(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>!(rhs &lt; lhs)</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>lhs</code> has an active member of type <code>T</code> and <code>*lhs.target<T>() < rhs</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-10"></a>
+                <a name="eggs-rel-2-10"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&lt;=(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>!(rhs &lt; lhs)</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>rhs</code> has an active member of type <code>T</code> and <code>lhs < *rhs.target<T>()</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-11"></a>
+                <a name="eggs-rel-2-11"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts, <span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;=(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>!(lhs &lt; rhs)</code>.</li>
                     <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U const&</code> is unambiguously convertible to by overload resolution rules. This function shall be a <code>constexpr</code> function unless <code>lhs</code> has an active member of type <code>T</code> and <code>*lhs.target<T>() < rhs</code> is not a constant expression.</li>
                 </ul>
 
-                <a name="eggs-rel-3-12"></a>
+                <a name="eggs-rel-2-12"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">bool</span> <span style="color:blue;">operator</span>&gt;=(<span style="color:#2b91af;">U</span> <span style="color:blue;">const</span>&amp; lhs, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Returns:</em> <code>!(lhs &lt; rhs)</code>.</li>
