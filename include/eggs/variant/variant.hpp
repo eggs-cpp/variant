@@ -359,7 +359,7 @@ namespace eggs { namespace variants
         {}
 
         //! template <std::size_t I, class ...Args>
-        //! constexpr explicit variant(unspecified<I>, Args&&... args);
+        //! constexpr explicit variant(in_place_t(*)(unspecified<I>), Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -384,7 +384,7 @@ namespace eggs { namespace variants
                 I, detail::pack<Ts...>>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(detail::pack_c<std::size_t, I>)
+            in_place_t(*)(detail::pack_c<std::size_t, I>)
           , Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
@@ -395,7 +395,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
-        //! constexpr explicit variant(unspecified<I>, std::initializer_list<U> il, Args&&... args);
+        //! constexpr explicit variant(in_place_t(*)(unspecified<I>), std::initializer_list<U> il, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -425,7 +425,7 @@ namespace eggs { namespace variants
             >::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(detail::pack_c<std::size_t, I>)
+            in_place_t(*)(detail::pack_c<std::size_t, I>)
           , std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
@@ -437,7 +437,7 @@ namespace eggs { namespace variants
 #endif
 
         //! template <class T, class ...Args>
-        //! constexpr explicit variant(unspecified<T>, Args&&... args);
+        //! constexpr explicit variant(in_place_t(*)(unspecified<T>), Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -450,7 +450,7 @@ namespace eggs { namespace variants
         //!  constructor shall be a `constexpr` constructor.
         template <typename T, typename ...Args>
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(detail::pack<T>)
+            in_place_t(*)(detail::pack<T>)
           , Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
@@ -463,7 +463,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
-        //! constexpr explicit variant(unspecified<T>, std::initializer_list<U> il, Args&&... args);
+        //! constexpr explicit variant(in_place_t(*)(unspecified<T>), std::initializer_list<U> il, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -483,7 +483,7 @@ namespace eggs { namespace variants
             >::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(detail::pack<T>)
+            in_place_t(*)(detail::pack<T>)
           , std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
