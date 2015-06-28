@@ -29,25 +29,10 @@ namespace eggs { namespace variants
         //! bad_variant_access();
         //!
         //! \effects Constructs an object of class `bad_variant_access`.
-        //!  `what()` returns an implementation-defined NTBS.
+        //!
+        //! \postconditions `what()` returns an implementation-defined NTBS.
         bad_variant_access()
           : std::logic_error{"bad_variant_access"}
-        {}
-
-        //! explicit bad_variant_access(std::string const& what_arg);
-        //!
-        //! \effects Constructs an object of class `bad_variant_access`.
-        //!  `strcmp(what(), what_arg.c_str()) == 0`.
-        explicit bad_variant_access(std::string const& what_arg)
-          : std::logic_error{what_arg}
-        {}
-
-        //! explicit bad_variant_access(char const* what_arg);
-        //!
-        //! \effects Constructs an object of class `bad_variant_access`.
-        //!  `strcmp(what(), what_arg) == 0`.
-        explicit bad_variant_access(char const* what_arg)
-          : std::logic_error{what_arg}
         {}
     };
 
