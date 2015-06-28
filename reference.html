@@ -64,13 +64,13 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:green;">// Destructor</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#eggs-variant-dtor-1">~variant</a>();
@@ -220,13 +220,13 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;<span style="color:green;">// Destructor</span>
 &nbsp;&nbsp;<a href="#eggs-variant-dtor-1">~variant</a>();
@@ -276,7 +276,7 @@
                 <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>std::is_copy_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Effects:</em> If <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>.</li>
+                    <li><em>Effects:</em> If <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>; otherwise, no member is initialized.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <code>T</code>.</li>
                     <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy constructor shall be a trivial <code>constexpr</code> constructor.</li>
@@ -286,7 +286,7 @@
                 <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">variant</span>&amp;&amp; rhs) <span style="color:blue;">noexcept</span>(<em>see below</em>);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>std::is_move_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Effects:</em> If <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;T&gt;())</code>. <code>bool(rhs)</code> is unchanged.</li>
+                    <li><em>Effects:</em> If <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;T&gt;())</code>; otherwise, no member is initialized. <code>bool(rhs)</code> is unchanged.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <code>T</code>.</li>
                     <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>.  If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move constructor shall be a trivial <code>constexpr</code> constructor.</li>
@@ -304,7 +304,7 @@
                 </ul>
 
                 <a name="eggs-variant-cnstr-5"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
                     <li><em><em>Requires:</em></em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
@@ -315,7 +315,7 @@
                 </ul>
 
                 <a name="eggs-variant-cnstr-6"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
                     <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
@@ -326,7 +326,7 @@
                 </ul>
 
                 <a name="eggs-variant-cnstr-7"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>variant(in_place&lt;I&gt;, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
@@ -334,7 +334,7 @@
                 </ul>
 
                 <a name="eggs-variant-cnstr-8"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>variant(in_place&lt;I&gt;, il, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
@@ -360,13 +360,12 @@
                         <em>Effects:</em>
                         <ul>
                             <li>If both <code>*this</code> and <code>rhs</code> have an active member of type <code>T</code>, assigns to the active member the expression <code>*rhs.target&lt;T&gt;()</code>;</li>
-                            <li>otherwise, calls <code>*this = {}</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>.</li>
+                            <li>otherwise, if <code>*this</code> has an active member of type <code>U</code>, destroys the active member by calling <code>target&lt;U&gt;()->~U()</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>.</li>
                         </ul>
                     </li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
-                    <li><em>Exception Safety:</em> If an exception is thrown during the call to <code>T</code>'s copy assignment, the state of the active member is as defined by the exception safety guarantee of <code>T</code>'s copy assignment. If an exception is thrown during the call to <code>T</code>'s copy constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <code>T</code>'s copy assignment, the state of the active member is as defined by the exception safety guarantee of <code>T</code>'s copy assignment. If an exception is thrown during the call to <code>T</code>'s copy constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-2"></a>
@@ -377,14 +376,13 @@
                         <em>Effects:</em>
                         <ul>
                             <li>If both <code>*this</code> and <code>rhs</code> have an active member of type <code>T</code>, assigns to the active member the expression <code>std::move(*rhs.target&lt;T&gt;())</code>;</li>
-                            <li>otherwise, calls <code>*this = {}</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;Tn&gt;())</code>.</li>
+                            <li>otherwise, if <code>*this</code> has an active member of type <code>U</code>, destroys the active member by calling <code>target&lt;U&gt;()->~U()</code>. Then, if <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;Tn&gt;())</code>.</li>
                         </ul>
                     </li>
                     <li><code>bool(rhs)</code> is unchanged.</li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
-                    <li><em>Exception Safety:</em> If an exception is thrown during the call to <code>T</code>'s move assignment, the state of both active members is determined by the exception safety guarantee of <code>T</code>'s move assignment. If an exception is thrown during the call to <code>T</code>'s move constructor, <code>*this</code> has no active member, the previous active member (if any) has been destroyed, and the state of the active member of <code>rhs</code> is determined by the exception safety guarantee of <code>T</code>'s move constructor.</li>
-                    <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_assignable_v&lt;Ts&gt;...</code> and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <code>T</code>'s move assignment, the state of both active members is determined by the exception safety guarantee of <code>T</code>'s move assignment. If an exception is thrown during the call to <code>T</code>'s move constructor, <code>*this</code> has no active member, the previous active member (if any) has been destroyed, and the state of the active member of <code>rhs</code> is determined by the exception safety guarantee of <code>T</code>'s move constructor. The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_assignable_v&lt;Ts&gt;...</code> and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-3"></a>
@@ -401,8 +399,7 @@
                     </li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member.</li>
-                    <li><em>Exception Safety:</em> If an exception is thrown during the call to <em><code>T</code></em>'s assignment, the state of the active member is as defined by the exception safety guarantee of <em><code>T</code></em>'s copy assignment. If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed.</li>
-                    <li><em>Remarks:</em> This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s assignment, the state of the active member is as defined by the exception safety guarantee of <em><code>T</code></em>'s copy assignment. If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This operator shall not participate in overload resolution unless there is a type <code>T</code> in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-4"></a>
@@ -413,8 +410,7 @@
                     <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Exception Safety:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-5"></a>
@@ -425,8 +421,7 @@
                     <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Exception Safety:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed.</li>
-                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-6"></a>
@@ -458,8 +453,7 @@
                             <li>otherwise, calls <code>std::swap(*this, rhs)</code>.</li>
                         </ul>
                     </li>
-                    <li><em>Exception Safety:</em> If an exception is thrown during the call to function <code>swap</code> the state of the active members of type <code>T</code> is determined by the exception safety guarantee of <code>swap</code> for lvalues of <code>T</code>. If an exception is thrown during the call to a move constructor, the state of <code>*this</code> and <code>rhs</code> is unspecified.</li>
-                    <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>noexcept(swap(std::declval&lt;Ts&amp;&gt;&gt;(), std::declval&lt;Ts&amp;&gt;()))...</code> where <code>std::swap</code> is in scope and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to function <code>swap</code> the state of the active members of type <code>T</code> is determined by the exception safety guarantee of <code>swap</code> for lvalues of <code>T</code>. If an exception is thrown during the call to a move constructor, the state of <code>*this</code> and <code>rhs</code> is unspecified. The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>noexcept(swap(std::declval&lt;Ts&amp;&gt;&gt;(), std::declval&lt;Ts&amp;&gt;()))...</code> where <code>std::swap</code> is in scope and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-obs" href="#eggs-variant-obs"><h2>Observers</h2></a>
