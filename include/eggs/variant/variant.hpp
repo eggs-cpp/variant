@@ -516,10 +516,11 @@ namespace eggs { namespace variants
         //!  - If both `*this` and `rhs` have an active member of type `T`,
         //!    assigns to the active member the expression `*rhs.target<T>()`;
         //!
-        //!  - otherwise, calls `*this = {}`. Then, if `rhs` has an active
-        //!    member of type `T`, initializes the active member as if
-        //!    direct-non-list-initializing an object of type `T` with the
-        //!    expression `*rhs.target<T>()`.
+        //!  - otherwise, if `*this` has an active member of type `U`, destroys
+        //!    the active member by calling `target<U>()->~U()`. Then, if `rhs`
+        //!    has an active member of type `T`, initializes the active member
+        //!    as if direct-non-list-initializing an object of type `T` with
+        //!    the expression `*rhs.target<T>()`.
         //!
         //! \returns `*this`.
         //!
@@ -549,10 +550,11 @@ namespace eggs { namespace variants
         //!    assigns to the active member the expression
         //!    `std::move(*rhs.target<T>())`;
         //!
-        //!  - otherwise, calls `*this = {}`. Then, if `rhs` has an active
-        //!    member of type `T`, initializes the active member as if
-        //!    direct-non-list-initializing an object of type `T` with the
-        //!    expression `std::move(*rhs.target<Tn>())`.
+        //!  - otherwise, if `*this` has an active member of type `U`, destroys
+        //!    the active member by calling `target<U>()->~U()`. Then, if `rhs`
+        //!    has an active member of type `T`, initializes the active member
+        //!    as if direct-non-list-initializing an object of type `T` with
+        //!    the expression `std::move(*rhs.target<T>())`.
         //!
         //!  `bool(rhs)` is unchanged.
         //!
