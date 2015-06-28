@@ -286,7 +286,8 @@ namespace eggs { namespace variants
         //!
         //! \effects If `rhs` has an active member of type `T`, initializes
         //!  the active member as if direct-non-list-initializing an object of
-        //!  type `T` with the expression `*rhs.target<T>()`.
+        //!  type `T` with the expression `*rhs.target<T>()`; otherwise, no
+        //!  member is initialized.
         //!
         //! \postconditions `rhs.which() == this->which()`.
         //!
@@ -306,8 +307,8 @@ namespace eggs { namespace variants
         //!
         //! \effects If `rhs` has an active member of type `T`, initializes
         //!  the active member as if direct-non-list-initializing an object of
-        //!  type `T` with the expression `std::move(*rhs.target<T>())`.
-        //!  `bool(rhs)` is unchanged.
+        //!  type `T` with the expression `std::move(*rhs.target<T>())`;
+        //!  otherwise, no member is initialized. `bool(rhs)` is unchanged.
         //!
         //! \postconditions `rhs.which() == this->which()`.
         //!
