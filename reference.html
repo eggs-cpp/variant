@@ -108,8 +108,6 @@
 &nbsp;&nbsp;<span style="color:blue;">class</span> <a href="#eggs-bad-variant-access"><span style="color:#2b91af;">bad_variant_access</span></a> : <span style="color:blue;">public</span> std::<span style="color:#2b91af;">logic_error</span> {
 &nbsp;&nbsp;<span style="color:blue;">public</span>:
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#eggs-bad-variant-access-cnstr-1">bad_variant_access</a>();
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">explicit</span> <a href="#eggs-bad-variant-access-cnstr-2">bad_variant_access</a>(std::<span style="color:#2b91af;">string</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">explicit</span> <a href="#eggs-bad-variant-access-cnstr-3">bad_variant_access</a>(<span style="color:blue;">char</span> <span style="color:blue;">const</span>*);
 &nbsp;&nbsp;};
 
 &nbsp;&nbsp;<span style="color:green;">// Helper classes</span>
@@ -528,8 +526,6 @@
 <span style="color:blue;">class</span> <span style="color:#2b91af;">bad_variant_access</span> : <span style="color:blue;">public</span> std::<span style="color:#2b91af;">logic_error</span> {
 <span style="color:blue;">public</span>:
 &nbsp;&nbsp;<a href="#eggs-bad-variant-access-cnstr-1">bad_variant_access</a>();
-&nbsp;&nbsp;<span style="color:blue;">explicit</span> <a href="#eggs-bad-variant-access-cnstr-2">bad_variant_access</a>(std::<span style="color:#2b91af;">string</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;<span style="color:blue;">explicit</span> <a href="#eggs-bad-variant-access-cnstr-3">bad_variant_access</a>(<span style="color:blue;">char</span> <span style="color:blue;">const</span>*);
 };
 </pre>
                 <p>The class <code>bad_variant_access</code> defines the type of objects thrown as exceptions to report the situation where an attempt is made to access an inactive member of a <code>variant</code> object.</p>
@@ -537,19 +533,8 @@
                 <a name="eggs-bad-variant-access-cnstr-1"></a>
                 <pre class="code">bad_variant_access();</pre>
                 <ul>
-                    <li><em>Effects:</em> Constructs an object of class <code>bad_variant_access</code>. <code>what()</code> returns an implementation-defined NTBS.</li>
-                </ul>
-
-                <a name="eggs-bad-variant-access-cnstr-2"></a>
-                <pre class="code"><span style="color:blue;">explicit</span> bad_variant_access(std::<span style="color:#2b91af;">string</span> <span style="color:blue;">const</span>&amp; what_arg);</pre>
-                <ul>
-                    <li><em>Effects:</em> Constructs an object of class <code>bad_variant_access</code>. <code>strcmp(what(), what_arg.c_str()) == 0</code>.</li>
-                </ul>
-
-                <a name="eggs-bad-variant-access-cnstr-3"></a>
-                <pre class="code"><span style="color:blue;">explicit</span> bad_variant_access(<span style="color:blue;">char</span> <span style="color:blue;">const</span>* what_arg);</pre>
-                <ul>
-                    <li><em>Effects:</em> Constructs an object of class <code>bad_variant_access</code>. <code>strcmp(what(), what_arg) == 0</code>.</li>
+                    <li><em>Effects:</em> Constructs an object of class <code>bad_variant_access</code>.</li>
+                    <li><em>Postconditions:</em> <code>what()</code> returns an implementation-defined NTBS.</li>
                 </ul>
             </section>
 
