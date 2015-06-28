@@ -527,16 +527,14 @@ namespace eggs { namespace variants
         //!
         //! \postconditions `rhs.which() == this->which()`.
         //!
-        //! \exceptionsafety If an exception is thrown during the call to
-        //!  `T`'s copy assignment, the state of the active member is as
-        //!  defined by the exception safety guarantee of `T`'s copy
-        //!  assignment. If an exception is thrown during the call to `T`'s
-        //!  copy constructor, `*this` has no active member, and the previous
-        //!  active member (if any) has been destroyed.
-        //!
-        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
-        //!  `T` in `Ts...`, then this copy assignment operator shall be
-        //!  a trivial `constexpr` assignment operator.
+        //! \remarks If an exception is thrown during the call to `T`'s copy
+        //!  assignment, the state of the active member is as defined by the
+        //!  exception safety guarantee of `T`'s copy assignment. If an
+        //!  exception is thrown during the call to `T`'s copy constructor,
+        //!  `*this` has no active member, and the previous active member (if
+        //!  any) has been destroyed. If `std::is_trivially_copyable_v<T>` is
+        //!  `true` for all `T` in `Ts...`, then this copy assignment operator
+        //!  shall be a trivial `constexpr` assignment operator.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const& rhs) = default;
 #endif
@@ -563,17 +561,15 @@ namespace eggs { namespace variants
         //!
         //! \postconditions `rhs.which() == this->which()`.
         //!
-        //! \exceptionsafety If an exception is thrown during the call to
-        //!  `T`'s move assignment, the state of both active members is
-        //!  determined by the exception safety guarantee of `T`'s move
-        //!  assignment. If an exception is thrown during the call to `T`'s
-        //!  move constructor, `*this` has no active member, the previous
-        //!  active member (if any) has been destroyed, and the state of the
-        //!  active member of `rhs` is determined by the exception safety
-        //!  guarantee of `T`'s move constructor.
-        //!
-        //! \remarks The expression inside `noexcept` is equivalent to the
-        //!  logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
+        //! \remarks If an exception is thrown during the call to `T`'s move
+        //!  assignment, the state of both active members is determined by the
+        //!  exception safety guarantee of `T`'s move assignment. If an
+        //!  exception is thrown during the call to `T`'s move constructor,
+        //!  `*this` has no active member, the previous active member (if any)
+        //!  has been destroyed, and the state of the active member of `rhs`
+        //!  is determined by the exception safety guarantee of `T`'s move
+        //!  constructor. The expression inside `noexcept` is equivalent to
+        //!  the logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
         //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
         //!  `Ts...`, then this move assignment operator shall be a trivial
@@ -603,14 +599,12 @@ namespace eggs { namespace variants
         //!
         //! \postconditions `*this` has an active member.
         //!
-        //! \exceptionsafety If an exception is thrown during the call to
-        //!  `T`'s assignment, the state of the active member is as defined
-        //!  by the exception safety guarantee of `T`'s copy assignment. If
-        //!  an exception is thrown during the call to `T`'s constructor,
-        //!  `*this` has no active member, and the previous active member
-        //!  (if any) has been destroyed.
-        //!
-        //! \remarks This operator shall not participate in overload
+        //! \remarks If an exception is thrown during the call to `T`'s
+        //!  assignment, the state of the active member is as defined by the
+        //!  exception safety guarantee of `T`'s copy assignment. If an
+        //!  exception is thrown during the call to `T`'s constructor, `*this`
+        //!  has no active member, and the previous active member (if any) has
+        //!  been destroyed. This operator shall not participate in overload
         //!  resolution unless there is a type `T` in `Ts...` for which `U&&`
         //!  is unambiguously convertible to by overload resolution rules. If
         //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
@@ -655,12 +649,11 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \exceptionsafety If an exception is thrown during the call to
-        //!  `T`'s constructor, `*this` has no active member, and the previous
-        //!  active member (if any) has been destroyed.
-        //!
-        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
-        //!  `T` in `Ts...` and `T`'s selected constructor is a `constexpr`
+        //! \remarks If an exception is thrown during the call to `T`'s
+        //!  constructor, `*this` has no active member, and the previous
+        //!  active member (if any) has been destroyed. If
+        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+        //!  `Ts...` and `T`'s selected constructor is a `constexpr`
         //!  constructor, then this function shall be a `constexpr` function.
         template <
             std::size_t I, typename ...Args
@@ -696,16 +689,14 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \exceptionsafety If an exception is thrown during the call to
-        //!  `T`'s constructor, `*this` has no active member, and the previous
-        //!  active member (if any) has been destroyed.
-        //!
-        //! \remarks This function shall not participate in overload resolution
-        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
-        //!  Args&&...>` is `true`. If `std::is_trivially_copyable_v<T>` is
-        //!  `true` for all `T` in `Ts...` and `T`'s selected constructor is a
-        //!  `constexpr` constructor, then this function shall be a `constexpr`
-        //!  function.
+        //! \remarks If an exception is thrown during the call to `T`'s
+        //!  constructor, `*this` has no active member, and the previous
+        //!  active member (if any) has been destroyed. This function shall
+        //!  not participate in overload resolution unless
+        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
+        //!  is `true`. If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...` and `T`'s selected constructor is a `constexpr`
+        //!  constructor, then this function shall be a `constexpr` function.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -800,16 +791,14 @@ namespace eggs { namespace variants
         //!
         //!  - otherwise, calls `std::swap(*this, rhs)`.
         //!
-        //! \exceptionsafety If an exception is thrown during the call to
-        //!  function `swap` the state of the active members of type `T` is
-        //!  determined by the exception safety guarantee of `swap` for
-        //!  lvalues of `T`. If an exception is thrown during the call to
-        //!  a move constructor, the state of `*this` and `rhs` is
-        //!  unspecified.
-        //!
-        //! \remarks The expression inside `noexcept` is equivalent to the
-        //!  logical AND of `noexcept(swap(std::declval<Ts&>>(),
-        //!  std::declval<Ts&>()))...` where `std::swap` is in scope and
+        //! \remarks If an exception is thrown during the call to function
+        //!  `swap` the state of the active members of type `T` is determined
+        //!  by the exception safety guarantee of `swap` for lvalues of `T`.
+        //!  If an exception is thrown during the call to a move constructor,
+        //!  the state of `*this` and `rhs` is unspecified. The expression
+        //!  inside `noexcept` is equivalent to the logical AND of
+        //!  `noexcept(swap(std::declval<Ts&>>(), std::declval<Ts&>()))...`
+        //!  where `std::swap` is in scope and
         //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
         //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
         //!  `Ts...`, then this function shall be a `constexpr` function.
