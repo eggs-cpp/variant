@@ -20,7 +20,6 @@
 #include <cstddef>
 #include <functional>
 #include <initializer_list>
-#include <memory>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -100,41 +99,6 @@ namespace eggs { namespace variants
         struct index_of_best_match
           : _best_match::result_of<_best_match::overloads<Ts...>, U>
         {};
-
-        ///////////////////////////////////////////////////////////////////////
-        namespace _addressof
-        {
-            struct _fallback {};
-
-            template <typename T>
-            _fallback operator&(T&&);
-
-            template <typename T>
-            struct has_addressof_operator
-            {
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    (std::is_class<T>::value || std::is_union<T>::value)
-                 && !std::is_same<decltype(&std::declval<T&>()), _fallback>::value;
-            };
-        }
-
-        template <typename T>
-        EGGS_CXX11_CONSTEXPR typename std::enable_if<
-            !_addressof::has_addressof_operator<T>::value
-          , T*
-        >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
-        {
-            return &r;
-        }
-
-        template <typename T>
-        typename std::enable_if<
-            _addressof::has_addressof_operator<T>::value
-          , T*
-        >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
-        {
-            return std::addressof(r);
-        }
 
         ///////////////////////////////////////////////////////////////////////
         namespace _swap
@@ -874,8 +838,6 @@ namespace eggs { namespace variants
         //! template <class T>
         //! constexpr T* target() noexcept;
         //!
-        //! \requires `T` shall occur exactly once in `Ts...`.
-        //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         //!
@@ -884,18 +846,16 @@ namespace eggs { namespace variants
         template <typename T>
         EGGS_CXX14_CONSTEXPR T* target() EGGS_CXX11_NOEXCEPT
         {
-            using t_which = detail::index_of<T, detail::pack<
-                detail::empty, Ts...>>;
-
-            return _storage.which() == t_which{}
-              ? detail::addressof(_storage.get(t_which{}))
+            return _storage.which() != 0
+              ? detail::target<T, detail::storage<Ts...>>{}(
+                    detail::typed_index_pack<detail::pack<detail::empty, Ts...>>{}
+                  , _storage.which(), _storage
+                )
               : nullptr;
         }
 
         //! template <class T>
         //! constexpr T const* target() const noexcept;
-        //!
-        //! \requires `T` shall occur exactly once in `Ts...`.
         //!
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
@@ -905,11 +865,11 @@ namespace eggs { namespace variants
         template <typename T>
         EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT
         {
-            using t_which = detail::index_of<T, detail::pack<
-                detail::empty, Ts...>>;
-
-            return _storage.which() == t_which{}
-              ? detail::addressof(_storage.get(t_which{}))
+            return _storage.which() != 0
+              ? detail::target<T, detail::storage<Ts...> const>{}(
+                    detail::typed_index_pack<detail::pack<detail::empty, Ts...>>{}
+                  , _storage.which(), _storage
+                )
               : nullptr;
         }
 
