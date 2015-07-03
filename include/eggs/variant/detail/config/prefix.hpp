@@ -40,7 +40,7 @@
 #  if __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_CONSTEXPR 0
 #  elif defined(__GNUC__) && !defined(__clang__)
-#    define EGGS_CXX14_HAS_CONSTEXPR
+#    define EGGS_CXX14_HAS_CONSTEXPR 0
 #  else
 #    define EGGS_CXX14_HAS_CONSTEXPR 1
 #  endif
