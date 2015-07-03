@@ -317,6 +317,25 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+    using std::is_trivially_copyable;
+#else
+    template <typename T>
+    struct is_trivially_copyable
+      : std::is_pod<T>
+    {};
+#endif
+
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+    using std::is_trivially_destructible;
+#else
+    template <typename T>
+    struct is_trivially_destructible
+      : std::is_pod<T>
+    {};
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Ts, bool TriviallyCopyable, bool TriviallyDestructible>
     struct _storage;
 
@@ -324,20 +343,12 @@ namespace eggs { namespace variants { namespace detail
     struct _storage<pack<Ts...>, true, true>
       : _union<
             pack<Ts...>
-#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
-#  else
-          , all_of<pack<std::is_pod<Ts>...>>::value
-#  endif
+          , all_of<pack<is_trivially_destructible<Ts>...>>::value
         >
     {
         using base_type = _union<
             pack<Ts...>
-#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-          , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
-#  else
-          , all_of<pack<std::is_pod<Ts>...>>::value
-#  endif
+          , all_of<pack<is_trivially_destructible<Ts>...>>::value
         >;
 
         EGGS_CXX11_CONSTEXPR _storage() EGGS_CXX11_NOEXCEPT
@@ -640,18 +651,8 @@ namespace eggs { namespace variants { namespace detail
     template <typename ...Ts>
     using storage = _storage<
         pack<empty, Ts...>
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-#  if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
-      , all_of<pack<std::is_trivially_copyable<Ts>...>>::value
-      , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
-#  else
-      , all_of<pack<std::is_pod<Ts>...>>::value
-      , all_of<pack<std::is_trivially_destructible<Ts>...>>::value
-#  endif
-#else
-      , all_of<pack<std::is_pod<Ts>...>>::value
-      , all_of<pack<std::is_pod<Ts>...>>::value
-#endif
+      , all_of<pack<is_trivially_copyable<Ts>...>>::value
+      , all_of<pack<is_trivially_destructible<Ts>...>>::value
     >;
 
     struct empty_storage

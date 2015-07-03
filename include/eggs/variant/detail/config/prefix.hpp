@@ -206,7 +206,7 @@
 
 /// std::is_trivially_copyable support
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
-#  if defined(__GLIBCXX__)
+#  if defined(__GLIBCXX__) && __GLIBCXX__ < 20150422
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
 #  elif defined(_CPPLIB_VER) && _CPPLIB_VER < 650
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
