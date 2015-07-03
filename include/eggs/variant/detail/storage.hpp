@@ -353,7 +353,7 @@ namespace eggs { namespace variants { namespace detail
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
           : base_type{which, std::forward<Args>(args)...}
-          , _which{which}
+          , _which{I}
         {}
 
         template <std::size_t I, typename ...Args>
@@ -443,7 +443,7 @@ namespace eggs { namespace variants { namespace detail
         {
             _which = 0;
             ::new (target()) T(std::forward<Args>(args)...);
-            _which = which;
+            _which = I;
         }
 
         _storage& operator=(_storage const& rhs)

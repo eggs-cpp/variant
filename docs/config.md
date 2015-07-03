@@ -21,7 +21,6 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX11_HAS_UNRESTRICTED_UNIONS`           | `1`                     | `0`
 `EGGS_CXX14_HAS_VARIABLE_TEMPLATES`            | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_ALIGNED_UNION`             | `1`                     | `0`
-`EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE`          | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS`         | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE`     | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE` | `1`                     | `0`

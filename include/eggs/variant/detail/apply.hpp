@@ -98,8 +98,7 @@ namespace eggs { namespace variants { namespace detail
     template <typename T, std::size_t I, std::size_t ...Is>
     struct _make_apply_pack<T, pack_c<std::size_t, I, Is...>>
     {
-        // using index<Is>... here causes havoc with VS2015 CTP5
-        using type = pack<std::integral_constant<std::size_t, Is>...>;
+        using type = pack<index<Is>...>;
     };
 
     template <typename T>

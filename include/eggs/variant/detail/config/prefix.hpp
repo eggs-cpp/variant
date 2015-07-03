@@ -194,16 +194,6 @@
 #  define EGGS_CXX11_STD_HAS_ALIGNED_UNION_DEFINED
 #endif
 
-/// std::integer_sequence support
-#ifndef EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE
-#  if __cplusplus < 201402L && _CPPLIB_VER < 650
-#    define EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE 0
-#  else
-#    define EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE 1
-#  endif
-#  define EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE_DEFINED
-#endif
-
 /// std::is_nothrow_* support
 #ifndef EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
 #  if defined(__GLIBCXX__) && !defined(_GLIBCXX_NOEXCEPT)

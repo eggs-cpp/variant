@@ -29,6 +29,12 @@ namespace eggs { namespace variants { namespace detail
         using type = T;
     };
 
+    template <std::size_t I>
+    struct index
+    {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t value = I;
+    };
+
     template <typename ...Ts>
     struct pack
     {
@@ -36,25 +42,13 @@ namespace eggs { namespace variants { namespace detail
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Ts);
     };
 
-#if EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE
-    template <typename T, T ...Vs>
-    using pack_c = std::integer_sequence<T, Vs...>;
-#else
     template <typename T, T ...Vs>
     struct pack_c
     {
         using type = pack_c;
     };
-#endif
 
     ///////////////////////////////////////////////////////////////////////////
-#if EGGS_CXX14_STD_HAS_INTEGER_SEQUENCE
-    template <std::size_t N>
-    struct _make_index_pack
-    {
-        using type = std::make_index_sequence<N>;
-    };
-#else
     template <typename Left, typename Right>
     struct _make_index_pack_join;
 
@@ -82,7 +76,6 @@ namespace eggs { namespace variants { namespace detail
     struct _make_index_pack<0>
       : pack_c<std::size_t>
     {};
-#endif
 
     template <std::size_t N>
     using make_index_pack = typename _make_index_pack<N>::type;
@@ -102,9 +95,9 @@ namespace eggs { namespace variants { namespace detail
     template <typename Vs>
     struct _make_typed_pack;
 
-    template <typename T, T ...Vs>
-    struct _make_typed_pack<pack_c<T, Vs...>>
-      : pack<std::integral_constant<T, Vs>...>
+    template <std::size_t ...Vs>
+    struct _make_typed_pack<pack_c<std::size_t, Vs...>>
+      : pack<index<Vs>...>
     {};
 
     template <typename Ts>
@@ -152,9 +145,6 @@ namespace eggs { namespace variants { namespace detail
     {};
 
     ///////////////////////////////////////////////////////////////////////////
-    template <std::size_t I>
-    using index = std::integral_constant<std::size_t, I>;
-
     template <std::size_t I, typename T>
     struct _indexed {};
 
