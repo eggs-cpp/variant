@@ -183,6 +183,37 @@ namespace eggs { namespace variants { namespace detail
     struct index_of
       : decltype(_index_of<T>(_indexer<Ts>{}))
     {};
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename Ts, typename Us>
+    struct _rest;
+
+    template <typename ...Ts, typename ...Us>
+    struct _rest<pack<Ts...>, pack<Us...>>
+    {
+        template <typename ...Vs>
+        static pack<Vs...> _impl(pack<Ts..., Vs...>);
+
+        using type = decltype(_impl(pack<Us...>{}));
+    };
+
+    template <typename Ts, typename Is>
+    struct _split;
+
+    template <typename ...Ts, std::size_t ...Is>
+    struct _split<pack<Ts...>, pack_c<std::size_t, Is...>>
+    {
+        using first = pack<typename at_index<Is, pack<Ts...>>::type...>;
+        using second = typename _rest<first, pack<Ts...>>::type;
+    };
+
+    template <typename Ts>
+    struct split;
+
+    template <typename ...Ts>
+    struct split<pack<Ts...>>
+      : _split<pack<Ts...>, make_index_pack<sizeof...(Ts) / 2>>
+    {};
 }}}
 
 #include <eggs/variant/detail/config/suffix.hpp>

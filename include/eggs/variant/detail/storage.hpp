@@ -27,23 +27,176 @@ namespace eggs { namespace variants { namespace detail
 
 #if EGGS_CXX11_HAS_UNRESTRICTED_UNIONS
     ///////////////////////////////////////////////////////////////////////////
-    template <bool IsTriviallyDestructible>
-    struct _union<pack<>, IsTriviallyDestructible>
-    {};
-
-    template <typename T, typename ...Ts>
-    struct _union<pack<T, Ts...>, true>
+    template <typename ...Ts>
+    struct _union<pack<Ts...>, true>
     {
-        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1 + sizeof...(Ts);
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Ts);
+
+        template <
+            std::size_t I, typename ...Args
+          , typename std::enable_if<(I < size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
+          : _left(index<I>{}, std::forward<Args>(args)...)
+        {}
+
+        template <
+            std::size_t I, typename ...Args
+          , typename std::enable_if<(I >= size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
+          : _right(index<I - size / 2>{}, std::forward<Args>(args)...)
+        {}
+
+        EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+        EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I < size / 2), bool>::type = true
+        >
+        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_left.get(index<I>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I < size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_left.get(index<I>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I >= size / 2), bool>::type = true
+        >
+        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_right.get(index<I - size / 2>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I >= size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_right.get(index<I - size / 2>{});
+        }
+
+    private:
+        union
+        {
+            char _target;
+            _union<typename split<pack<Ts...>>::first, true> _left;
+            _union<typename split<pack<Ts...>>::second, true> _right;
+        };
+    };
+
+    template <typename ...Ts>
+    struct _union<pack<Ts...>, false>
+    {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Ts);
+
+        template <
+            std::size_t I, typename ...Args
+          , typename std::enable_if<(I < size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
+          : _left(index<I>{}, std::forward<Args>(args)...)
+        {}
+
+        template <
+            std::size_t I, typename ...Args
+          , typename std::enable_if<(I >= size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
+          : _right(index<I - size / 2>{}, std::forward<Args>(args)...)
+        {}
+
+        ~_union() {}
+
+        EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+        EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
+        {
+            return &_target;
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I < size / 2), bool>::type = true
+        >
+        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_left.get(index<I>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I < size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_left.get(index<I>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I >= size / 2), bool>::type = true
+        >
+        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
+        {
+            return this->_right.get(index<I - size / 2>{});
+        }
+
+        template <
+            std::size_t I
+          , typename U = typename at_index<I, pack<Ts...>>::type
+          , typename std::enable_if<(I >= size / 2), bool>::type = true
+        >
+        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
+        {
+            return this->_right.get(index<I - size / 2>{});
+        }
+
+    private:
+        union
+        {
+            char _target;
+            _union<typename split<pack<Ts...>>::first, false> _left;
+            _union<typename split<pack<Ts...>>::second, false> _right;
+        };
+    };
+
+    template <typename T>
+    struct _union<pack<T>, true>
+    {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1;
 
         template <typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
-          : _head(std::forward<Args>(args)...)
-        {}
-
-        template <std::size_t I, typename ...Args>
-        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
-          : _tail(index<I - 1>{}, std::forward<Args>(args)...)
+          : _leaf(std::forward<Args>(args)...)
         {}
 
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
@@ -58,54 +211,30 @@ namespace eggs { namespace variants { namespace detail
 
         EGGS_CXX14_CONSTEXPR T& get(index<0>) EGGS_CXX11_NOEXCEPT
         {
-            return this->_head;
+            return this->_leaf;
         }
 
         EGGS_CXX11_CONSTEXPR T const& get(index<0>) const EGGS_CXX11_NOEXCEPT
         {
-            return this->_head;
-        }
-
-        template <
-            std::size_t I
-          , typename U = typename at_index<I, pack<T, Ts...>>::type
-        >
-        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
-        {
-            return this->_tail.get(index<I - 1>{});
-        }
-
-        template <
-            std::size_t I
-          , typename U = typename at_index<I, pack<T, Ts...>>::type
-        >
-        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
-        {
-            return this->_tail.get(index<I - 1>{});
+            return this->_leaf;
         }
 
     private:
         union
         {
             char _target;
-            T _head;
-            _union<pack<Ts...>, true> _tail;
+            T _leaf;
         };
     };
 
-    template <typename T, typename ...Ts>
-    struct _union<pack<T, Ts...>, false>
+    template <typename T>
+    struct _union<pack<T>, false>
     {
-        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1 + sizeof...(Ts);
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = 1;
 
         template <typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
-          : _head(std::forward<Args>(args)...)
-        {}
-
-        template <std::size_t I, typename ...Args>
-        EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
-          : _tail(index<I - 1>{}, std::forward<Args>(args)...)
+          : _leaf(std::forward<Args>(args)...)
         {}
 
         ~_union() {}
@@ -122,38 +251,19 @@ namespace eggs { namespace variants { namespace detail
 
         EGGS_CXX14_CONSTEXPR T& get(index<0>) EGGS_CXX11_NOEXCEPT
         {
-            return this->_head;
+            return this->_leaf;
         }
 
         EGGS_CXX11_CONSTEXPR T const& get(index<0>) const EGGS_CXX11_NOEXCEPT
         {
-            return this->_head;
-        }
-
-        template <
-            std::size_t I
-          , typename U = typename at_index<I, pack<T, Ts...>>::type
-        >
-        EGGS_CXX14_CONSTEXPR U& get(index<I>) EGGS_CXX11_NOEXCEPT
-        {
-            return this->_tail.get(index<I - 1>{});
-        }
-
-        template <
-            std::size_t I
-          , typename U = typename at_index<I, pack<T, Ts...>>::type
-        >
-        EGGS_CXX11_CONSTEXPR U const& get(index<I>) const EGGS_CXX11_NOEXCEPT
-        {
-            return this->_tail.get(index<I - 1>{});
+            return this->_leaf;
         }
 
     private:
         union
         {
             char _target;
-            T _head;
-            _union<pack<Ts...>, false> _tail;
+            T _leaf;
         };
     };
 #else
