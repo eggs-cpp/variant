@@ -46,24 +46,32 @@ namespace eggs { namespace variants { namespace detail
     struct pack_c
     {
         using type = pack_c;
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Vs);
     };
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename Left, typename Right>
-    struct _make_index_pack_join;
+    template <typename Is, bool Odd>
+    struct _make_index_pack_twice;
 
-    template <std::size_t... Left, std::size_t... Right>
-    struct _make_index_pack_join<
-        pack_c<std::size_t, Left...>
-      , pack_c<std::size_t, Right...>
-    > : pack_c<std::size_t, Left..., (sizeof...(Left) + Right)...>
+    template <std::size_t ...Is>
+    struct _make_index_pack_twice<
+        pack_c<std::size_t, Is...>
+      , false
+    > : pack_c<std::size_t, Is..., (sizeof...(Is) + Is)...>
+    {};
+
+    template <std::size_t ...Is>
+    struct _make_index_pack_twice<
+        pack_c<std::size_t, Is...>
+      , true
+    > : pack_c<std::size_t, Is..., (sizeof...(Is) + Is)..., sizeof...(Is) * 2>
     {};
 
     template <std::size_t N>
     struct _make_index_pack
-      : _make_index_pack_join<
+      : _make_index_pack_twice<
             typename _make_index_pack<N / 2>::type
-          , typename _make_index_pack<N - N / 2>::type
+          , N % 2 != 0
         >
     {};
 
