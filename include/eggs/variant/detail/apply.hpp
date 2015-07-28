@@ -75,7 +75,7 @@ namespace eggs { namespace variants { namespace detail
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
                 _invoke(std::forward<Ts>(vs)...)))
         {
-            return _invoke(std::forward<Ts>(vs)...);
+            return detail::_invoke(std::forward<Ts>(vs)...);
         }
     };
 
@@ -87,7 +87,7 @@ namespace eggs { namespace variants { namespace detail
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
                 _invoke(std::forward<Ts>(vs)...)))
         {
-            _invoke(std::forward<Ts>(vs)...);
+            detail::_invoke(std::forward<Ts>(vs)...);
         }
     };
 
@@ -217,8 +217,62 @@ namespace eggs { namespace variants { namespace detail
         using type = typename C::result_type;
     };
 
-    template <typename T>
-    using weak_result = typename _weak_result<T>::type;
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename F, typename Ms, typename Vs>
+    struct _apply_result_deduce;
+
+    template <typename R, typename ...Rs>
+    struct _apply_result_combine
+      : std::enable_if<all_of<pack<std::is_same<R, Rs>...>>::value, R>
+    {};
+
+    template <
+        typename F, typename Ms, typename V, typename Vs,
+        typename Is = _apply_pack<typename std::decay<V>::type>
+    >
+    struct _apply_result_expand;
+
+    template <
+        typename F, typename ...Ms, typename V, typename ...Vs,
+        typename ...Is
+    >
+    struct _apply_result_expand<F, pack<Ms...>, V, pack<Vs...>, pack<Is...>>
+      : _apply_result_combine<
+            typename _apply_result_deduce<
+                F, pack<Ms..., typename _apply_get<V, Is>::type>
+              , pack<Vs...>
+            >::type...
+        >
+    {};
+
+    template <typename F, typename ...Ms>
+    struct _apply_result_deduce<F, pack<Ms...>, pack<>>
+    {
+        using type = decltype(detail::_invoke(
+            std::declval<F>(), std::declval<Ms>()...));
+    };
+
+    template <typename F, typename ...Ms, typename V, typename ...Vs>
+    struct _apply_result_deduce<F, pack<Ms...>, pack<V, Vs...>>
+      : _apply_result_expand<F, pack<Ms...>, V, pack<Vs...>>
+    {};
+
+    template <typename F, typename Vs, typename Enable = void>
+    struct _apply_result
+      : _apply_result_deduce<F, pack<>, Vs>
+    {};
+
+    template <typename F, typename ...Vs>
+    struct _apply_result<
+        F, pack<Vs...>
+      , typename _always_void<
+            typename _weak_result<typename std::decay<F>::type>::type
+        >::type
+    > : _weak_result<typename std::decay<F>::type>
+    {};
+
+    template <typename F, typename ...Vs>
+    using apply_result = typename _apply_result<F, pack<Vs...>>::type;
 }}}
 
 #include <eggs/variant/detail/config/suffix.hpp>

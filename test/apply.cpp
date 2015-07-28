@@ -23,8 +23,6 @@ struct fun
 
     fun() : nonconst_lvalue{0}, const_lvalue{0}, rvalue{0} {}
 
-    using result_type = std::string;
-
     template <typename T>
     static std::string to_string(T const& t)
     {
@@ -84,11 +82,26 @@ struct fun
     }
 };
 
+struct weak_fun
+{
+    using result_type = bool;
+
+    template <typename T>
+    std::size_t operator()(T const&) const
+    {
+        return sizeof(T);
+    }
+
+    template <typename T, typename U>
+    std::size_t operator()(T const&, U const&) const
+    {
+        return sizeof(T) + sizeof(U);
+    }
+};
+
 #if EGGS_CXX11_HAS_CONSTEXPR
 struct constexpr_fun
 {
-    using result_type = std::size_t;
-
     template <typename T>
     constexpr std::size_t operator()(T const&) const
     {
@@ -258,6 +271,15 @@ TEST_CASE("apply(F&&, variant<Ts...>&)", "[variant.apply]")
     CHECK(f.nonconst_lvalue == 1u);
     CHECK(ret == "42");
 
+    SECTION("weak-result")
+    {
+        weak_fun f;
+        auto ret = eggs::variants::apply(f, v);
+
+        using is_bool = std::is_same<decltype(ret), bool>;
+        CHECK(is_bool{} == true);
+    }
+
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")
     {
@@ -285,6 +307,15 @@ TEST_CASE("apply(F&&, variant<Ts...> const&)", "[variant.apply]")
     CHECK(f.const_lvalue == 1u);
     CHECK(ret == "42");
 
+    SECTION("weak-result")
+    {
+        weak_fun f;
+        auto ret = eggs::variants::apply(f, v);
+
+        using is_bool = std::is_same<decltype(ret), bool>;
+        CHECK(is_bool{} == true);
+    }
+
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
     {
@@ -306,6 +337,15 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
 
     CHECK(f.rvalue == 1u);
     CHECK(ret == "42");
+
+    SECTION("weak-result")
+    {
+        weak_fun f;
+        auto ret = eggs::variants::apply(f, std::move(v));
+
+        using is_bool = std::is_same<decltype(ret), bool>;
+        CHECK(is_bool{} == true);
+    }
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")

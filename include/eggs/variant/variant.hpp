@@ -1579,17 +1579,21 @@ namespace eggs { namespace variants
     //!   return type of `FD`;
     //! - if `FD` is a class type with a member type `result_type`, `R` shall
     //!   be `FD::result_type`;
+    //! - otherwise, if the return type of every potentially evaluated
+    //!   `INVOKE` expression is the same type, `R` shall be that type;
     //!
     //! \effects Equivalent to `apply<R>(std::forward<F>(f),
     //!  std::forward<Vs>(vs)...)`.
     //!
     //! \remarks This function shall not participate in overload resolution
-    //!  unless `FD` has a strong result type. If the selected function is a
-    //!  constant expression, then this function shall be a `constexpr`
-    //!  function.
+    //!  unless `FD` has a strong result type or the return type of every
+    //!  potentially evaluated `INVOKE` expression is the same type. If the
+    //!  selected function is a constant expression, then this function shall
+    //!  be a `constexpr` function.
     template <
-        typename F, typename ...Vs
-      , typename R = detail::weak_result<typename std::decay<F>::type>
+        int DeductionGuard = 0, typename F, typename ...Vs
+      , typename R = detail::apply_result<F,
+            decltype(detail::access::storage(std::declval<Vs>()))...>
       , typename Enable = typename std::enable_if<
             detail::pack<Vs...>::size != 0
          && detail::all_of<detail::pack<
