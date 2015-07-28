@@ -1572,24 +1572,17 @@ namespace eggs { namespace variants
     //! template <class F, class ...Vs>
     //! constexpr R apply(F&& f, Vs&&... vs);
     //!
-    //! Let `FD` be `std::decay_t<F>`, `R` be the strong result type of `FD`:
-    //! - if `FD` is a pointer to function type, `R` shall be the return type
-    //!   of `FD`;
-    //! - if `FD` is a pointer to member function type, `R` shall be the
-    //!   return type of `FD`;
-    //! - if `FD` is a class type with a member type `result_type`, `R` shall
-    //!   be `FD::result_type`;
-    //! - otherwise, if the return type of every potentially evaluated
-    //!   `INVOKE` expression is the same type, `R` shall be that type;
+    //! Let `Ri...` be the return types of every potentially evaluated
+    //!  `INVOKE` expression; if every `Ri...` is the same type, then let `R`
+    //!  be that type.
     //!
     //! \effects Equivalent to `apply<R>(std::forward<F>(f),
     //!  std::forward<Vs>(vs)...)`.
     //!
     //! \remarks This function shall not participate in overload resolution
-    //!  unless `FD` has a strong result type or the return type of every
-    //!  potentially evaluated `INVOKE` expression is the same type. If the
-    //!  selected function is a constant expression, then this function shall
-    //!  be a `constexpr` function.
+    //!  unless the return type of every potentially evaluated `INVOKE`
+    //!  expression is the same type. If the selected function is a constant
+    //!  expression, then this function shall be a `constexpr` function.
     template <
         int DeductionGuard = 0, typename F, typename ...Vs
       , typename R = detail::apply_result<F,

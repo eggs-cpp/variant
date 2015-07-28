@@ -67,6 +67,7 @@ namespace eggs { namespace variants { namespace detail
     }
 #endif
 
+    ///////////////////////////////////////////////////////////////////////////
     template <typename R>
     struct _invoke_guard
     {
@@ -89,6 +90,17 @@ namespace eggs { namespace variants { namespace detail
         {
             detail::_invoke(std::forward<Ts>(vs)...);
         }
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename F, typename Ts>
+    struct _result_of;
+
+    template <typename F, typename ...Ts>
+    struct _result_of<F, pack<Ts...>>
+    {
+        using type = decltype(detail::_invoke(
+            std::declval<F>(), std::declval<Ts>()...));
     };
 
     ///////////////////////////////////////////////////////////////////////////
@@ -189,41 +201,12 @@ namespace eggs { namespace variants { namespace detail
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename ...Ts>
-    struct _always_void
-    {
-        using type = void;
-    };
-
-    template <typename T, typename Enable = void>
-    struct _weak_result
-    {};
-
-    template <typename R, typename ...Args>
-    struct _weak_result<R(*)(Args...)>
-    {
-        using type = R;
-    };
-
-    template <typename R, typename ...Args>
-    struct _weak_result<R(*)(Args..., ...)>
-    {
-        using type = R;
-    };
-
-    template <typename C>
-    struct _weak_result<C, typename _always_void<typename C::result_type>::type>
-    {
-        using type = typename C::result_type;
-    };
-
-    ///////////////////////////////////////////////////////////////////////////
-    template <typename F, typename Ms, typename Vs>
-    struct _apply_result_deduce;
-
     template <typename R, typename ...Rs>
     struct _apply_result_combine
-      : std::enable_if<all_of<pack<std::is_same<R, Rs>...>>::value, R>
+      : std::enable_if<
+            all_of<pack<std::is_same<R, Rs>...>>::value
+          , R
+        >
     {};
 
     template <
@@ -233,42 +216,40 @@ namespace eggs { namespace variants { namespace detail
     struct _apply_result_expand;
 
     template <
-        typename F, typename ...Ms, typename V, typename ...Vs,
+        typename F, typename ...Ms, typename V,
         typename ...Is
     >
-    struct _apply_result_expand<F, pack<Ms...>, V, pack<Vs...>, pack<Is...>>
-      : _apply_result_combine<
-            typename _apply_result_deduce<
+    struct _apply_result_expand<
+        F, pack<Ms...>, V, pack<>
+      , pack<Is...>
+    > : _apply_result_combine<
+            typename _result_of<
                 F, pack<Ms..., typename _apply_get<V, Is>::type>
-              , pack<Vs...>
             >::type...
         >
     {};
 
-    template <typename F, typename ...Ms>
-    struct _apply_result_deduce<F, pack<Ms...>, pack<>>
-    {
-        using type = decltype(detail::_invoke(
-            std::declval<F>(), std::declval<Ms>()...));
-    };
-
-    template <typename F, typename ...Ms, typename V, typename ...Vs>
-    struct _apply_result_deduce<F, pack<Ms...>, pack<V, Vs...>>
-      : _apply_result_expand<F, pack<Ms...>, V, pack<Vs...>>
+    template <
+        typename F, typename ...Ms, typename V0, typename V1, typename ...Vs,
+        typename ...Is
+    >
+    struct _apply_result_expand<
+        F, pack<Ms...>, V0, pack<V1, Vs...>
+      , pack<Is...>
+    > : _apply_result_combine<
+            typename _apply_result_expand<
+                F, pack<Ms..., typename _apply_get<V0, Is>::type>
+              , V1, pack<Vs...>
+            >::type...
+        >
     {};
 
-    template <typename F, typename Vs, typename Enable = void>
-    struct _apply_result
-      : _apply_result_deduce<F, pack<>, Vs>
-    {};
+    template <typename F, typename Vs>
+    struct _apply_result;
 
-    template <typename F, typename ...Vs>
-    struct _apply_result<
-        F, pack<Vs...>
-      , typename _always_void<
-            typename _weak_result<typename std::decay<F>::type>::type
-        >::type
-    > : _weak_result<typename std::decay<F>::type>
+    template <typename F, typename V, typename ...Vs>
+    struct _apply_result<F, pack<V, Vs...>>
+      : _apply_result_expand<F, pack<>, V, pack<Vs...>>
     {};
 
     template <typename F, typename ...Vs>
