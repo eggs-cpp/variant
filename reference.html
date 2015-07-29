@@ -790,15 +790,10 @@
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> F, <span style="color:blue;">class</span> ...Vs&gt;<br /><span style="color:blue;">constexpr</span> <em><span style="color:#2b91af;">R</span></em> apply(<span style="color:#2b91af;">F</span>&amp;&amp; f, <span style="color:#2b91af;">Vs</span>&amp;&amp;... vs);</pre>
                 <ul>
                     <li>
-                        Let <em><code>FD</code></em> be <code>std::decay_t&lt;F&gt;</code><em>, <code>R</code></em> be the <em>strong result type</em> of <em><code>FD</code></em>:
-                        <ul>
-                            <li>if <em><code>FD</code></em> is a pointer to function type, <em><code>R</code></em> shall be the return type of <em><code>FD</code></em>;</li>
-                            <li>if <em><code>FD</code></em> is a pointer to member function type, <em><code>R</code></em> shall be the return type of <em><code>FD</code></em>;</li>
-                            <li>if <em><code>FD</code></em> is a class type with a member type <code>result_type</code>, <em><code>R</code></em> shall be <code><em>FD</em>::result_type</code>;</li>
-                        </ul>
+                        Let <em><code>Ri...</code></em> be the return types of every potentially evaluated <code><em>INVOKE</em></code> expression; if every <em><code>Ri...</code></em> is the same type, then let <em><code>R</code></em> be that type.
                     </li>
                     <li><em>Effects:</em> Equivalent to <code>apply&lt;<em>R</em>&gt;(std::forward&lt;F&gt;(f), std::forward&lt;Vs&gt;(vs)...)</code>.</li>
-                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <em><code>FD</code></em> has a <em>strong result type</em>. If the selected function is a constant expression, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless the return type of every potentially evaluated <code><em>INVOKE</em></code> expression is the same type. If the selected function is a constant expression, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
             </section>
 
