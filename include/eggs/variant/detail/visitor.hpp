@@ -139,6 +139,7 @@ namespace eggs { namespace variants { namespace detail
         }
     };
 
+#ifndef EGGS_VARIANT_NO_RTTI
     struct type_id
       : visitor<type_id, std::type_info const&()>
     {
@@ -148,6 +149,7 @@ namespace eggs { namespace variants { namespace detail
             return typeid(T);
         }
     };
+#endif
 
     template <typename Union>
     struct equal_to

@@ -42,7 +42,11 @@ namespace eggs { namespace variants
         template <typename T>
         EGGS_CXX11_NORETURN inline T throw_bad_variant_access()
         {
+#ifndef EGGS_VARIANT_NO_EXCEPTIONS
             throw bad_variant_access{};
+#else
+            std::terminate();
+#endif
         }
     }
 }}
