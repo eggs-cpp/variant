@@ -10,7 +10,7 @@
 #define EGGS_VARIANT_BAD_VARIANT_ACCESS_HPP
 
 #include <stdexcept>
-#include <string>
+#include <exception>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -42,7 +42,11 @@ namespace eggs { namespace variants
         template <typename T>
         EGGS_CXX11_NORETURN inline T throw_bad_variant_access()
         {
+#if EGGS_CXX98_HAS_EXCEPTIONS
             throw bad_variant_access{};
+#else
+            std::terminate();
+#endif
         }
     }
 }}
