@@ -798,6 +798,7 @@ namespace eggs { namespace variants
             return _storage.which() != 0 ? _storage.which() - 1 : npos;
         }
 
+#ifndef EGGS_VARIANT_NO_RTTI
         //! constexpr std::type_info const& target_type() const noexcept;
         //!
         //! \returns If `*this` has an active member of type `T`, `typeid(T)`;
@@ -812,6 +813,7 @@ namespace eggs { namespace variants
                 )
               : typeid(void);
         }
+#endif
 
         //! constexpr void* target() noexcept;
         //!
@@ -900,7 +902,9 @@ namespace eggs { namespace variants
 
         EGGS_CXX11_CONSTEXPR explicit operator bool() const EGGS_CXX11_NOEXCEPT { return false; }
         EGGS_CXX11_CONSTEXPR std::size_t which() const EGGS_CXX11_NOEXCEPT { return npos; }
+#ifndef EGGS_VARIANT_NO_RTTI
         EGGS_CXX11_CONSTEXPR std::type_info const& target_type() const EGGS_CXX11_NOEXCEPT { return typeid(void); }
+#endif
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
         EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
     };
