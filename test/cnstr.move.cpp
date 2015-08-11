@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <typeinfo>
 #include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
@@ -40,7 +41,10 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         CHECK(bool(v) == false);
         CHECK(v.which() == npos);
         CHECK(v.target() == nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(void));
+#endif
     }
 
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
@@ -100,7 +104,10 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
         CHECK(bool(v) == false);
         CHECK(v.which() == npos);
         CHECK(v.target() == nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(void));
+#endif
     }
 
 #if EGGS_CXX14_HAS_CONSTEXPR

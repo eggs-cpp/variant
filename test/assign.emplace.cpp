@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -31,9 +32,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(int));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -61,9 +65,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(int));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -91,10 +98,14 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
 
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(int));
+#endif
+
+#if EGGS_CXX98_HAS_EXCEPTIONS
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
@@ -111,6 +122,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -138,8 +150,11 @@ TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 0u);
-    CHECK(v.target_type() == typeid(int));
     REQUIRE(v.target() != nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
+    CHECK(v.target_type() == typeid(int));
+#endif
 }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -156,9 +171,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -186,9 +204,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -216,10 +237,14 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
 
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
+
+#if EGGS_CXX98_HAS_EXCEPTIONS
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
@@ -236,6 +261,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -263,8 +289,11 @@ TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[va
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 1u);
-    CHECK(v.target_type() == typeid(std::string));
     REQUIRE(v.target() != nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
+    CHECK(v.target_type() == typeid(std::string));
+#endif
 }
 #endif
 
@@ -282,9 +311,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(int));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -312,9 +344,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(int));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -342,10 +377,14 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        CHECK(v.target_type() == typeid(int));
         REQUIRE(v.target<int>() != nullptr);
         CHECK(*v.target<int>() == 42);
 
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(int));
+#endif
+
+#if EGGS_CXX98_HAS_EXCEPTIONS
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
@@ -362,6 +401,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -392,9 +432,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -422,9 +465,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -452,10 +498,14 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
 
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
+
+#if EGGS_CXX98_HAS_EXCEPTIONS
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v;
@@ -472,6 +522,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")

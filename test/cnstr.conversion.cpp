@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -22,9 +23,12 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 0u);
-    CHECK(v.target_type() == typeid(int));
     REQUIRE(v.target<int>() != nullptr);
     CHECK(*v.target<int>() == 42);
+
+#if EGGS_CXX98_HAS_RTTI
+    CHECK(v.target_type() == typeid(int));
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -33,7 +37,10 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
         constexpr bool vb = bool(v);
         constexpr std::size_t vw = v.which();
         constexpr bool vttb = v.target<Constexpr>()->x == 42;
+
+#  if EGGS_CXX98_HAS_RTTI
         constexpr std::type_info const& vtt = v.target_type();
+#  endif
 
 #  if EGGS_CXX14_HAS_CONSTEXPR
         struct test { static constexpr int call()
@@ -53,8 +60,11 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        CHECK(v.target_type() == typeid(std::string));
         REQUIRE(v.target<std::string>() != nullptr);
         CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+        CHECK(v.target_type() == typeid(std::string));
+#endif
     }
 }

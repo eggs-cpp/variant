@@ -80,8 +80,12 @@
 
 /// RTTI support
 #ifndef EGGS_CXX98_HAS_RTTI
-#  if !defined(__GXX_RTTI) && !defined(_CPPRTTI)
+#  if defined(_MSC_FULL_VER) && !defined(_CPPRTTI)
 #    define EGGS_CXX98_HAS_RTTI 0
+#  elif defined(__GNUC__) && !defined(__GXX_RTTI) && !defined(__clang__)
+#    define EGGS_CXX98_HAS_RTTI 0
+#  elif defined(__clang__)
+#    define EGGS_CXX98_HAS_RTTI __has_feature(cxx_rtti)
 #  else
 #    define EGGS_CXX98_HAS_RTTI 1
 #  endif
@@ -90,8 +94,12 @@
 
 /// exception support
 #ifndef EGGS_CXX98_HAS_EXCEPTIONS
-#  if !defined(__EXCEPTIONS) && !defined(_CPPUNWIND)
+#  if defined(_MSC_FULL_VER) && !defined(_CPPUNWIND)
 #    define EGGS_CXX98_HAS_EXCEPTIONS 0
+#  elif defined(__GNUC__) && !defined(__EXCEPTIONS) && !defined(__clang__)
+#    define EGGS_CXX98_HAS_EXCEPTIONS 0
+#  elif defined(__clang__)
+#    define EGGS_CXX98_HAS_EXCEPTIONS __has_feature(cxx_exceptions)
 #  else
 #    define EGGS_CXX98_HAS_EXCEPTIONS 1
 #  endif

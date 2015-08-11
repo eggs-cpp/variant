@@ -112,6 +112,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
     CHECK(f.nonconst_lvalue == 1u);
     CHECK(ret == "42");
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         eggs::variant<int, std::string> empty;
@@ -122,6 +123,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
             eggs::variants::apply<void>(fun{}, empty)
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -150,6 +152,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
     CHECK(f.const_lvalue == 1u);
     CHECK(ret == "42");
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         eggs::variant<int, std::string> const empty;
@@ -160,6 +163,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
             eggs::variants::apply<void>(fun{}, empty)
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -183,6 +187,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
     CHECK(f.rvalue == 1u);
     CHECK(ret == "42");
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         eggs::variant<int, std::string> empty;
@@ -193,6 +198,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
             eggs::variants::apply<void>(fun{}, std::move(empty))
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -208,6 +214,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
 #endif
 }
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
 TEST_CASE("apply<R>(F&&, variant<>&)", "[variant.apply]")
 {
     eggs::variant<> v;
@@ -240,6 +247,7 @@ TEST_CASE("apply<R>(F&&, variant<>&&)", "[variant.apply]")
         eggs::variants::apply<void>(fun{}, std::move(v))
       , eggs::variants::bad_variant_access);
 }
+#endif
 
 TEST_CASE("apply(F&&, variant<Ts...>&)", "[variant.apply]")
 {

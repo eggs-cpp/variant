@@ -10,6 +10,9 @@
 
 #include <initializer_list>
 
+#include <eggs/variant/detail/config/prefix.hpp>
+
+#if EGGS_CXX98_HAS_EXCEPTIONS
 struct Throw
 {
     Throw() = default;
@@ -21,5 +24,6 @@ struct Throw
     Throw& operator=(Throw&&) { throw 0; }
     ~Throw() = default;
 };
+#endif
 
 #endif /*EGGS_VARIANT_TEST_THROW_HPP*/

@@ -27,12 +27,14 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 
     CHECK(ref == 42);
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         CHECK_THROWS_AS(
             eggs::variants::get<1>(v)
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -71,12 +73,14 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
 
     CHECK(ref == 42);
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         CHECK_THROWS_AS(
             eggs::variants::get<1>(v)
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -132,12 +136,14 @@ TEST_CASE("get<T>(variant<Ts...>&)", "[variant.elem]")
 
     CHECK(ref == 42);
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         CHECK_THROWS_AS(
             eggs::variants::get<std::string>(v)
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -161,12 +167,14 @@ TEST_CASE("get<T>(variant<Ts...> const&)", "[variant.elem]")
 
     CHECK(ref == 42);
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
     SECTION("throws")
     {
         CHECK_THROWS_AS(
             eggs::variants::get<std::string>(v)
           , eggs::variants::bad_variant_access);
     }
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")

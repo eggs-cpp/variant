@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -23,7 +24,10 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
     CHECK(bool(v) == false);
     CHECK(v.which() == npos);
     CHECK(v.target() == nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
     CHECK(v.target_type() == typeid(void));
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -32,7 +36,10 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
         constexpr bool vb = bool(v);
         constexpr std::size_t vw = v.which();
         constexpr void const* vt = v.target();
+
+#  if EGGS_CXX98_HAS_RTTI
         constexpr std::type_info const& vtt = v.target_type();
+#  endif
     }
 #endif
 }
@@ -44,7 +51,10 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
     CHECK(bool(v) == false);
     CHECK(v.which() == npos);
     CHECK(v.target() == nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
     CHECK(v.target_type() == typeid(void));
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     SECTION("constexpr")
@@ -53,7 +63,10 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
         constexpr bool vb = bool(v);
         constexpr std::size_t vw = v.which();
         constexpr void const* vt = v.target();
+
+#  if EGGS_CXX98_HAS_RTTI
         constexpr std::type_info const& vtt = v.target_type();
+#  endif
     }
 #endif
 }

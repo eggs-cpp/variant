@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <typeinfo>
 #include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
@@ -150,6 +151,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> v1;
@@ -174,6 +176,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
@@ -202,7 +205,10 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         CHECK(bool(v) == false);
         CHECK(v.which() == npos);
         CHECK(v.target() == nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(void));
+#endif
     }
 
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
@@ -265,7 +271,10 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
         CHECK(bool(v) == false);
         CHECK(v.which() == npos);
         CHECK(v.target() == nullptr);
+
+#if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(void));
+#endif
     }
 
 #if EGGS_CXX14_HAS_CONSTEXPR

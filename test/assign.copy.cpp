@@ -154,6 +154,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
 
+#if EGGS_CXX98_HAS_EXCEPTIONS
         SECTION("exception-safety")
         {
             eggs::variant<Dtor, Throw> const v1(in_place<Throw>);
@@ -177,6 +178,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
             CHECK(Dtor::called == true);
         }
         Dtor::called = false;
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         SECTION("constexpr")
