@@ -78,6 +78,26 @@
 #  define EGGS_CXX11_HAS_DELETED_FUNCTIONS_DEFINED
 #endif
 
+/// RTTI support
+#ifndef EGGS_CXX98_HAS_RTTI
+#  if !defined(__GXX_RTTI) && !defined(_CPPRTTI)
+#    define EGGS_CXX98_HAS_RTTI 0
+#  else
+#    define EGGS_CXX98_HAS_RTTI 1
+#  endif
+#  define EGGS_CXX98_HAS_RTTI_DEFINED
+#endif
+
+/// exception support
+#ifndef EGGS_CXX98_HAS_EXCEPTIONS
+#  if !defined(__EXCEPTIONS) && !defined(_CPPUNWIND)
+#    define EGGS_CXX98_HAS_EXCEPTIONS 0
+#  else
+#    define EGGS_CXX98_HAS_EXCEPTIONS 1
+#  endif
+#  define EGGS_CXX98_HAS_EXCEPTIONS_DEFINED
+#endif
+
 /// noexcept support
 #ifndef EGGS_CXX11_NOEXCEPT
 #  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
