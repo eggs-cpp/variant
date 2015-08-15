@@ -4,7 +4,7 @@ sudo: false
 matrix:
   include:
     # clang-3.5
-    - env: CLANG_VERSION=3.5 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &clang35
         apt:
@@ -14,20 +14,20 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.5
 
-    - env: CLANG_VERSION=3.5 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *clang35
 
-    - env: CLANG_VERSION=3.5 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *clang35
 
-    - env: CLANG_VERSION=3.5 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
       os: linux
       addons: *clang35
 
     # clang-3.6
-    - env: CLANG_VERSION=3.6 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &clang36
         apt:
@@ -37,20 +37,20 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.6
 
-    - env: CLANG_VERSION=3.6 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *clang36
 
-    - env: CLANG_VERSION=3.6 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *clang36
 
-    - env: CLANG_VERSION=3.6 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
       os: linux
       addons: *clang36
 
     # gcc-4.9
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &gcc49
         apt:
@@ -59,20 +59,20 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *gcc49
 
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++1y" BUILD_TYPE=Debug
+    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++1y" BUILD_TYPE=Debug
       os: linux
       addons: *gcc49
 
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++1y" BUILD_TYPE=Release
+    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++1y" BUILD_TYPE=Release
       os: linux
       addons: *gcc49
 
     # gcc-5.1
-    # - env: GCC_VERSION=5.1 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+    # - env: GCC_VERSION=5.1 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
     #   os: linux
     #   addons: &gcc51
     #     apt:
@@ -81,15 +81,15 @@ matrix:
     #       sources:
     #         - ubuntu-toolchain-r-test
 
-    # - env: GCC_VERSION=5.1 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+    # - env: GCC_VERSION=5.1 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
     #   os: linux
     #   addons: *gcc51
 
-    # - env: GCC_VERSION=5.1 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
+    # - env: GCC_VERSION=5.1 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
     #   os: linux
     #   addons: *gcc51
 
-    # - env: GCC_VERSION=5.1 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+    # - env: GCC_VERSION=5.1 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
     #   os: linux
     #   addons: *gcc51
 
@@ -105,7 +105,8 @@ before_install:
 install:
   - mkdir build
   - cd build
-  - cmake ..
+  - export CXX_FLAGS="${CXX_FLAGS} -Wall -Wextra -Werror"
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS="${CXX_FLAGS}" ..
 
 script: make tests -k
 

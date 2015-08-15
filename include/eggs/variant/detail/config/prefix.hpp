@@ -253,3 +253,10 @@
 #  endif
 #  define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE_DEFINED
 #endif
+
+#if defined(_MSC_FULL_VER)
+#  pragma warning(push)
+/// destructor was implicitly defined as deleted because a base class
+/// destructor is inaccessible or deleted
+#  pragma warning(disable: 4624)
+#endif

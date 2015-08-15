@@ -133,3 +133,7 @@
 #  undef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
 #  undef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE_DEFINED
 #endif
+
+#if defined(_MSC_FULL_VER)
+#  pragma warning(pop)
+#endif

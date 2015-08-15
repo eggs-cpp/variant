@@ -279,7 +279,7 @@ namespace eggs { namespace variants { namespace detail
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
         >
-        _union(index<I> which, Args&&... args)
+        _union(index<I> /*which*/, Args&&... args)
         {
             ::new (target()) T(std::forward<Args>(args)...);
         }
@@ -450,7 +450,7 @@ namespace eggs { namespace variants { namespace detail
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
         >
-        void emplace(index<I> which, Args&&... args)
+        void emplace(index<I> /*which*/, Args&&... args)
         {
             _which = 0;
             ::new (target()) T(std::forward<Args>(args)...);

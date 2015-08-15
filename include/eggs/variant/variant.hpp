@@ -133,7 +133,7 @@ namespace eggs { namespace variants
             }
 
             EGGS_CXX14_CONSTEXPR static detail::empty_storage storage(
-                variant<>& v) EGGS_CXX11_NOEXCEPT
+                variant<>& /*v*/) EGGS_CXX11_NOEXCEPT
             {
                 return detail::empty_storage();
             }
@@ -146,7 +146,7 @@ namespace eggs { namespace variants
             }
 
             EGGS_CXX11_CONSTEXPR static detail::empty_storage storage(
-                variant<> const& v) EGGS_CXX11_NOEXCEPT
+                variant<> const& /*v*/) EGGS_CXX11_NOEXCEPT
             {
                 return detail::empty_storage();
             }
@@ -159,7 +159,7 @@ namespace eggs { namespace variants
             }
 
             EGGS_CXX14_CONSTEXPR static detail::empty_storage storage(
-                variant<>&& v) EGGS_CXX11_NOEXCEPT
+                variant<>&& /*v*/) EGGS_CXX11_NOEXCEPT
             {
                 return detail::empty_storage();
             }
@@ -1132,7 +1132,7 @@ namespace eggs { namespace variants
     }
 
     EGGS_CXX11_CONSTEXPR inline bool operator==(
-        variant<> const& lhs, variant<> const& rhs)
+        variant<> const& /*lhs*/, variant<> const& /*rhs*/)
     {
         return true;
     }
@@ -1182,7 +1182,7 @@ namespace eggs { namespace variants
     }
 
     EGGS_CXX11_CONSTEXPR inline bool operator<(
-        variant<> const& lhs, variant<> const& rhs)
+        variant<> const& /*lhs*/, variant<> const& /*rhs*/)
     {
         return false;
     }

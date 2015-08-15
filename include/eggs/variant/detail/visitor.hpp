@@ -41,6 +41,13 @@ namespace eggs { namespace variants { namespace detail
 #endif
         };
 
+#if defined(NDEBUG)
+        static EGGS_CXX11_CONSTEXPR int _assert_in_range(
+            std::size_t /*index*/, std::size_t /*size*/)
+        {
+            return 0;
+        }
+#else
         static int _assert_in_range_failure(std::size_t index, std::size_t size)
         {
             assert(index < size && "discriminator out of range");
@@ -52,6 +59,7 @@ namespace eggs { namespace variants { namespace detail
         {
             return index < size ? 0 : _assert_in_range_failure(index, size);
         }
+#endif
 
         template <typename ...Ts>
         EGGS_CXX11_CONSTEXPR R operator()(pack<Ts...>, std::size_t which,

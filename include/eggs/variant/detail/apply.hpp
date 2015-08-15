@@ -24,46 +24,46 @@
 namespace eggs { namespace variants { namespace detail
 {
     ///////////////////////////////////////////////////////////////////////////
-    template <typename F, typename ...Args>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Args&&... args)
+    template <typename F, typename ...Ts>
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Ts&&... vs)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            std::forward<F>(f)(std::forward<Args>(args)...)))
-     -> decltype(std::forward<F>(f)(std::forward<Args>(args)...))
+            std::forward<F>(f)(std::forward<Ts>(vs)...)))
+     -> decltype(std::forward<F>(f)(std::forward<Ts>(vs)...))
     {
-        return std::forward<F>(f)(std::forward<Args>(args)...);
+        return std::forward<F>(f)(std::forward<Ts>(vs)...);
     }
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-    template <typename F, typename Arg0, typename ...Args>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
+    template <typename F, typename T0, typename ...Ts>
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0, Ts&&... vs)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            (arg0.*f)(std::forward<Args>(args)...)))
-     -> decltype((arg0.*f)(std::forward<Args>(args)...))
+            (v0.*f)(std::forward<Ts>(vs)...)))
+     -> decltype((v0.*f)(std::forward<Ts>(vs)...))
     {
-        return (arg0.*f)(std::forward<Args>(args)...);
+        return (v0.*f)(std::forward<Ts>(vs)...);
     }
 
-    template <typename F, typename Arg0, typename ...Args>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0, Args&&... args)
+    template <typename F, typename T0, typename ...Ts>
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0, Ts&&... vs)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            ((*arg0).*f)(std::forward<Args>(args)...)))
-     -> decltype(((*arg0).*f)(std::forward<Args>(args)...))
+            ((*v0).*f)(std::forward<Ts>(vs)...)))
+     -> decltype(((*v0).*f)(std::forward<Ts>(vs)...))
     {
-        return ((*arg0).*f)(std::forward<Args>(args)...);
+        return ((*v0).*f)(std::forward<Ts>(vs)...);
     }
 
-    template <typename F, typename Arg0>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0) EGGS_CXX11_NOEXCEPT
-     -> decltype(arg0.*f)
+    template <typename F, typename T0>
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0) EGGS_CXX11_NOEXCEPT
+     -> decltype(v0.*f)
     {
-        return arg0.*f;
+        return v0.*f;
     }
 
-    template <typename F, typename Arg0>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Arg0&& arg0) EGGS_CXX11_NOEXCEPT
-     -> decltype((*arg0).*f)
+    template <typename F, typename T0>
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0) EGGS_CXX11_NOEXCEPT
+     -> decltype((*v0).*f)
     {
-        return (*arg0).*f;
+        return (*v0).*f;
     }
 #endif
 
