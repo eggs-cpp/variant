@@ -34,9 +34,14 @@ namespace eggs { namespace variants
     namespace detail
     {
         ///////////////////////////////////////////////////////////////////////
+        std::false_type _is_variant(...);
+
+        template <typename ...Ts>
+        std::true_type _is_variant(variant<Ts...> const*);
+
         template <typename T>
         struct is_variant
-          : std::false_type
+          : decltype(_is_variant(static_cast<T*>(nullptr)))
         {};
 
         template <typename ...Ts>
@@ -46,16 +51,6 @@ namespace eggs { namespace variants
 
         template <typename ...Ts>
         struct is_variant<variant<Ts...> const>
-          : std::true_type
-        {};
-
-        template <typename ...Ts>
-        struct is_variant<variant<Ts...> volatile>
-          : std::true_type
-        {};
-
-        template <typename ...Ts>
-        struct is_variant<variant<Ts...> const volatile>
           : std::true_type
         {};
 

@@ -99,6 +99,38 @@ struct constexpr_fun
 };
 #endif
 
+struct variant_like
+  : eggs::variant<int, std::string>
+{
+    variant_like(int value)
+      : variant(value)
+    {}
+
+    variant_like(std::string const& value)
+      : variant(value)
+    {}
+};
+
+namespace eggs { namespace variants
+{
+    template <>
+    struct variant_size<::variant_like>
+      : std::integral_constant<std::size_t, 2>
+    {};
+
+    template <>
+    struct variant_element<0, ::variant_like>
+    {
+        using type = int;
+    };
+
+    template <>
+    struct variant_element<1, ::variant_like>
+    {
+        using type = std::string;
+    };
+}}
+
 TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v(42);
@@ -137,6 +169,20 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
         constexpr int c = test::call();
     }
 #endif
+
+    SECTION("variant-like")
+    {
+        variant_like v(42);
+
+        REQUIRE(v.which() == 0u);
+        REQUIRE(*v.target<int>() == 42);
+
+        fun f;
+        std::string ret = eggs::variants::apply<std::string>(f, v);
+
+        CHECK(f.nonconst_lvalue == 1u);
+        CHECK(ret == "42");
+    }
 }
 
 TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
@@ -172,6 +218,20 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
         constexpr std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, v);
     }
 #endif
+
+    SECTION("variant-like")
+    {
+        variant_like const v(42);
+
+        REQUIRE(v.which() == 0u);
+        REQUIRE(*v.target<int>() == 42);
+
+        fun f;
+        std::string ret = eggs::variants::apply<std::string>(f, v);
+
+        CHECK(f.const_lvalue == 1u);
+        CHECK(ret == "42");
+    }
 }
 
 TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
@@ -212,6 +272,20 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
         constexpr int c = test::call();
     }
 #endif
+
+    SECTION("variant-like")
+    {
+        variant_like v(42);
+
+        REQUIRE(v.which() == 0u);
+        REQUIRE(*v.target<int>() == 42);
+
+        fun f;
+        std::string ret = eggs::variants::apply<std::string>(f, std::move(v));
+
+        CHECK(f.rvalue == 1u);
+        CHECK(ret == "42");
+    }
 }
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
