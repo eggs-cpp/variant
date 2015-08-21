@@ -14,6 +14,20 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+template <class T, class = void>
+struct no_variant_size
+  : std::true_type
+{};
+
+template <class T>
+struct no_variant_size<
+    T,
+    typename std::enable_if<
+        sizeof(typename eggs::variants::variant_size<T>::type) >= 0
+    >::type
+> : std::false_type
+{};
+
 TEST_CASE("variant_size<T>", "[variant.helper]")
 {
     std::size_t variant_size_0 =
@@ -39,6 +53,8 @@ TEST_CASE("variant_size<T>", "[variant.helper]")
         >::value;
 
     CHECK(const_variant_size_0 == 0u);
+
+    CHECK(no_variant_size<int>::value == true);
 }
 
 TEST_CASE("variant_element<I, T>", "[variant.helper]")

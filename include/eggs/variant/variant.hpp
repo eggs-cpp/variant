@@ -906,13 +906,15 @@ namespace eggs { namespace variants
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <class T>
-    //! struct variant_size; // undefined
+    //! struct variant_size;
     //!
     //! \remarks All specializations of `variant_size<T>` shall meet the
     //!  `UnaryTypeTrait` requirements with a `BaseCharacteristic` of
-    //!  `std::integral_constant<std::size_t, N>` for some `N`.
+    //!  `std::integral_constant<std::size_t, N>` for some `N` if `T` is a
+    //!  variant-like type; otherwise it shall be empty.
     template <typename T>
-    struct variant_size; // undefined
+    struct variant_size
+    {};
 
     //! template <class ...Ts>
     //! struct variant_size<variant<Ts...>>;
@@ -929,7 +931,8 @@ namespace eggs { namespace variants
     //!
     //! \remarks Let `VS` denote `variant_size<T>` of the cv-unqualified type
     //!  `T`. Has a `BaseCharacteristic` of `std::integral_constant<
-    //!  std::size_t, VS::value>`
+    //!  std::size_t, VS::value>` if `T` is a variant-like type; otherwise
+    //!  it is empty.
     template <typename T>
     struct variant_size<T const>
       : variant_size<T>
