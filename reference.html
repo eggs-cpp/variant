@@ -112,7 +112,7 @@
 
 &nbsp;&nbsp;<span style="color:green;">// Helper classes</span>
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-1"><span style="color:#2b91af;">variant_size</span></a>; <span style="color:green;">// undefined</span>
+&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-1"><span style="color:#2b91af;">variant_size</span></a>;
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-2"><span style="color:#2b91af;">variant_size</span></a>&lt;<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;;
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
@@ -542,7 +542,7 @@
                 <a name="eggs-helper-1"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T&gt;<br /><span style="color:blue;">struct</span> <span style="color:#2b91af;">variant_size</span>;</pre>
                 <ul>
-                    <li><em>Remarks:</em> All specializations of <code>variant_size&lt;T&gt;</code> shall meet the <em><code>UnaryTypeTrait</code></em> requirements with a <em><code>BaseCharacteristic</code></em> of <code>std::integral_constant&lt;std::size_t, N&gt;</code> for some <code>N</code>.</li>
+                    <li><em>Remarks:</em> All specializations of <code>variant_size&lt;T&gt;</code> shall meet the <em><code>UnaryTypeTrait</code></em> requirements with a <em><code>BaseCharacteristic</code></em> of <code>std::integral_constant&lt;std::size_t, N&gt;</code> for some <code>N</code> if <code>T</code> is a <em>variant-like</em> type; otherwise it shall be empty.</li>
                 </ul>
 
                 <a name="eggs-helper-2"></a>
@@ -554,7 +554,7 @@
                 <a name="eggs-helper-3"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T&gt;<br /><span style="color:blue;">struct</span> <span style="color:#2b91af;">variant_size</span>&lt;<span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&gt;;</pre>
                 <ul>
-                    <li><em>Remarks:</em> Let <em><code>VS</code></em> denote <code>variant_size&lt;T&gt;</code> of the cv-unqualified type <code>T</code>. Has a <em><code>BaseCharacteristic</code></em> of <code>std::integral_constant&lt;std::size_t, <em>VS</em>::value&gt;</code></li>
+                    <li><em>Remarks:</em> Let <em><code>VS</code></em> denote <code>variant_size&lt;T&gt;</code> of the cv-unqualified type <code>T</code>. Has a <em><code>BaseCharacteristic</code></em> of <code>std::integral_constant&lt;std::size_t, <em>VS</em>::value&gt;</code> if <code>T</code> is a <em>variant-like</em> type; otherwise it is empty.</li>
                 </ul>
 
                 <a name="eggs-helper-4"></a>
