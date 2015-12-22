@@ -31,7 +31,7 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr bool vb = bool(v);
@@ -54,7 +54,7 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
     }
 #endif
 
-    SECTION("implicit conversion")
+    // implicit conversion
     {
         eggs::variant<int, std::string> v("42");
 

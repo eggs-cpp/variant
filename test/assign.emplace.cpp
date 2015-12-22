@@ -21,7 +21,7 @@ EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 {
-    SECTION("empty target")
+    // empty target
     {
         eggs::variant<int, std::string> v;
 
@@ -40,7 +40,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -53,7 +53,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
     }
 
-    SECTION("same target")
+    // same target
     {
         eggs::variant<int, std::string> v(43);
 
@@ -73,7 +73,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -86,7 +86,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
     }
 
-    SECTION("different target")
+    // different target
     {
         eggs::variant<int, std::string> v(std::string{""});
 
@@ -106,7 +106,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-        SECTION("exception-safety")
+        // exception-safety
         {
             eggs::variant<Dtor, Throw> v;
             v.emplace<0>();
@@ -125,7 +125,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -160,7 +160,7 @@ TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
-    SECTION("empty target")
+    // empty target
     {
         eggs::variant<int, std::string> v;
 
@@ -179,7 +179,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -192,7 +192,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #endif
     }
 
-    SECTION("same target")
+    // same target
     {
         eggs::variant<int, std::string> v(std::string{""});
 
@@ -212,7 +212,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -225,7 +225,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #endif
     }
 
-    SECTION("different target")
+    // different target
     {
         eggs::variant<int, std::string> v(43);
 
@@ -245,7 +245,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-        SECTION("exception-safety")
+        // exception-safety
         {
             eggs::variant<Dtor, Throw> v;
             v.emplace<0>();
@@ -264,7 +264,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -300,7 +300,7 @@ TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[va
 #if EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 {
-    SECTION("empty target")
+    // empty target
     {
         eggs::variant<int, std::string> v;
 
@@ -319,7 +319,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -332,7 +332,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
     }
 
-    SECTION("same target")
+    // same target
     {
         eggs::variant<int, std::string> v(43);
 
@@ -352,7 +352,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -365,7 +365,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
     }
 
-    SECTION("different target")
+    // different target
     {
         eggs::variant<int, std::string> v(std::string{""});
 
@@ -385,7 +385,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-        SECTION("exception-safety")
+        // exception-safety
         {
             eggs::variant<Dtor, Throw> v;
             v.emplace<0>();
@@ -404,7 +404,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -421,7 +421,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
-    SECTION("empty target")
+    // empty target
     {
         eggs::variant<int, std::string> v;
 
@@ -440,7 +440,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -453,7 +453,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #endif
     }
 
-    SECTION("same target")
+    // same target
     {
         eggs::variant<int, std::string> v(std::string{""});
 
@@ -473,7 +473,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -486,7 +486,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #endif
     }
 
-    SECTION("different target")
+    // different target
     {
         eggs::variant<int, std::string> v(43);
 
@@ -506,7 +506,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-        SECTION("exception-safety")
+        // exception-safety
         {
             eggs::variant<Dtor, Throw> v;
             v.emplace<0>();
@@ -525,7 +525,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {

@@ -32,7 +32,7 @@ TEST_CASE("variant<T, Fundamental>::target<Fundamental>()", "[variant.obs]")
     CHECK(v.target<float>() == v.target());
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, float> v(42.f);
         constexpr bool vttb = *v.target<float>() == 42.f;
@@ -49,7 +49,7 @@ TEST_CASE("variant<T, Class>::target<Class>()", "[variant.obs]")
     CHECK(v.target<std::string>() == v.target());
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr bool vttb = v.target<Constexpr>()->x == 42.f;

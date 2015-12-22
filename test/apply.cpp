@@ -145,7 +145,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
     CHECK(ret == "42");
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         eggs::variant<int, std::string> empty;
 
@@ -158,7 +158,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -170,7 +170,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
     }
 #endif
 
-    SECTION("variant-like")
+    // variant-like
     {
         variant_like v(42);
 
@@ -199,7 +199,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
     CHECK(ret == "42");
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         eggs::variant<int, std::string> const empty;
 
@@ -212,14 +212,14 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, v);
     }
 #endif
 
-    SECTION("variant-like")
+    // variant-like
     {
         variant_like const v(42);
 
@@ -248,7 +248,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
     CHECK(ret == "42");
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         eggs::variant<int, std::string> empty;
 
@@ -261,7 +261,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -273,7 +273,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
     }
 #endif
 
-    SECTION("variant-like")
+    // variant-like
     {
         variant_like v(42);
 
@@ -337,7 +337,7 @@ TEST_CASE("apply(F&&, variant<Ts...>&)", "[variant.apply]")
     CHECK(ret == "42");
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -364,7 +364,7 @@ TEST_CASE("apply(F&&, variant<Ts...> const&)", "[variant.apply]")
     CHECK(ret == "42");
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, v);
@@ -386,7 +386,7 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
     CHECK(ret == "42");
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -418,7 +418,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&, variant<Us...>&)", "[variant.apply]")
     CHECK(ret == "42,43");
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -451,7 +451,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&, variant<Us...> const&)", "[varia
     CHECK(ret == "42,43");
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
         constexpr eggs::variant<int, Constexpr> v2(43);
@@ -479,7 +479,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&, variant<Us...>&&)", "[variant.apply]"
     CHECK(ret == "42,43");
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {

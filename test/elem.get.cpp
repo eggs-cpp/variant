@@ -28,7 +28,7 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
     CHECK(ref == 42);
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         CHECK_THROWS_AS(
             eggs::variants::get<1>(v)
@@ -37,7 +37,7 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -74,7 +74,7 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
     CHECK(ref == 42);
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         CHECK_THROWS_AS(
             eggs::variants::get<1>(v)
@@ -83,7 +83,7 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr bool vgb = eggs::variants::get<1>(v).x == 42;
@@ -115,7 +115,7 @@ TEST_CASE("get<I>(variant<Ts...>&&)", "[variant.elem]")
     CHECK(ref == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -137,7 +137,7 @@ TEST_CASE("get<T>(variant<Ts...>&)", "[variant.elem]")
     CHECK(ref == 42);
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         CHECK_THROWS_AS(
             eggs::variants::get<std::string>(v)
@@ -146,7 +146,7 @@ TEST_CASE("get<T>(variant<Ts...>&)", "[variant.elem]")
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {
@@ -168,7 +168,7 @@ TEST_CASE("get<T>(variant<Ts...> const&)", "[variant.elem]")
     CHECK(ref == 42);
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-    SECTION("throws")
+    // throws
     {
         CHECK_THROWS_AS(
             eggs::variants::get<std::string>(v)
@@ -177,7 +177,7 @@ TEST_CASE("get<T>(variant<Ts...> const&)", "[variant.elem]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
         constexpr bool vgb = eggs::variants::get<Constexpr>(v).x == 42;
@@ -194,7 +194,7 @@ TEST_CASE("get<T>(variant<Ts...>&&)", "[variant.elem]")
     CHECK(ref == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {

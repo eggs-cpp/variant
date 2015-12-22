@@ -31,7 +31,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(in_place<1>, 42);
         constexpr bool vb = bool(v);
@@ -83,7 +83,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(in_place<1>, {4, 2});
         constexpr bool vb = bool(v);
@@ -135,7 +135,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(in_place<Constexpr>, 42);
         constexpr bool vb = bool(v);
@@ -174,7 +174,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(in_place<Constexpr>, {4, 2});
         constexpr bool vb = bool(v);

@@ -18,7 +18,7 @@ EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 {
-    SECTION("empty source")
+    // empty source
     {
         eggs::variant<int, std::string> v1;
 
@@ -37,7 +37,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v2.which() == npos);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -51,7 +51,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 #endif
     }
 
-    SECTION("empty target")
+    // empty target
     {
         eggs::variant<int, std::string> v1(42);
 
@@ -70,7 +70,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -84,7 +84,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 #endif
     }
 
-    SECTION("same target")
+    // same target
     {
         eggs::variant<int, std::string> v1(42);
 
@@ -106,7 +106,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -120,7 +120,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 #endif
     }
 
-    SECTION("different target")
+    // different target
     {
         eggs::variant<int, std::string> v1(42);
 
@@ -142,7 +142,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -173,7 +173,7 @@ TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
     CHECK(v2.which() == npos);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {

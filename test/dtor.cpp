@@ -34,7 +34,7 @@ TEST_CASE("variant<Ts...>::~variant()", "[variant.dtor]")
     }
     Dtor::called = false;
 
-    SECTION("trivially_destructible")
+    // trivially_destructible
     {
         eggs::variant<int, Y> v1;
         eggs::variant<int, float> v2;

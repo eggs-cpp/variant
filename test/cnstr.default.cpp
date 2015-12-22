@@ -30,7 +30,7 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<Constexpr> v;
         constexpr bool vb = bool(v);
@@ -57,7 +57,7 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<> v;
         constexpr bool vb = bool(v);

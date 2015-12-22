@@ -23,7 +23,7 @@ using eggs::variants::in_place;
 
 TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]")
 {
-    SECTION("empty source")
+    // empty source
     {
         eggs::variant<int, std::string> const v1;
 
@@ -42,7 +42,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         CHECK(v2.which() == v1.which());
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -56,7 +56,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #endif
     }
 
-    SECTION("empty target")
+    // empty target
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -79,7 +79,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -93,7 +93,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #endif
     }
 
-    SECTION("same target")
+    // same target
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -117,7 +117,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -131,7 +131,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #endif
     }
 
-    SECTION("different target")
+    // different target
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -155,7 +155,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX98_HAS_EXCEPTIONS
-        SECTION("exception-safety")
+        // exception-safety
         {
             eggs::variant<Dtor, Throw> const v1(in_place<Throw>);
 
@@ -181,7 +181,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             struct test { static constexpr int call()
             {
@@ -196,7 +196,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
     }
 
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
-    SECTION("trivially_copyable")
+    // trivially_copyable
     {
         eggs::variant<int, float> v1(42);
 
@@ -242,7 +242,7 @@ TEST_CASE("variant<>::operator=(variant<> const&)", "[variant.assign]")
     CHECK(v2.which() == v1.which());
 
 #if EGGS_CXX14_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         struct test { static constexpr int call()
         {

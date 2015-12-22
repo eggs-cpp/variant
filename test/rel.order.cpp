@@ -18,7 +18,7 @@ EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.rel]")
 {
-    SECTION("same members")
+    // same members
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -33,7 +33,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         CHECK(v1 < v2);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
             constexpr eggs::variant<int, Constexpr> v2(Constexpr(43));
@@ -45,7 +45,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
 #endif
     }
 
-    SECTION("empty member")
+    // empty member
     {
         eggs::variant<int, std::string> const v1;
 
@@ -59,7 +59,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         CHECK(v1 < v2);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1;
             constexpr eggs::variant<int, Constexpr> v2(Constexpr(43));
@@ -71,7 +71,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
 #endif
     }
 
-    SECTION("different members")
+    // different members
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -86,7 +86,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         CHECK(v1 < v2);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1(42);
             constexpr eggs::variant<int, Constexpr> v2(Constexpr(43));
@@ -101,7 +101,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
 
 TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
 {
-    SECTION("same members")
+    // same members
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -111,7 +111,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
         CHECK(v1 < 43);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
             constexpr bool vltb = v1 < Constexpr(43);
@@ -122,7 +122,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
 #endif
     }
 
-    SECTION("empty member")
+    // empty member
     {
         eggs::variant<int, std::string> const v1;
 
@@ -131,7 +131,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
         CHECK(v1 < 42);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1;
             constexpr bool vltb = v1 < Constexpr(43);
@@ -142,7 +142,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
 #endif
     }
 
-    SECTION("different members")
+    // different members
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -152,7 +152,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
         CHECK(v1 < std::string{""});
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1(42);
             constexpr bool vltb = v1 < Constexpr(43);
@@ -163,7 +163,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
 #endif
     }
 
-    SECTION("implicit conversion")
+    // implicit conversion
     {
         eggs::variant<int, std::string> v("42");
 
@@ -176,7 +176,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
 
 TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
 {
-    SECTION("same members")
+    // same members
     {
         eggs::variant<int, std::string> const v1(42);
 
@@ -186,7 +186,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
         CHECK(41 < v1);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
             constexpr bool vltb = Constexpr(41) < v1;
@@ -197,7 +197,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
 #endif
     }
 
-    SECTION("empty member")
+    // empty member
     {
         eggs::variant<int, std::string> const v1;
 
@@ -206,7 +206,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
         CHECK((42 < v1) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1;
             constexpr bool vltb = Constexpr(41) < v1;
@@ -217,7 +217,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
 #endif
     }
 
-    SECTION("different members")
+    // different members
     {
         eggs::variant<int, std::string> const v1(std::string{""});
 
@@ -227,7 +227,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
         CHECK(42 < v1);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-        SECTION("constexpr")
+        // constexpr
         {
             constexpr eggs::variant<int, Constexpr> v1(42);
             constexpr bool vltb = Constexpr(41) < v1;
@@ -238,7 +238,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
 #endif
     }
 
-    SECTION("implicit conversion")
+    // implicit conversion
     {
         eggs::variant<int, std::string> v("43");
 
@@ -263,7 +263,7 @@ TEST_CASE("operator<(variant<> const&, variant<> const&)", "[variant.rel]")
     CHECK((v2 < v1) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<> v1;
         constexpr eggs::variant<> v2;

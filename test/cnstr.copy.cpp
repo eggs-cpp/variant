@@ -35,7 +35,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
     CHECK(*v2.target<int>() == 42);
 
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
-    SECTION("trivially_copyable")
+    // trivially_copyable
     {
         eggs::variant<int, float> v1(42);
 
@@ -57,7 +57,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
 #endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
         constexpr eggs::variant<int, ConstexprTrivial> v2(v1);
@@ -78,7 +78,7 @@ TEST_CASE("variant<>::variant(variant<> const&)", "[variant.cnstr]")
     CHECK(v2.which() == v1.which());
 
 #if EGGS_CXX11_HAS_CONSTEXPR
-    SECTION("constexpr")
+    // constexpr
     {
         constexpr eggs::variant<> v1;
         constexpr eggs::variant<> v2(v1);
