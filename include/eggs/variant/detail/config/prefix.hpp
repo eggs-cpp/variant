@@ -19,7 +19,7 @@
 #endif
 
 #ifndef EGGS_CXX11_CONSTEXPR
-#  if defined(_MSC_FULL_VER)
+#  if EGGS_CXX11_HAS_CONSTEXPR == 0
 #    define EGGS_CXX11_CONSTEXPR
 #  else
 #    define EGGS_CXX11_CONSTEXPR constexpr
@@ -28,7 +28,7 @@
 #endif
 
 #ifndef EGGS_CXX11_STATIC_CONSTEXPR
-#  if defined(_MSC_FULL_VER)
+#  if EGGS_CXX11_HAS_CONSTEXPR == 0
 #    define EGGS_CXX11_STATIC_CONSTEXPR static const
 #  else
 #    define EGGS_CXX11_STATIC_CONSTEXPR static constexpr
@@ -37,10 +37,14 @@
 #endif
 
 #ifndef EGGS_CXX14_HAS_CONSTEXPR
-#  if __cplusplus < 201402L
+#  if EGGS_CXX11_HAS_CONSTEXPR == 0 || __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_CONSTEXPR 0
 #  elif defined(__GNUC__) && !defined(__clang__)
-#    define EGGS_CXX14_HAS_CONSTEXPR 0
+#    if __GNUC__ < 5
+#      define EGGS_CXX14_HAS_CONSTEXPR 0
+#    else
+#      define EGGS_CXX14_HAS_CONSTEXPR 1
+#    endif
 #  else
 #    define EGGS_CXX14_HAS_CONSTEXPR 1
 #  endif
@@ -48,9 +52,7 @@
 #endif
 
 #ifndef EGGS_CXX14_CONSTEXPR
-#  if __cplusplus < 201402L
-#    define EGGS_CXX14_CONSTEXPR
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  if EGGS_CXX14_HAS_CONSTEXPR == 0
 #    define EGGS_CXX14_CONSTEXPR
 #  else
 #    define EGGS_CXX14_CONSTEXPR constexpr
