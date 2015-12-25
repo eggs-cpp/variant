@@ -1031,7 +1031,7 @@ namespace eggs { namespace variants
     //! constexpr variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v);
     //!
     //! \effects Equivalent to return `std::forward<variant_element_t<I,
-    //!  variant<Ts...>>&&>(get<I>(v))`.
+    //!  variant<Ts...>>>(get<I>(v))`.
     //!
     //! \remarks This function shall be a `constexpr` function.
     template <
@@ -1041,6 +1041,22 @@ namespace eggs { namespace variants
     EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
         return std::forward<T>(get<I>(v));
+    }
+
+    //! template <std::size_t I, class ...Ts>
+    //! constexpr variant_element_t<I, variant<Ts...>> const&& get(variant<Ts...> const&& v);
+    //!
+    //! \effects Equivalent to return `std::forward<variant_element_t<I,
+    //!  variant<Ts...>> const>(get<I>(v))`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        std::size_t I, typename ...Ts
+      , typename T = typename variant_element<I, variant<Ts...>>::type
+    >
+    EGGS_CXX14_CONSTEXPR T const&& get(variant<Ts...> const&& v)
+    {
+        return std::forward<T const>(get<I>(v));
     }
 
     //! template <class T, class ...Ts>
@@ -1093,13 +1109,25 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr T&& get(variant<Ts...>&& v);
     //!
-    //! \effects Equivalent to return `std::forward<T&&>(get<T>(v))`.
+    //! \effects Equivalent to return `std::forward<T>(get<T>(v))`.
     //!
     //! \remarks This function shall be a `constexpr` function.
     template <typename T, typename ...Ts>
     EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
-        return std::forward<T&&>(get<T>(v));
+        return std::forward<T>(get<T>(v));
+    }
+
+    //! template <class T, class ...Ts>
+    //! constexpr T const&& get(variant<Ts...> const&& v);
+    //!
+    //! \effects Equivalent to return `std::forward<T const>(get<T>(v))`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <typename T, typename ...Ts>
+    EGGS_CXX14_CONSTEXPR T const&& get(variant<Ts...> const&& v)
+    {
+        return std::forward<T const>(get<T>(v));
     }
 
     ///////////////////////////////////////////////////////////////////////////
