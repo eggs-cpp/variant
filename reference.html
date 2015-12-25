@@ -135,12 +135,16 @@
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>&amp; <a href="#eggs-elem-2">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;&amp;&amp; <a href="#eggs-elem-3">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp;);
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>&amp;&amp; <a href="#eggs-elem-4">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp; <a href="#eggs-elem-4">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp; <a href="#eggs-elem-5">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp; <a href="#eggs-elem-5">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp; <a href="#eggs-elem-6">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp;&amp; <a href="#eggs-elem-6">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp;);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp;&amp; <a href="#eggs-elem-7">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp;);
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp;&amp; <a href="#eggs-elem-8">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp;);
 
 &nbsp;&nbsp;<span style="color:green;">// Relational operators</span>
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
@@ -601,11 +605,18 @@
                 <a name="eggs-elem-3"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp; v);</pre>
                 <ul>
-                    <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;variant_element_t&lt;I, variant&lt;Ts...&gt;&gt;&amp;&amp;&gt;(get&lt;I&gt;(v))</code>.</li>
+                    <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;variant_element_t&lt;I, variant&lt;Ts...&gt;&gt;&gt;(get&lt;I&gt;(v))</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-elem-4"></a>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp; v);</pre>
+                <ul>
+                    <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;variant_element_t&lt;I, variant&lt;Ts...&gt;&gt; const&gt;(get&lt;I&gt;(v))</code>.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
+                </ul>
+
+                <a name="eggs-elem-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp; v);</pre>
                 <ul>
                     <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
@@ -614,7 +625,7 @@
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
-                <a name="eggs-elem-5"></a>
+                <a name="eggs-elem-6"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; v);</pre>
                 <ul>
                     <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
@@ -623,10 +634,17 @@
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
-                <a name="eggs-elem-6"></a>
+                <a name="eggs-elem-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp; v);</pre>
                 <ul>
-                    <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;T&amp;&amp;&gt;(get&lt;T&gt;(v))</code>.</li>
+                    <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;T&gt;(get&lt;T&gt;(v))</code>.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
+                </ul>
+
+                <a name="eggs-elem-8"></a>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp; v);</pre>
+                <ul>
+                    <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;T const&gt;(get&lt;T&gt;(v))</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
             </section>
