@@ -17,4 +17,6 @@ struct Dtor
 
 bool Dtor::called = false;
 
+void swap(Dtor&, Dtor&) {}
+
 #endif /*EGGS_VARIANT_TEST_DTOR_HPP*/

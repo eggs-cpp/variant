@@ -13,6 +13,7 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "constexpr.hpp"
+#include "dtor.hpp"
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
@@ -35,6 +36,23 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         REQUIRE(v1.target<int>() != nullptr);
         CHECK(*v1.target<int>() == 42);
         CHECK(v2.which() == npos);
+
+        // dtor
+        {
+            eggs::variant<int, Dtor> v1;
+            eggs::variant<int, Dtor> v2(eggs::variants::in_place<Dtor>);
+
+            REQUIRE(v1.which() == npos);
+            REQUIRE(v2.which() == 1u);
+            REQUIRE(Dtor::called == false);
+
+            v1.swap(v2);
+
+            CHECK(v1.which() == 1u);
+            CHECK(v2.which() == npos);
+            CHECK(Dtor::called == true);
+        }
+        Dtor::called = false;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
@@ -68,6 +86,23 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v2.which() == 0u);
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+        // dtor
+        {
+            eggs::variant<int, Dtor> v1(eggs::variants::in_place<Dtor>);
+            eggs::variant<int, Dtor> v2;
+
+            REQUIRE(v1.which() == 1u);
+            REQUIRE(v2.which() == npos);
+            REQUIRE(Dtor::called == false);
+
+            v1.swap(v2);
+
+            CHECK(v1.which() == npos);
+            CHECK(v2.which() == 1u);
+            CHECK(Dtor::called == true);
+        }
+        Dtor::called = false;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
@@ -105,6 +140,23 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
 
+        // dtor
+        {
+            eggs::variant<int, Dtor> v1(eggs::variants::in_place<Dtor>);
+            eggs::variant<int, Dtor> v2(eggs::variants::in_place<Dtor>);
+
+            REQUIRE(v1.which() == 1u);
+            REQUIRE(v2.which() == 1u);
+            REQUIRE(Dtor::called == false);
+
+            v1.swap(v2);
+
+            CHECK(v1.which() == 1u);
+            CHECK(v2.which() == 1u);
+            CHECK(Dtor::called == false);
+        }
+        Dtor::called = false;
+
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
         {
@@ -140,6 +192,23 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v2.which() == 0u);
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
+
+        // dtor
+        {
+            eggs::variant<int, Dtor> v1(42);
+            eggs::variant<int, Dtor> v2(eggs::variants::in_place<Dtor>);
+
+            REQUIRE(v1.which() == 0u);
+            REQUIRE(v2.which() == 1u);
+            REQUIRE(Dtor::called == false);
+
+            v1.swap(v2);
+
+            CHECK(v1.which() == 1u);
+            CHECK(v2.which() == 0u);
+            CHECK(Dtor::called == true);
+        }
+        Dtor::called = false;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr

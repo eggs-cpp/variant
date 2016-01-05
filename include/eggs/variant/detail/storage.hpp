@@ -620,15 +620,22 @@ namespace eggs { namespace variants { namespace detail
 
         void swap(_storage& rhs)
         {
-            if (_which == 0)
+            if (_which == rhs._which)
             {
-                base_type::swap(rhs);
+                detail::swap{}(
+                    pack<Ts...>{}, _which
+                  , target(), rhs.target()
+                );
+            } else if (_which == 0) {
+                *this = std::move(rhs);
                 rhs._destroy();
+                rhs._which = 0;
             } else if (rhs._which == 0) {
-                base_type::swap(rhs);
+                rhs = std::move(*this);
                 _destroy();
+                _which = 0;
             } else {
-                base_type::swap(rhs);
+                std::swap(*this, rhs);
             }
         }
 
