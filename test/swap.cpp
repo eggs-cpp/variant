@@ -44,15 +44,15 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
             REQUIRE(v1.which() == npos);
             REQUIRE(v2.which() == 1u);
-            REQUIRE(Dtor::called == false);
+            REQUIRE(Dtor::calls == 0u);
 
             v1.swap(v2);
 
             CHECK(v1.which() == 1u);
             CHECK(v2.which() == npos);
-            CHECK(Dtor::called == true);
+            CHECK(Dtor::calls == 1u);
         }
-        Dtor::called = false;
+        Dtor::calls = 0u;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
@@ -94,15 +94,15 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
             REQUIRE(v1.which() == 1u);
             REQUIRE(v2.which() == npos);
-            REQUIRE(Dtor::called == false);
+            REQUIRE(Dtor::calls == 0u);
 
             v1.swap(v2);
 
             CHECK(v1.which() == npos);
             CHECK(v2.which() == 1u);
-            CHECK(Dtor::called == true);
+            CHECK(Dtor::calls == 1u);
         }
-        Dtor::called = false;
+        Dtor::calls = 0u;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
@@ -147,15 +147,15 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
             REQUIRE(v1.which() == 1u);
             REQUIRE(v2.which() == 1u);
-            REQUIRE(Dtor::called == false);
+            REQUIRE(Dtor::calls == 0u);
 
             v1.swap(v2);
 
             CHECK(v1.which() == 1u);
             CHECK(v2.which() == 1u);
-            CHECK(Dtor::called == false);
+            CHECK(Dtor::calls == 0u);
         }
-        Dtor::called = false;
+        Dtor::calls = 0u;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
@@ -179,7 +179,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        eggs::variant<int, std::string> v2(std::string{""});
+        eggs::variant<int, std::string> v2(std::string(""));
 
         REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
@@ -200,15 +200,15 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
             REQUIRE(v1.which() == 0u);
             REQUIRE(v2.which() == 1u);
-            REQUIRE(Dtor::called == false);
+            REQUIRE(Dtor::calls == 0u);
 
             v1.swap(v2);
 
             CHECK(v1.which() == 1u);
             CHECK(v2.which() == 0u);
-            CHECK(Dtor::called == true);
+            CHECK(Dtor::calls == 1u);
         }
-        Dtor::called = false;
+        Dtor::calls = 0u;
 
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr

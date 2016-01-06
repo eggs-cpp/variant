@@ -78,7 +78,7 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        eggs::variant<int, std::string> const v2(std::string{""});
+        eggs::variant<int, std::string> const v2(std::string(""));
 
         REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
@@ -149,7 +149,7 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        CHECK(v1 < std::string{""});
+        CHECK(v1 < std::string(""));
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -219,7 +219,7 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
 
     // different members
     {
-        eggs::variant<int, std::string> const v1(std::string{""});
+        eggs::variant<int, std::string> const v1(std::string(""));
 
         REQUIRE(v1.which() == 1u);
         REQUIRE(*v1.target<std::string>() == "");

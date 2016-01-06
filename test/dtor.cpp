@@ -28,11 +28,11 @@ TEST_CASE("variant<Ts...>::~variant()", "[variant.dtor]")
             eggs::variant<int, Dtor> v;
             v.emplace<1>();
 
-            REQUIRE(Dtor::called == false);
+            REQUIRE(Dtor::calls == 0u);
         }
-        CHECK(Dtor::called == true);
+        CHECK(Dtor::calls == 1u);
     }
-    Dtor::called = false;
+    Dtor::calls = 0u;
 
     // trivially_destructible
     {

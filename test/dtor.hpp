@@ -8,14 +8,16 @@
 #ifndef EGGS_VARIANT_TEST_DTOR_HPP
 #define EGGS_VARIANT_TEST_DTOR_HPP
 
+#include <cstddef>
+
 struct Dtor
 {
-    static bool called;
+    static std::size_t calls;
     Dtor() = default;
-    ~Dtor() { called = true; }
+    ~Dtor() { ++calls; }
 };
 
-bool Dtor::called = false;
+std::size_t Dtor::calls = 0u;
 
 void swap(Dtor&, Dtor&) {}
 

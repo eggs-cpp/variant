@@ -72,6 +72,20 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
 #endif
 
+        // dtor
+        {
+            eggs::variant<int, Dtor> v(eggs::variants::in_place<Dtor>);
+
+            REQUIRE(v.which() == 1u);
+            REQUIRE(Dtor::calls == 0u);
+
+            v = Dtor();
+
+            CHECK(v.which() == 1u);
+            CHECK(Dtor::calls == 1u);
+        }
+        Dtor::calls = 0u;
+
 #if EGGS_CXX14_HAS_CONSTEXPR
         // constexpr
         {
@@ -88,7 +102,7 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 
     // different target
     {
-        eggs::variant<int, std::string> v(std::string{""});
+        eggs::variant<int, std::string> v(std::string(""));
 
         REQUIRE(bool(v) == true);
         REQUIRE(v.which() == 1u);
@@ -105,6 +119,20 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         CHECK(v.target_type() == typeid(int));
 #endif
 
+        // dtor
+        {
+            eggs::variant<int, Dtor> v(eggs::variants::in_place<Dtor>);
+
+            REQUIRE(v.which() == 1u);
+            REQUIRE(Dtor::calls == 0u);
+
+            v = 42;
+
+            CHECK(v.which() == 0u);
+            CHECK(Dtor::calls == 1u);
+        }
+        Dtor::calls = 0u;
+
 #if EGGS_CXX98_HAS_EXCEPTIONS
         // exception-safety
         {
@@ -113,15 +141,15 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 
             REQUIRE(bool(v) == true);
             REQUIRE(v.which() == 0u);
-            REQUIRE(Dtor::called == false);
+            REQUIRE(Dtor::calls == 0u);
 
             CHECK_THROWS(v = Throw{});
 
             CHECK(bool(v) == false);
             CHECK(v.which() == npos);
-            CHECK(Dtor::called == true);
+            CHECK(Dtor::calls == 1u);
         }
-        Dtor::called = false;
+        Dtor::calls = 0u;
 #endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
