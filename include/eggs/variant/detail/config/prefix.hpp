@@ -8,6 +8,12 @@
 
 /// no header guards
 
+#if __cplusplus < 201103L
+#  if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 180000000
+#    error Eggs.Variant requires compiler and library support for the ISO C++ 2011 standard.
+#  endif
+#endif
+
 /// constexpr support
 #ifndef EGGS_CXX11_HAS_CONSTEXPR
 #  if defined(_MSC_FULL_VER)
