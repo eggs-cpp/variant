@@ -11,6 +11,9 @@
 #include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
+#include <eggs/variant/detail/utility.hpp>
+
+using eggs::variants::detail::move;
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -35,7 +38,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
-        v2 = std::move(v1);
+        v2 = ::move(v1);
 
         CHECK(bool(v1) == false);
         CHECK(bool(v2) == false);
@@ -50,7 +53,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(v2.which() == 1u);
             REQUIRE(Dtor::calls == 0u);
 
-            v2 = std::move(v1);
+            v2 = ::move(v1);
 
             CHECK(v2.which() == npos);
             CHECK(Dtor::calls == 1u);
@@ -64,7 +67,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             {
                 eggs::variant<int, ConstexprTrivial> v1;
                 eggs::variant<int, ConstexprTrivial> v2(ConstexprTrivial(42));
-                v2 = std::move(v1);
+                v2 = ::move(v1);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -85,7 +88,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(bool(v2) == false);
         REQUIRE(v2.which() == npos);
 
-        v2 = std::move(v1);
+        v2 = ::move(v1);
 
         CHECK(bool(v1) == true);
         CHECK(bool(v2) == true);
@@ -100,7 +103,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             {
                 eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
                 eggs::variant<int, ConstexprTrivial> v2;
-                v2 = std::move(v1);
+                v2 = ::move(v1);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -122,7 +125,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(v2.which() == v1.which());
         REQUIRE(*v2.target<int>() == 43);
 
-        v2 = std::move(v1);
+        v2 = ::move(v1);
 
         CHECK(bool(v1) == true);
         CHECK(bool(v2) == true);
@@ -139,7 +142,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(v2.which() == 1u);
             REQUIRE(Dtor::calls == 0u);
 
-            v2 = std::move(v1);
+            v2 = ::move(v1);
 
             CHECK(v2.which() == 1u);
             CHECK(Dtor::calls == 0u);
@@ -153,7 +156,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             {
                 eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
                 eggs::variant<int, ConstexprTrivial> v2(ConstexprTrivial(43));
-                v2 = std::move(v1);
+                v2 = ::move(v1);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -175,7 +178,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
 
-        v2 = std::move(v1);
+        v2 = ::move(v1);
 
         CHECK(bool(v1) == true);
         CHECK(bool(v2) == true);
@@ -192,7 +195,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(v2.which() == 1u);
             REQUIRE(Dtor::calls == 0u);
 
-            v2 = std::move(v1);
+            v2 = ::move(v1);
 
             CHECK(v2.which() == 0u);
             CHECK(Dtor::calls == 1u);
@@ -215,7 +218,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             REQUIRE(v2.which() == 0u);
             REQUIRE(Dtor::calls == 0u);
 
-            CHECK_THROWS(v2 = std::move(v1));
+            CHECK_THROWS(v2 = ::move(v1));
 
             CHECK(bool(v1) == true);
             CHECK(bool(v2) == false);
@@ -233,7 +236,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             {
                 eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
                 eggs::variant<int, ConstexprTrivial> v2(43);
-                v2 = std::move(v1);
+                v2 = ::move(v1);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -276,7 +279,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<float>() == 42.f);
 
-        v2 = std::move(v1);
+        v2 = ::move(v1);
 
         CHECK(bool(v1) == true);
         CHECK(bool(v2) == true);
@@ -301,7 +304,7 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
     REQUIRE(bool(v2) == false);
     REQUIRE(v2.which() == npos);
 
-    v2 = std::move(v1);
+    v2 = ::move(v1);
 
     CHECK(bool(v1) == false);
     CHECK(bool(v2) == false);
@@ -332,7 +335,7 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
         {
             eggs::variant<> v1;
             eggs::variant<> v2;
-            v2 = std::move(v1);
+            v2 = ::move(v1);
             return 0;
         }};
         constexpr int c = test::call();

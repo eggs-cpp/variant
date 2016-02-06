@@ -9,6 +9,9 @@
 #include <string>
 
 #include <eggs/variant/detail/config/prefix.hpp>
+#include <eggs/variant/detail/utility.hpp>
+
+using eggs::variants::detail::move;
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -110,7 +113,7 @@ TEST_CASE("get<I>(variant<Ts...>&&)", "[variant.elem]")
     REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
-    int&& ref = eggs::variants::get<0>(std::move(v));
+    int&& ref = eggs::variants::get<0>(::move(v));
 
     CHECK(ref == 42);
 
@@ -135,7 +138,7 @@ TEST_CASE("get<I>(variant<Ts...> const&&)", "[variant.elem]")
     REQUIRE(v.which() == 0u);
     REQUIRE(*v.target<int>() == 42);
 
-    int const&& ref = eggs::variants::get<0>(std::move(v));
+    int const&& ref = eggs::variants::get<0>(::move(v));
 
     CHECK(ref == 42);
 
@@ -143,7 +146,7 @@ TEST_CASE("get<I>(variant<Ts...> const&&)", "[variant.elem]")
     // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
-        constexpr bool vgb = eggs::variants::get<1>(std::move(v)).x == 42;
+        constexpr bool vgb = eggs::variants::get<1>(::move(v)).x == 42;
     }
 #endif
 }
@@ -209,7 +212,7 @@ TEST_CASE("get<T>(variant<Ts...>&&)", "[variant.elem]")
 {
     eggs::variant<int, std::string> v(42);
 
-    int&& ref = eggs::variants::get<int>(std::move(v));
+    int&& ref = eggs::variants::get<int>(::move(v));
 
     CHECK(ref == 42);
 
@@ -231,7 +234,7 @@ TEST_CASE("get<T>(variant<Ts...> const&&)", "[variant.elem]")
 {
     eggs::variant<int, std::string> const v(42);
 
-    int const&& ref = eggs::variants::get<int>(std::move(v));
+    int const&& ref = eggs::variants::get<int>(::move(v));
 
     CHECK(ref == 42);
 
@@ -239,7 +242,7 @@ TEST_CASE("get<T>(variant<Ts...> const&&)", "[variant.elem]")
     // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
-        constexpr bool vgb = eggs::variants::get<Constexpr>(std::move(v)).x == 42;
+        constexpr bool vgb = eggs::variants::get<Constexpr>(::move(v)).x == 42;
     }
 #endif
 }

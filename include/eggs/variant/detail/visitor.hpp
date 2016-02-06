@@ -10,6 +10,7 @@
 #define EGGS_VARIANT_DETAIL_VISITOR_HPP
 
 #include <eggs/variant/detail/pack.hpp>
+#include <eggs/variant/detail/utility.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -66,7 +67,7 @@ namespace eggs { namespace variants { namespace detail
             Args&&... args) const
         {
             return _assert_in_range(which, sizeof...(Ts)),
-                _table<Ts...>::value[which](std::forward<Args>(args)...);
+                _table<Ts...>::value[which](detail::forward<Args>(args)...);
         }
 
         EGGS_CXX11_NORETURN R operator()(pack<>, std::size_t, Args&&...) const
@@ -102,7 +103,7 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static void call(void* ptr, void* other)
         {
-            ::new (ptr) T(std::move(*static_cast<T*>(other)));
+            ::new (ptr) T(detail::move(*static_cast<T*>(other)));
         }
     };
 
@@ -122,7 +123,7 @@ namespace eggs { namespace variants { namespace detail
         template <typename T>
         static void call(void* ptr, void* other)
         {
-            *static_cast<T*>(ptr) = std::move(*static_cast<T*>(other));
+            *static_cast<T*>(ptr) = detail::move(*static_cast<T*>(other));
         }
     };
 

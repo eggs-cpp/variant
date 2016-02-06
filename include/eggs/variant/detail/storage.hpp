@@ -10,6 +10,7 @@
 #define EGGS_VARIANT_DETAIL_STORAGE_HPP
 
 #include <eggs/variant/detail/pack.hpp>
+#include <eggs/variant/detail/utility.hpp>
 #include <eggs/variant/detail/visitor.hpp>
 
 #include <cstddef>
@@ -38,12 +39,12 @@ namespace eggs { namespace variants { namespace detail
 
         template <typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
-          : _head(std::forward<Args>(args)...)
+          : _head(detail::forward<Args>(args)...)
         {}
 
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
-          : _tail(index<I - 1>{}, std::forward<Args>(args)...)
+          : _tail(index<I - 1>{}, detail::forward<Args>(args)...)
         {}
 
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
@@ -100,12 +101,12 @@ namespace eggs { namespace variants { namespace detail
 
         template <typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<0>, Args&&... args)
-          : _head(std::forward<Args>(args)...)
+          : _head(detail::forward<Args>(args)...)
         {}
 
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _union(index<I>, Args&&... args)
-          : _tail(index<I - 1>{}, std::forward<Args>(args)...)
+          : _tail(index<I - 1>{}, detail::forward<Args>(args)...)
         {}
 
         ~_union() {}
@@ -281,7 +282,7 @@ namespace eggs { namespace variants { namespace detail
         >
         _union(index<I> /*which*/, Args&&... args)
         {
-            ::new (target()) T(std::forward<Args>(args)...);
+            ::new (target()) T(detail::forward<Args>(args)...);
         }
 
         void* target() EGGS_CXX11_NOEXCEPT
@@ -363,14 +364,14 @@ namespace eggs { namespace variants { namespace detail
 
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
-          : base_type{which, std::forward<Args>(args)...}
+          : base_type{which, detail::forward<Args>(args)...}
           , _which{I}
         {}
 
         template <std::size_t I, typename ...Args>
         EGGS_CXX14_CONSTEXPR void emplace(index<I> which, Args&&... args)
         {
-            *this = _storage(which, std::forward<Args>(args)...);
+            *this = _storage(which, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
@@ -380,9 +381,9 @@ namespace eggs { namespace variants { namespace detail
 
         EGGS_CXX14_CONSTEXPR void swap(_storage& rhs)
         {
-            _storage tmp(std::move(*this));
-            *this = std::move(rhs);
-            rhs = std::move(tmp);
+            _storage tmp(detail::move(*this));
+            *this = detail::move(rhs);
+            rhs = detail::move(tmp);
         }
 
         EGGS_CXX11_CONSTEXPR std::size_t which() const
@@ -443,7 +444,7 @@ namespace eggs { namespace variants { namespace detail
 
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
-          : base_type{which, std::forward<Args>(args)...}
+          : base_type{which, detail::forward<Args>(args)...}
         {}
 
         template <
@@ -453,7 +454,7 @@ namespace eggs { namespace variants { namespace detail
         void emplace(index<I> /*which*/, Args&&... args)
         {
             _which = 0;
-            ::new (target()) T(std::forward<Args>(args)...);
+            ::new (target()) T(detail::forward<Args>(args)...);
             _which = I;
         }
 
@@ -518,10 +519,10 @@ namespace eggs { namespace variants { namespace detail
                   , target(), rhs.target()
                 );
             } else if (_which == 0) {
-                *this = std::move(rhs);
+                *this = detail::move(rhs);
                 rhs._which = 0;
             } else if (rhs._which == 0) {
-                rhs = std::move(*this);
+                rhs = detail::move(*this);
                 _which = 0;
             } else {
                 std::swap(*this, rhs);
@@ -571,7 +572,7 @@ namespace eggs { namespace variants { namespace detail
 
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
-          : base_type{which, std::forward<Args>(args)...}
+          : base_type{which, detail::forward<Args>(args)...}
         {}
 
         ~_storage()
@@ -583,7 +584,7 @@ namespace eggs { namespace variants { namespace detail
         void emplace(index<I> which, Args&&... args)
         {
             _destroy();
-            base_type::emplace(which, std::forward<Args>(args)...);
+            base_type::emplace(which, detail::forward<Args>(args)...);
         }
 
         _storage& operator=(_storage const& rhs)
@@ -614,7 +615,7 @@ namespace eggs { namespace variants { namespace detail
             {
                 _destroy();
             }
-            base_type::operator=(std::move(rhs));
+            base_type::operator=(detail::move(rhs));
             return *this;
         }
 
@@ -627,11 +628,11 @@ namespace eggs { namespace variants { namespace detail
                   , target(), rhs.target()
                 );
             } else if (_which == 0) {
-                *this = std::move(rhs);
+                *this = detail::move(rhs);
                 rhs._destroy();
                 rhs._which = 0;
             } else if (rhs._which == 0) {
-                rhs = std::move(*this);
+                rhs = detail::move(*this);
                 _destroy();
                 _which = 0;
             } else {

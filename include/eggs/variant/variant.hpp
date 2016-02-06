@@ -12,6 +12,7 @@
 #include <eggs/variant/detail/apply.hpp>
 #include <eggs/variant/detail/pack.hpp>
 #include <eggs/variant/detail/storage.hpp>
+#include <eggs/variant/detail/utility.hpp>
 #include <eggs/variant/detail/visitor.hpp>
 
 #include <eggs/variant/bad_variant_access.hpp>
@@ -150,7 +151,7 @@ namespace eggs { namespace variants
             EGGS_CXX14_CONSTEXPR static Storage&& storage(
                 variant<Ts...>&& v) EGGS_CXX11_NOEXCEPT
             {
-                return std::move(v._storage);
+                return detail::move(v._storage);
             }
 
             EGGS_CXX14_CONSTEXPR static detail::empty_storage storage(
@@ -315,7 +316,7 @@ namespace eggs { namespace variants
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, U&&>::value)
 #endif
-          : _storage{detail::index<I + 1>{}, std::forward<U>(v)}
+          : _storage{detail::index<I + 1>{}, detail::forward<U>(v)}
         {}
 
         //! template <std::size_t I, class ...Args>
@@ -350,7 +351,7 @@ namespace eggs { namespace variants
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
 #endif
-          : _storage{detail::index<I + 1>{}, std::forward<Args>(args)...}
+          : _storage{detail::index<I + 1>{}, detail::forward<Args>(args)...}
         {}
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -392,7 +393,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value)
 #endif
-          : _storage{detail::index<I + 1>{}, il, std::forward<Args>(args)...}
+          : _storage{detail::index<I + 1>{}, il, detail::forward<Args>(args)...}
         {}
 #endif
 
@@ -418,7 +419,7 @@ namespace eggs { namespace variants
 #endif
           : _storage{detail::index_of<T, detail::pack<
                     detail::empty, typename std::remove_cv<Ts>::type...
-                >>{}, std::forward<Args>(args)...}
+                >>{}, detail::forward<Args>(args)...}
         {}
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -452,7 +453,7 @@ namespace eggs { namespace variants
 #endif
           : _storage{detail::index_of<T, detail::pack<
                     detail::empty, typename std::remove_cv<Ts>::type...
-                >>{}, il, std::forward<Args>(args)...}
+                >>{}, il, detail::forward<Args>(args)...}
         {}
 #endif
 
@@ -584,9 +585,9 @@ namespace eggs { namespace variants
         {
             if (_storage.which() == I + 1)
             {
-                _storage.get(detail::index<I + 1>{}) = std::forward<U>(v);
+                _storage.get(detail::index<I + 1>{}) = detail::forward<U>(v);
             } else {
-                _storage.emplace(detail::index<I + 1>{}, std::forward<U>(v));
+                _storage.emplace(detail::index<I + 1>{}, detail::forward<U>(v));
             }
             return *this;
         }
@@ -627,7 +628,7 @@ namespace eggs { namespace variants
         {
             using t_which = detail::index<I + 1>;
 
-            _storage.emplace(t_which{}, std::forward<Args>(args)...);
+            _storage.emplace(t_which{}, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -673,7 +674,7 @@ namespace eggs { namespace variants
         {
             using t_which = detail::index<I + 1>;
 
-            _storage.emplace(t_which{}, il, std::forward<Args>(args)...);
+            _storage.emplace(t_which{}, il, detail::forward<Args>(args)...);
         }
 #endif
 
@@ -699,7 +700,7 @@ namespace eggs { namespace variants
             using t_which = detail::index_of<T, detail::pack<
                 detail::empty, Ts...>>;
 
-            _storage.emplace(t_which{}, std::forward<Args>(args)...);
+            _storage.emplace(t_which{}, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -733,7 +734,7 @@ namespace eggs { namespace variants
             using t_which = detail::index_of<T, detail::pack<
                 detail::empty, Ts...>>;
 
-            _storage.emplace(t_which{}, il, std::forward<Args>(args)...);
+            _storage.emplace(t_which{}, il, detail::forward<Args>(args)...);
         }
 #endif
 #endif
@@ -1040,7 +1041,7 @@ namespace eggs { namespace variants
     >
     EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
-        return std::forward<T>(get<I>(v));
+        return detail::forward<T>(get<I>(v));
     }
 
     //! template <std::size_t I, class ...Ts>
@@ -1056,7 +1057,7 @@ namespace eggs { namespace variants
     >
     EGGS_CXX14_CONSTEXPR T const&& get(variant<Ts...> const&& v)
     {
-        return std::forward<T const>(get<I>(v));
+        return detail::forward<T const>(get<I>(v));
     }
 
     //! template <class T, class ...Ts>
@@ -1115,7 +1116,7 @@ namespace eggs { namespace variants
     template <typename T, typename ...Ts>
     EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
-        return std::forward<T>(get<T>(v));
+        return detail::forward<T>(get<T>(v));
     }
 
     //! template <class T, class ...Ts>
@@ -1127,7 +1128,7 @@ namespace eggs { namespace variants
     template <typename T, typename ...Ts>
     EGGS_CXX14_CONSTEXPR T const&& get(variant<Ts...> const&& v)
     {
-        return std::forward<T const>(get<T>(v));
+        return detail::forward<T const>(get<T>(v));
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1595,8 +1596,8 @@ namespace eggs { namespace variants
     >
     EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
-        return detail::apply<R>(std::forward<F>(f),
-            detail::access::storage(std::forward<Vs>(vs))...);
+        return detail::apply<R>(detail::forward<F>(f),
+            detail::access::storage(detail::forward<Vs>(vs))...);
     }
 
     //! template <class F, class ...Vs>
@@ -1626,7 +1627,7 @@ namespace eggs { namespace variants
     >
     EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
-        return apply<R>(std::forward<F>(f), std::forward<Vs>(vs)...);
+        return apply<R>(detail::forward<F>(f), detail::forward<Vs>(vs)...);
     }
 
     ///////////////////////////////////////////////////////////////////////////

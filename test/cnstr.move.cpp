@@ -11,6 +11,9 @@
 #include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
+#include <eggs/variant/detail/utility.hpp>
+
+using eggs::variants::detail::move;
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -26,7 +29,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
     REQUIRE(v1.which() == 0u);
     REQUIRE(*v1.target<int>() == 42);
 
-    eggs::variant<int, std::string> v2(std::move(v1));
+    eggs::variant<int, std::string> v2(::move(v1));
 
     CHECK(bool(v1) == true);
     CHECK(bool(v2) == true);
@@ -58,7 +61,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
 
         CHECK(std::is_trivially_copyable<decltype(v1)>::value == true);
 
-        eggs::variant<int, float> v2(std::move(v1));
+        eggs::variant<int, float> v2(::move(v1));
 
         CHECK(bool(v1) == true);
         CHECK(bool(v2) == true);
@@ -76,7 +79,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         struct test { static constexpr int call()
         {
             eggs::variant<int, ConstexprTrivial> v1(ConstexprTrivial(42));
-            eggs::variant<int, ConstexprTrivial> v2(std::move(v1));
+            eggs::variant<int, ConstexprTrivial> v2(::move(v1));
             return 0;
         }};
         constexpr int c = test::call();
@@ -91,7 +94,7 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
     REQUIRE(bool(v1) == false);
     REQUIRE(v1.which() == npos);
 
-    eggs::variant<> v2(std::move(v1));
+    eggs::variant<> v2(::move(v1));
 
     CHECK(bool(v1) == false);
     CHECK(bool(v2) == false);
@@ -116,7 +119,7 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
         struct test { static constexpr int call()
         {
             eggs::variant<> v1;
-            eggs::variant<> v2(std::move(v1));
+            eggs::variant<> v2(::move(v1));
             return 0;
         }};
         constexpr int c = test::call();

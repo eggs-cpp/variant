@@ -10,6 +10,9 @@
 #include <string>
 
 #include <eggs/variant/detail/config/prefix.hpp>
+#include <eggs/variant/detail/utility.hpp>
+
+using eggs::variants::detail::move;
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -242,7 +245,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
-    std::string ret = eggs::variants::apply<std::string>(f, std::move(v));
+    std::string ret = eggs::variants::apply<std::string>(f, ::move(v));
 
     CHECK(f.rvalue == 1u);
     CHECK(ret == "42");
@@ -255,7 +258,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
         REQUIRE(empty.which() == npos);
 
         CHECK_THROWS_AS(
-            eggs::variants::apply<void>(fun{}, std::move(empty))
+            eggs::variants::apply<void>(fun{}, ::move(empty))
           , eggs::variants::bad_variant_access);
     }
 #endif
@@ -266,7 +269,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
         struct test { static constexpr int call()
         {
             eggs::variant<int, Constexpr> v(Constexpr(42));
-            std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, std::move(v));
+            std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, ::move(v));
             return 0;
         }};
         constexpr int c = test::call();
@@ -281,7 +284,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
         REQUIRE(*v.target<int>() == 42);
 
         fun f;
-        std::string ret = eggs::variants::apply<std::string>(f, std::move(v));
+        std::string ret = eggs::variants::apply<std::string>(f, ::move(v));
 
         CHECK(f.rvalue == 1u);
         CHECK(ret == "42");
@@ -307,7 +310,7 @@ TEST_CASE("apply<R>(F&&, variant<> const&)", "[variant.apply]")
     REQUIRE(v.which() == npos);
 
     CHECK_THROWS_AS(
-        eggs::variants::apply<void>(fun{}, std::move(v))
+        eggs::variants::apply<void>(fun{}, ::move(v))
       , eggs::variants::bad_variant_access);
 }
 
@@ -318,7 +321,7 @@ TEST_CASE("apply<R>(F&&, variant<>&&)", "[variant.apply]")
     REQUIRE(v.which() == npos);
 
     CHECK_THROWS_AS(
-        eggs::variants::apply<void>(fun{}, std::move(v))
+        eggs::variants::apply<void>(fun{}, ::move(v))
       , eggs::variants::bad_variant_access);
 }
 #endif
@@ -380,7 +383,7 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
     REQUIRE(*v.target<int>() == 42);
 
     fun f;
-    std::string ret = eggs::variants::apply(f, std::move(v));
+    std::string ret = eggs::variants::apply(f, ::move(v));
 
     CHECK(f.rvalue == 1u);
     CHECK(ret == "42");
@@ -391,7 +394,7 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
         struct test { static constexpr int call()
         {
             eggs::variant<int, Constexpr> v(Constexpr(42));
-            std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, std::move(v));
+            std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, ::move(v));
             return 0;
         }};
         constexpr int c = test::call();
@@ -473,7 +476,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&, variant<Us...>&&)", "[variant.apply]"
     REQUIRE(*v2.target<std::string>() == "43");
 
     fun f;
-    std::string ret = eggs::variants::apply<std::string>(f, std::move(v1), std::move(v2));
+    std::string ret = eggs::variants::apply<std::string>(f, ::move(v1), ::move(v2));
 
     CHECK(f.rvalue == 1u);
     CHECK(ret == "42,43");
@@ -485,7 +488,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&, variant<Us...>&&)", "[variant.apply]"
         {
             eggs::variant<int, Constexpr> v1(Constexpr(42));
             eggs::variant<int, Constexpr> v2(43);
-            std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, std::move(v1), std::move(v2));
+            std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{}, ::move(v1), ::move(v2));
             return 0;
         }};
         constexpr int c = test::call();

@@ -11,6 +11,7 @@
 
 #include <eggs/variant/detail/pack.hpp>
 #include <eggs/variant/detail/storage.hpp>
+#include <eggs/variant/detail/utility.hpp>
 #include <eggs/variant/detail/visitor.hpp>
 
 #include <eggs/variant/bad_variant_access.hpp>
@@ -27,29 +28,29 @@ namespace eggs { namespace variants { namespace detail
     template <typename F, typename ...Ts>
     EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Ts&&... vs)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            std::forward<F>(f)(std::forward<Ts>(vs)...)))
-     -> decltype(std::forward<F>(f)(std::forward<Ts>(vs)...))
+            detail::forward<F>(f)(detail::forward<Ts>(vs)...)))
+     -> decltype(detail::forward<F>(f)(detail::forward<Ts>(vs)...))
     {
-        return std::forward<F>(f)(std::forward<Ts>(vs)...);
+        return detail::forward<F>(f)(detail::forward<Ts>(vs)...);
     }
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     template <typename F, typename T0, typename ...Ts>
     EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0, Ts&&... vs)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            (v0.*f)(std::forward<Ts>(vs)...)))
-     -> decltype((v0.*f)(std::forward<Ts>(vs)...))
+            (v0.*f)(detail::forward<Ts>(vs)...)))
+     -> decltype((v0.*f)(detail::forward<Ts>(vs)...))
     {
-        return (v0.*f)(std::forward<Ts>(vs)...);
+        return (v0.*f)(detail::forward<Ts>(vs)...);
     }
 
     template <typename F, typename T0, typename ...Ts>
     EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0, Ts&&... vs)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            ((*v0).*f)(std::forward<Ts>(vs)...)))
-     -> decltype(((*v0).*f)(std::forward<Ts>(vs)...))
+            ((*v0).*f)(detail::forward<Ts>(vs)...)))
+     -> decltype(((*v0).*f)(detail::forward<Ts>(vs)...))
     {
-        return ((*v0).*f)(std::forward<Ts>(vs)...);
+        return ((*v0).*f)(detail::forward<Ts>(vs)...);
     }
 
     template <typename F, typename T0>
@@ -74,9 +75,9 @@ namespace eggs { namespace variants { namespace detail
         template <typename ...Ts>
         EGGS_CXX11_CONSTEXPR R operator()(Ts&&... vs) const
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-                _invoke(std::forward<Ts>(vs)...)))
+                _invoke(detail::forward<Ts>(vs)...)))
         {
-            return detail::_invoke(std::forward<Ts>(vs)...);
+            return detail::_invoke(detail::forward<Ts>(vs)...);
         }
     };
 
@@ -86,9 +87,9 @@ namespace eggs { namespace variants { namespace detail
         template <typename ...Ts>
         EGGS_CXX14_CONSTEXPR void operator()(Ts&&... vs) const
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-                _invoke(std::forward<Ts>(vs)...)))
+                _invoke(detail::forward<Ts>(vs)...)))
         {
-            detail::_invoke(std::forward<Ts>(vs)...);
+            detail::_invoke(detail::forward<Ts>(vs)...);
         }
     };
 
@@ -136,7 +137,7 @@ namespace eggs { namespace variants { namespace detail
 
         EGGS_CXX11_CONSTEXPR type operator()(V& v) const
         {
-            return std::move(v.get(I{}));
+            return detail::move(v.get(I{}));
         }
     };
 
@@ -157,7 +158,7 @@ namespace eggs { namespace variants { namespace detail
         static EGGS_CXX11_CONSTEXPR R call(F&& f, Ms... ms, V&& v)
         {
             return _invoke_guard<R>{}(
-                std::forward<F>(f), std::forward<Ms>(ms)...
+                detail::forward<F>(f), detail::forward<Ms>(ms)...
               , _apply_get<V, I>{}(v));
         }
     };
@@ -180,9 +181,9 @@ namespace eggs { namespace variants { namespace detail
             return v0.which() != 0
               ? _apply<R, F, pack<Ms..., T>, pack<V1, Vs...>>{}(
                     _apply_pack<typename std::decay<V1>::type>{}, v1.which() - 1
-                  , std::forward<F>(f)
-                  , std::forward<Ms>(ms)..., _apply_get<V0, I>{}(v0)
-                  , std::forward<V1>(v1), std::forward<Vs>(vs)...
+                  , detail::forward<F>(f)
+                  , detail::forward<Ms>(ms)..., _apply_get<V0, I>{}(v0)
+                  , detail::forward<V1>(v1), detail::forward<Vs>(vs)...
                 )
               : throw_bad_variant_access<R>();
         }
@@ -194,8 +195,8 @@ namespace eggs { namespace variants { namespace detail
         return v.which() != 0
           ? _apply<R, F, pack<>, pack<V&&, Vs&&...>>{}(
                 _apply_pack<typename std::decay<V>::type>{}, v.which() - 1
-              , std::forward<F>(f)
-              , std::forward<V>(v), std::forward<Vs>(vs)...
+              , detail::forward<F>(f)
+              , detail::forward<V>(v), detail::forward<Vs>(vs)...
             )
           : throw_bad_variant_access<R>();
     }
