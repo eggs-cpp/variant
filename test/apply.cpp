@@ -26,6 +26,11 @@ struct fun
 
     fun() : nonconst_lvalue{0}, const_lvalue{0}, rvalue{0} {}
 
+    std::string operator()()
+    {
+        return "";
+    }
+
     template <typename T>
     static std::string to_string(T const& t)
     {
@@ -88,6 +93,11 @@ struct fun
 #if EGGS_CXX11_HAS_CONSTEXPR
 struct constexpr_fun
 {
+    constexpr std::size_t operator()() const
+    {
+        return 0u;
+    }
+
     template <typename T>
     constexpr std::size_t operator()(T const&) const
     {
@@ -398,6 +408,36 @@ TEST_CASE("apply(F&&, variant<Ts...>&&)", "[variant.apply]")
             return 0;
         }};
         constexpr int c = test::call();
+    }
+#endif
+}
+
+TEST_CASE("apply<R>(F&&)", "[variant.apply]")
+{
+    fun f;
+    std::string ret = eggs::variants::apply<std::string>(f);
+
+    CHECK(ret == "");
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+    // constexpr
+    {
+        constexpr std::size_t ar = eggs::variants::apply<std::size_t>(constexpr_fun{});
+    }
+#endif
+}
+
+TEST_CASE("apply(F&&)", "[variant.apply]")
+{
+    fun f;
+    std::string ret = eggs::variants::apply(f);
+
+    CHECK(ret == "");
+
+#if EGGS_CXX11_HAS_CONSTEXPR
+    // constexpr
+    {
+        constexpr std::size_t ar = eggs::variants::apply(constexpr_fun{});
     }
 #endif
 }

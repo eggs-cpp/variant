@@ -1569,12 +1569,11 @@ namespace eggs { namespace variants
     //! Let `Vi` be the `i`-th type in `Vs...`, `Ui` be `std::decay_t<Vi>`,
     //! where all indexing is zero-based.
     //!
-    //! \requires `sizeof...(Vs) != 0` shall be `true`. For all `i`, `Ui`
-    //!  shall be the type `variant<Tsi...>` where `Tsi` is the parameter
-    //!  pack representing the element types in `Ui`. `INVOKE(
-    //!  std::forward<F>(f), get<Is>(std::forward<Vs>(vs))..., R)` shall be a
-    //!  valid expression for all `Is...` in the range `[0u, sizeof...
-    //!  (Tsi))...`.
+    //! \requires For all `i`, `Ui` shall be the type `variant<Tsi...>` where
+    //!  `Tsi` is the parameter pack representing the element types in `Ui`.
+    //!  `INVOKE(std::forward<F>(f), get<Is>(std::forward<Vs>(vs))..., R)`
+    //!  shall be a valid expression for all `Is...` in the range `[0u,
+    //!  sizeof...(Tsi))...`.
     //!
     //! \effects Equivalent to `INVOKE(std::forward<F>(f), get<Is>(
     //!  std::forward<Vs>(vs))...), R)` where `Is...` are the zero-based
@@ -1588,8 +1587,7 @@ namespace eggs { namespace variants
         typename R
       , typename F, typename ...Vs
       , typename Enable = typename std::enable_if<
-            detail::pack<Vs...>::size != 0
-         && detail::all_of<detail::pack<
+            detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
         >::type
@@ -1619,8 +1617,7 @@ namespace eggs { namespace variants
       , typename R = detail::apply_result<F,
             decltype(detail::access::storage(std::declval<Vs>()))...>
       , typename Enable = typename std::enable_if<
-            detail::pack<Vs...>::size != 0
-         && detail::all_of<detail::pack<
+            detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
         >::type

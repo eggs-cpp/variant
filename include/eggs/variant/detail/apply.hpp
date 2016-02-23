@@ -189,6 +189,12 @@ namespace eggs { namespace variants { namespace detail
         }
     };
 
+    template <typename R, typename F>
+    EGGS_CXX11_CONSTEXPR R apply(F&& f)
+    {
+        return _invoke_guard<R>{}(detail::forward<F>(f));
+    }
+
     template <typename R, typename F, typename V, typename ...Vs>
     EGGS_CXX11_CONSTEXPR R apply(F&& f, V&& v, Vs&&... vs)
     {
@@ -247,6 +253,11 @@ namespace eggs { namespace variants { namespace detail
 
     template <typename F, typename Vs>
     struct _apply_result;
+
+    template <typename F>
+    struct _apply_result<F, pack<>>
+      : _result_of<F, pack<>>
+    {};
 
     template <typename F, typename V, typename ...Vs>
     struct _apply_result<F, pack<V, Vs...>>
