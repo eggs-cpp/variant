@@ -7,6 +7,8 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
+#include <utility>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -15,6 +17,40 @@
 #include "constexpr.hpp"
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+template <typename ...Ts>
+struct _void
+{
+    using type = void;
+};
+
+template <typename T, typename U, typename Enable = void>
+struct has_equal
+  : std::false_type
+{};
+
+template <typename T, typename U>
+struct has_equal<
+    T, U, typename _void<
+        decltype(std::declval<T>() == std::declval<U>())
+    >::type
+> : std::true_type
+{};
+
+template <typename T, typename U, typename Enable = void>
+struct has_not_equal
+  : std::false_type
+{};
+
+template <typename T, typename U>
+struct has_not_equal<
+    T, U, typename _void<
+        decltype(std::declval<T>() != std::declval<U>())
+    >::type
+> : std::true_type
+{};
+#endif
 
 TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.rel]")
 {
@@ -160,6 +196,20 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
 
         CHECK(v == "42");
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_equal<
+                eggs::variant<int>, std::string
+            >::value));
+        CHECK((
+            !has_not_equal<
+                eggs::variant<int>, std::string
+            >::value));
+    }
+#endif
 }
 
 TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
@@ -229,6 +279,20 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
 
         CHECK("42" == v);
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_equal<
+                std::string, eggs::variant<int>
+            >::value));
+        CHECK((
+            !has_not_equal<
+                std::string, eggs::variant<int>
+            >::value));
+    }
+#endif
 }
 
 TEST_CASE("operator==(variant<> const&, variant<> const&)", "[variant.rel]")
