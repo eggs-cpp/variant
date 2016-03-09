@@ -300,12 +300,16 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks This constructor shall not participate in overload
-        //!  resolution unless there is a type `T` in `Ts...` for which `U&&`
-        //!  is unambiguously convertible to by overload resolution rules. If
+        //!  resolution unless `std::is_same_v<std::decay_t<U>, variant>` is
+        //!  `false`, and there is a type `T` in `Ts...` for which `U&&` is
+        //!  unambiguously convertible to by overload resolution rules. If
         //!  `T`'s selected constructor is a `constexpr` constructor, this
         //!  constructor shall be a `constexpr` constructor.
         template <
             typename U
+          , typename Enable = typename std::enable_if<!std::is_same<
+                typename std::decay<U>::type, variant
+            >::value>::type
           , std::size_t I = detail::index_of_best_match<
                 U&&, detail::pack<Ts...>>::value
           , typename T = typename detail::at_index<
@@ -373,10 +377,11 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks The first argument shall be the expression `in_place<I>`.
-        //!  This function shall not participate in overload resolution unless
-        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
-        //!  is `true`. If `T`'s selected constructor is a `constexpr`
-        //!  constructor, this constructor shall be a `constexpr` constructor.
+        //!  This constructor shall not participate in overload resolution
+        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //!  Args&&...>` is `true`. If `T`'s selected constructor is a
+        //!  `constexpr` constructor, this constructor shall be a `constexpr`
+        //!  constructor.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -433,10 +438,11 @@ namespace eggs { namespace variants
         //!  of `T` in `Ts...`.
         //!
         //! \remarks The first argument shall be the expression `in_place<T>`.
-        //!  This function shall not participate in overload resolution unless
-        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
-        //!  is `true`. If `T`'s selected constructor is a `constexpr`
-        //!  constructor, this constructor shall be a `constexpr` constructor.
+        //!  This constructor shall not participate in overload resolution
+        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //!  Args&&...>` is `true`. If `T`'s selected constructor is a
+        //!  `constexpr` constructor, this constructor shall be a `constexpr`
+        //!  constructor.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = typename std::enable_if<std::is_constructible<
@@ -565,13 +571,17 @@ namespace eggs { namespace variants
         //!  exception is thrown during the call to `T`'s constructor, `*this`
         //!  has no active member, and the previous active member (if any) has
         //!  been destroyed. This operator shall not participate in overload
-        //!  resolution unless there is a type `T` in `Ts...` for which `U&&`
+        //!  resolution unless `std::is_same_v<std::decay_t<U>, variant>` is
+        //!  `false`, and there is a type `T` in `Ts...` for which `U&&`
         //!  is unambiguously convertible to by overload resolution rules. If
         //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
         //!  `Ts...` and `T`'s selected constructor is a `constexpr`
         //!  constructor, then this function shall be a `constexpr` function.
         template <
             typename U
+          , typename Enable = typename std::enable_if<!std::is_same<
+                typename std::decay<U>::type, variant
+            >::value>::type
           , std::size_t I = detail::index_of_best_match<
                 U&&, detail::pack<Ts...>>::value
           , typename T = typename detail::at_index<
@@ -1614,8 +1624,8 @@ namespace eggs { namespace variants
     //!  expression, then this function shall be a `constexpr` function.
     template <
         int DeductionGuard = 0, typename F, typename ...Vs
-      , typename R = detail::apply_result<F,
-            decltype(detail::access::storage(std::declval<Vs>()))...>
+      , typename R = typename detail::apply_result<F, detail::pack<
+            decltype(detail::access::storage(std::declval<Vs>()))...>>::type
       , typename Enable = typename std::enable_if<
             detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...

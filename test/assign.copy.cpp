@@ -10,6 +10,9 @@
 #include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
+#include <eggs/variant/detail/utility.hpp>
+
+using eggs::variants::detail::move;
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
@@ -20,6 +23,16 @@
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 using eggs::variants::in_place;
+
+struct Maleficent
+{
+    int x;
+
+    Maleficent(int i) : x(i) {}
+    Maleficent(eggs::variant<Maleficent>&) : x(-1) {}
+    Maleficent(eggs::variant<Maleficent> const&&) : x(-1) {}
+    ~Maleficent() {} // not trivially copyable
+};
 
 TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]")
 {
@@ -246,7 +259,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     // trivially_copyable
     {
-        eggs::variant<int, float> v1(42);
+        eggs::variant<int, float> const v1(42);
 
         REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
 
@@ -270,6 +283,44 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         CHECK(*v2.target<int>() == 42);
     }
 #endif
+
+    // sfinae
+    {
+        eggs::variant<Maleficent> v1(42);
+
+        REQUIRE(bool(v1) == true);
+        REQUIRE(v1.which() == 0u);
+        REQUIRE(v1.target<Maleficent>()->x == 42);
+
+        eggs::variant<Maleficent> v2;
+
+        REQUIRE(bool(v2) == false);
+        REQUIRE(v2.which() == npos);
+
+        v2 = v1;
+
+        CHECK(bool(v2) == true);
+        CHECK(v2.which() == v1.which());
+        REQUIRE(v1.target<Maleficent>() != nullptr);
+        CHECK(v1.target<Maleficent>()->x == 42);
+        REQUIRE(v2.target<Maleficent>() != nullptr);
+        CHECK(v2.target<Maleficent>()->x == 42);
+
+        eggs::variant<Maleficent> const& vc1 = v1;
+        eggs::variant<Maleficent> v3;
+
+        REQUIRE(bool(v3) == false);
+        REQUIRE(v3.which() == npos);
+
+        v3 = ::move(vc1);
+
+        CHECK(bool(v3) == true);
+        CHECK(v3.which() == v1.which());
+        REQUIRE(v1.target<Maleficent>() != nullptr);
+        CHECK(v1.target<Maleficent>()->x == 42);
+        REQUIRE(v3.target<Maleficent>() != nullptr);
+        CHECK(v3.target<Maleficent>()->x == 42);
+    }
 }
 
 TEST_CASE("variant<>::operator=(variant<> const&)", "[variant.assign]")

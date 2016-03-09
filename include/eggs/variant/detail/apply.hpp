@@ -252,20 +252,17 @@ namespace eggs { namespace variants { namespace detail
     {};
 
     template <typename F, typename Vs>
-    struct _apply_result;
+    struct apply_result;
 
     template <typename F>
-    struct _apply_result<F, pack<>>
+    struct apply_result<F, pack<>>
       : _result_of<F, pack<>>
     {};
 
     template <typename F, typename V, typename ...Vs>
-    struct _apply_result<F, pack<V, Vs...>>
+    struct apply_result<F, pack<V, Vs...>>
       : _apply_result_expand<F, pack<>, V, pack<Vs...>>
     {};
-
-    template <typename F, typename ...Vs>
-    using apply_result = typename _apply_result<F, pack<Vs...>>::type;
 }}}
 
 #include <eggs/variant/detail/config/suffix.hpp>
