@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 #include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
@@ -183,5 +184,21 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
 #endif
+    }
+
+    // sfinae
+    {
+        CHECK((
+            !std::is_assignable<
+                eggs::variant<int>&, std::string
+            >::value));
+        CHECK((
+            !std::is_assignable<
+                eggs::variant<int, int>&, int
+            >::value));
+        CHECK((
+            !std::is_assignable<
+                eggs::variant<int, int const>&, int
+            >::value));
     }
 }

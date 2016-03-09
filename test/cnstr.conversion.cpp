@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 #include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
@@ -66,5 +67,21 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
 #endif
+    }
+
+    // sfinae
+    {
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int>, std::string
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int, int>, int
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int, int const>, int
+            >::value));
     }
 }
