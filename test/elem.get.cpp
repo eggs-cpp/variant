@@ -17,8 +17,6 @@ using eggs::variants::detail::move;
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-using eggs::variants::in_place;
-
 TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 {
     eggs::variant<int, std::string> v(42);
@@ -55,7 +53,7 @@ TEST_CASE("get<I>(variant<Ts...>&)", "[variant.elem]")
 
 TEST_CASE("get<I>(variant<T, T>&)", "[variant.elem]")
 {
-    eggs::variant<int, int> v(in_place<0>, 42);
+    eggs::variant<int, int> v(eggs::variants::in_place<0>, 42);
 
     REQUIRE(v.which() == 0u);
     REQUIRE(v.target() != nullptr);
@@ -96,7 +94,7 @@ TEST_CASE("get<I>(variant<Ts...> const&)", "[variant.elem]")
 
 TEST_CASE("get<I>(variant<T, T> const&)", "[variant.elem]")
 {
-    eggs::variant<int, int> const v(in_place<0>, 42);
+    eggs::variant<int, int> const v(eggs::variants::in_place<0>, 42);
 
     REQUIRE(v.which() == 0u);
     REQUIRE(v.target() != nullptr);

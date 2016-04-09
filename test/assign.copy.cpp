@@ -22,8 +22,6 @@ using eggs::variants::detail::move;
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
-using eggs::variants::in_place;
-
 struct Maleficent
 {
     int x;
@@ -218,7 +216,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #if EGGS_CXX98_HAS_EXCEPTIONS
         // exception-safety
         {
-            eggs::variant<Dtor, Throw> const v1(in_place<Throw>);
+            eggs::variant<Dtor, Throw> const v1(eggs::variants::in_place<Throw>);
 
             REQUIRE(bool(v1) == true);
             REQUIRE(v1.which() == 1u);
