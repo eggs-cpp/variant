@@ -1594,8 +1594,7 @@ namespace eggs { namespace variants
     //! \remarks If the selected function is a constant expression, then this
     //!  function shall be a `constexpr` function.
     template <
-        typename R
-      , typename F, typename ...Vs
+        typename R, typename F, typename ...Vs
       , typename Enable = typename std::enable_if<
             detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...
@@ -1606,6 +1605,12 @@ namespace eggs { namespace variants
     {
         return detail::apply<R>(detail::forward<F>(f),
             detail::access::storage(detail::forward<Vs>(vs))...);
+    }
+
+    template <typename R, typename F>
+    EGGS_CXX11_CONSTEXPR R apply(F&& f)
+    {
+        return detail::apply<R>(detail::forward<F>(f));
     }
 
     //! template <class F, class ...Vs>
@@ -1635,6 +1640,15 @@ namespace eggs { namespace variants
     EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
         return apply<R>(detail::forward<F>(f), detail::forward<Vs>(vs)...);
+    }
+
+    template <
+        int DeductionGuard = 0, typename F
+      , typename R = typename detail::apply_result<F, detail::pack<>>::type
+    >
+    EGGS_CXX11_CONSTEXPR R apply(F&& f)
+    {
+        return apply<R>(detail::forward<F>(f));
     }
 
     ///////////////////////////////////////////////////////////////////////////
