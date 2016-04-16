@@ -14,14 +14,18 @@ to support incomplete language or standard library implementations &mdash;see
 [Config](http://eggs-cpp.github.io/variant/config.html "Config - Eggs.Variant")
 &mdash;. There are no external dependencies.
 
-The library was successfully tested with the following configurations [*]:
+The library is continuously tested with the following configurations:
+[![Build Status](https://travis-ci.org/eggs-cpp/variant.svg?branch=master)](https://travis-ci.org/eggs-cpp/variant)
+[![Build Status](https://ci.appveyor.com/api/projects/status/github/eggs-cpp/variant?branch=master&svg=true)](https://ci.appveyor.com/project/K-ballo/variant)
 
- - _Clang_ 3.3, 3.4 (both with _libc++_ and _libstdc++_)
- - _GCC_ 4.8, 4.9
- - _MSVC_ 2013
+ - _Clang_ 3.5, 3.6
+ - _GCC_ 4.9, 5
+ - _Apple LLVM_ 7.0
+ - _MSVC_ 2013, 2015
 
-[*] Only _Clang_ with _libc++_ implement enough functionality to support every
-feature of the library.
+_[Note:_ Older versions of _Clang_ (3.0+) and _GCC_ (4.6+) are no longer tested,
+but should still work; please report any issues if you are using them. Older
+versions of _MSVC_ are not supported._]_
 
 ## Future Work ##
 
