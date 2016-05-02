@@ -55,13 +55,24 @@
                 </a>
                 <p>The library requires a standard conformant implementation of <strong>C++11</strong>; a few additional features are only available under <strong>C++14</strong>. Some effort was done to support incomplete language or standard library implementations &mdash;see <a href="http://eggs-cpp.github.io/variant/config.html" title="Config - Eggs.Variant">Config</a>&mdash;. There are no external dependencies.</p>
 
-                <p>The library was successfully tested with the following configurations [*]:</p>
+                <p>
+                    The library is continuously tested with the following configurations:
+                    <a href="https://travis-ci.org/eggs-cpp/variant"><img src="https://travis-ci.org/eggs-cpp/variant.svg?branch=master" alt="Build Status" title="" /></a>
+                    <a href="https://ci.appveyor.com/project/K-ballo/variant"><img src="https://ci.appveyor.com/api/projects/status/github/eggs-cpp/variant?branch=master&amp;svg=true" alt="Build Status" title="" /></a>
+                </p>
+
                 <ul>
-                    <li><em>Clang</em> 3.3, 3.4 (both with <em>libc++</em> and <em>libstdc++</em>)</li>
-                    <li><em>GCC</em> 4.8, 4.9</li>
-                    <li><em>MSVC</em> 2013</li>
+                    <li><em>Clang</em> 3.5, 3.6</li>
+                    <li><em>GCC</em> 4.9, 5</li>
+                    <li><em>Apple LLVM</em> 7.0</li>
+                    <li><em>MSVC</em> 2013, 2015</li>
                 </ul>
-                <p>[*] Only <em>Clang</em> with <em>libc++</em> implement enough functionality to support every feature of the library.</p>
+
+                <p>
+                    <em>[Note:</em> Older versions of <em>Clang</em> (3.0+) and <em>GCC</em> (4.6+) are no longer tested,
+                    but should still work; please report any issues if you are using them. Older
+                    versions of <em>MSVC</em> are not supported.<em>]</em>
+                </p>
             </section>
         </div>
 
