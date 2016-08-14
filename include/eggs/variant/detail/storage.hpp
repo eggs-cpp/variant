@@ -378,9 +378,32 @@ namespace eggs { namespace variants { namespace detail
         {}
 
         template <std::size_t I, typename ...Args>
-        EGGS_CXX14_CONSTEXPR void emplace(index<I> which, Args&&... args)
+        EGGS_CXX14_CONSTEXPR void _emplace(
+            /*is_copy_assignable<Ts...>=*/std::true_type
+          , index<I> which, Args&&... args)
         {
             *this = _storage(which, detail::forward<Args>(args)...);
+        }
+
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename at_index<I, pack<Ts...>>::type
+        >
+        void _emplace(
+            /*is_copy_assignable<Ts...>=*/std::false_type
+          , index<I> /*which*/, Args&&... args)
+        {
+            ::new (target()) T(detail::forward<Args>(args)...);
+            _which = I;
+        }
+
+        template <std::size_t I, typename ...Args>
+        EGGS_CXX14_CONSTEXPR void emplace(index<I> which, Args&&... args)
+        {
+            using is_copy_assignable = all_of<pack<std::is_copy_assignable<Ts>...>>;
+            _emplace(
+                is_copy_assignable{}
+              , which, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS

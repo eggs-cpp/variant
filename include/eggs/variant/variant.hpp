@@ -667,9 +667,10 @@ namespace eggs { namespace variants
         //! \remarks If an exception is thrown during the call to `T`'s
         //!  constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed. If
-        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-        //!  `Ts...` and `T`'s selected constructor is a `constexpr`
-        //!  constructor, then this function shall be a `constexpr` function.
+        //!  `std::is_trivially_copyable_v<T> && std::is_copy_assignable_v<T>`
+        //!  is `true` for all `T` in `Ts...` and `T`'s selected constructor
+        //!  is a `constexpr` constructor, then this function shall be a
+        //!  `constexpr` function.
         template <
             std::size_t I, typename ...Args
           , typename T = typename detail::at_index<
@@ -709,9 +710,10 @@ namespace eggs { namespace variants
         //!  active member (if any) has been destroyed. This function shall
         //!  not participate in overload resolution unless
         //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
-        //!  is `true`. If `std::is_trivially_copyable_v<T>` is `true` for all
-        //!  `T` in `Ts...` and `T`'s selected constructor is a `constexpr`
-        //!  constructor, then this function shall be a `constexpr` function.
+        //!  is `true`. If `std::is_trivially_copyable_v<T> &&
+        //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`
+        //!  and `T`'s selected constructor is a `constexpr` constructor, then
+        //!  this function shall be a `constexpr` function.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
@@ -742,9 +744,10 @@ namespace eggs { namespace variants
         //! \effects Equivalent to `emplace<I>(std::forward<Args>(args)...)`
         //!  where `I` is the zero-based index of `T` in `Ts...`.
         //!
-        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
-        //!  `T` in `Ts...` and `T`'s selected constructor is a `constexpr`
-        //!  constructor, then this function shall be a `constexpr` function.
+        //! \remarks If `std::is_trivially_copyable_v<T> &&
+        //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`
+        //!  and `T`'s selected constructor is a `constexpr` constructor, then
+        //!  this function shall be a `constexpr` function.
         template <typename T, typename ...Args>
         EGGS_CXX14_CONSTEXPR void emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
@@ -769,10 +772,10 @@ namespace eggs { namespace variants
         //!
         //! \remarks This function shall not participate in overload resolution
         //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
-        //!  Args&&...>` is `true`. If `std::is_trivially_copyable_v<T>` is
-        //!  `true` for all `T` in `Ts...` and `T`'s selected constructor is a
-        //!  `constexpr` constructor, then this function shall be a `constexpr`
-        //!  function.
+        //!  Args&&...>` is `true`. If `std::is_trivially_copyable_v<T> &&
+        //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...` and
+        //!  `T`'s selected constructor is a `constexpr` constructor, then this
+        //!  function shall be a `constexpr` function.
         template <
             typename T, typename U, typename ...Args
           , typename Enable = typename std::enable_if<std::is_constructible<
