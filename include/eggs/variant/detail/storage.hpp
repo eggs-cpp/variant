@@ -362,6 +362,15 @@ namespace eggs { namespace variants { namespace detail
         _storage(_storage&& rhs) = default;
 #endif
 
+        void _move(_storage& rhs)
+        {
+            detail::move_construct{}(
+                pack<Ts...>{}, rhs._which
+              , target(), rhs.target()
+            );
+            _which = rhs._which;
+        }
+
         template <std::size_t I, typename ...Args>
         EGGS_CXX11_CONSTEXPR _storage(index<I> which, Args&&... args)
           : base_type{which, detail::forward<Args>(args)...}
@@ -379,11 +388,37 @@ namespace eggs { namespace variants { namespace detail
         _storage& operator=(_storage&& rhs) = default;
 #endif
 
-        EGGS_CXX14_CONSTEXPR void swap(_storage& rhs)
+        EGGS_CXX14_CONSTEXPR void _swap(
+            /*is_copy_assignable<Ts...>=*/std::true_type
+          , _storage& rhs)
         {
             _storage tmp(detail::move(*this));
             *this = detail::move(rhs);
             rhs = detail::move(tmp);
+        }
+
+        void _swap(
+            /*is_copy_assignable<Ts...>=*/std::false_type
+          , _storage& rhs)
+        {
+            if (_which == rhs._which)
+            {
+                detail::swap{}(
+                    pack<Ts...>{}, _which
+                  , target(), rhs.target()
+                );
+            } else {
+                _storage tmp(std::move(*this));
+                _move(rhs);
+                rhs._move(tmp);
+            }
+        }
+
+        EGGS_CXX14_CONSTEXPR void swap(_storage& rhs)
+        {
+            _swap(
+                all_of<pack<std::is_copy_assignable<Ts>...>>{}
+              , rhs);
         }
 
         EGGS_CXX11_CONSTEXPR std::size_t which() const
@@ -447,13 +482,33 @@ namespace eggs { namespace variants { namespace detail
           : base_type{which, detail::forward<Args>(args)...}
         {}
 
+        void _copy(_storage const& rhs)
+        {
+            _destroy();
+            detail::copy_construct{}(
+                pack<Ts...>{}, rhs._which
+              , target(), rhs.target()
+            );
+            _which = rhs._which;
+        }
+
+        void _move(_storage& rhs)
+        {
+            _destroy();
+            detail::move_construct{}(
+                pack<Ts...>{}, rhs._which
+              , target(), rhs.target()
+            );
+            _which = rhs._which;
+        }
+
         template <
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
         >
         void emplace(index<I> /*which*/, Args&&... args)
         {
-            _which = 0;
+            _destroy();
             ::new (target()) T(detail::forward<Args>(args)...);
             _which = I;
         }
@@ -473,13 +528,7 @@ namespace eggs { namespace variants { namespace detail
                   , target(), rhs.target()
                 );
             } else {
-                _which = 0;
-
-                detail::copy_construct{}(
-                    pack<Ts...>{}, rhs._which
-                  , target(), rhs.target()
-                );
-                _which = rhs._which;
+                _copy(rhs);
             }
             return *this;
         }
@@ -499,13 +548,7 @@ namespace eggs { namespace variants { namespace detail
                   , target(), rhs.target()
                 );
             } else {
-                _which = 0;
-
-                detail::move_construct{}(
-                    pack<Ts...>{}, rhs._which
-                  , target(), rhs.target()
-                );
-                _which = rhs._which;
+                _move(rhs);
             }
             return *this;
         }
@@ -519,18 +562,41 @@ namespace eggs { namespace variants { namespace detail
                   , target(), rhs.target()
                 );
             } else if (_which == 0) {
-                *this = detail::move(rhs);
-                rhs._which = 0;
+                _move(rhs);
+                rhs._destroy();
             } else if (rhs._which == 0) {
-                rhs = detail::move(*this);
-                _which = 0;
+                rhs._move(*this);
+                _destroy();
             } else {
-                std::swap(*this, rhs);
+                _storage tmp(std::move(*this));
+                _move(rhs);
+                rhs._move(tmp);
+                tmp._destroy();
             }
         }
 
         using base_type::which;
         using base_type::target;
+
+    protected:
+        void _destroy(
+            /*is_trivially_destructible<Ts...>=*/std::true_type)
+        {}
+
+        void _destroy(
+            /*is_trivially_destructible<Ts...>=*/std::false_type)
+        {
+            detail::destroy{}(
+                pack<Ts...>{}, _which
+              , target()
+            );
+        }
+
+        void _destroy()
+        {
+            _destroy(all_of<pack<is_trivially_destructible<Ts>...>>{});
+            _which = 0;
+        }
 
     protected:
         using base_type::_which;
@@ -577,16 +643,15 @@ namespace eggs { namespace variants { namespace detail
 
         ~_storage()
         {
-            _destroy();
+            base_type::_destroy();
         }
 
-        template <std::size_t I, typename ...Args>
-        void emplace(index<I> which, Args&&... args)
-        {
-            _destroy();
-            base_type::emplace(which, detail::forward<Args>(args)...);
-        }
+        using base_type::emplace;
 
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        _storage& operator=(_storage const& rhs) = default;
+        _storage& operator=(_storage&& rhs) = default;
+#else
         _storage& operator=(_storage const& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
@@ -595,10 +660,6 @@ namespace eggs { namespace variants { namespace detail
             >>::value)
 #endif
         {
-            if (_which != rhs._which)
-            {
-                _destroy();
-            }
             base_type::operator=(rhs);
             return *this;
         }
@@ -611,46 +672,15 @@ namespace eggs { namespace variants { namespace detail
             >>::value)
 #endif
         {
-            if (_which != rhs._which)
-            {
-                _destroy();
-            }
             base_type::operator=(detail::move(rhs));
             return *this;
         }
+#endif
 
-        void swap(_storage& rhs)
-        {
-            if (_which == rhs._which)
-            {
-                detail::swap{}(
-                    pack<Ts...>{}, _which
-                  , target(), rhs.target()
-                );
-            } else if (_which == 0) {
-                *this = detail::move(rhs);
-                rhs._destroy();
-                rhs._which = 0;
-            } else if (rhs._which == 0) {
-                rhs = detail::move(*this);
-                _destroy();
-                _which = 0;
-            } else {
-                std::swap(*this, rhs);
-            }
-        }
+        using base_type::swap;
 
         using base_type::which;
         using base_type::target;
-
-    protected:
-        void _destroy()
-        {
-            detail::destroy{}(
-                pack<Ts...>{}, _which
-              , target()
-            );
-        }
 
     protected:
         using base_type::_which;

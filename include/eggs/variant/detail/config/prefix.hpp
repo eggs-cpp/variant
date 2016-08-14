@@ -240,6 +240,16 @@
 #  define EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS_DEFINED
 #endif
 
+/// std::is_[nothrow_]swappable support
+#ifndef EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
+#  if __cpp_lib_is_swappable > 0
+#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
+#  else
+#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
+#  endif
+#  define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS_DEFINED
+#endif
+
 /// std::is_trivially_copyable support
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
 #  if defined(__GLIBCXX__)

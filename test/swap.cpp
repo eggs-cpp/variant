@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -16,6 +17,57 @@
 #include "dtor.hpp"
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+template <typename ...Ts>
+struct _void
+{
+    using type = void;
+};
+
+template <typename T, typename Enable = void>
+struct has_swap
+  : std::false_type
+{};
+
+template <typename T>
+struct has_swap<
+    T, typename _void<
+        decltype(swap(std::declval<T>(), std::declval<T>()))
+    >::type
+> : std::true_type
+{};
+#endif
+
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct NonAssignable
+{
+    NonAssignable() {}
+    NonAssignable(NonAssignable&&) {}; // not trivially copyable
+    NonAssignable& operator=(NonAssignable const&) = delete;
+    ~NonAssignable() {}
+};
+void swap(NonAssignable&, NonAssignable&) {}
+
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+struct NonAssignableTrivial
+{
+    NonAssignableTrivial() {}
+    NonAssignableTrivial(NonAssignableTrivial&&) = default;
+    NonAssignableTrivial& operator=(NonAssignableTrivial const&) = delete;
+    ~NonAssignableTrivial() = default;
+};
+void swap(NonAssignableTrivial&, NonAssignableTrivial&) {}
+#  endif
+
+struct NonSwappable
+{
+    NonSwappable() {}
+    NonSwappable(NonSwappable&&) {}
+    NonSwappable& operator=(NonSwappable const&) { return *this; };
+};
+void swap(NonSwappable&, NonSwappable&) = delete;
+#endif
 
 TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 {
@@ -224,7 +276,53 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         }
 #endif
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_swap<
+                eggs::variant<NonSwappable>
+            >::value));
+    }
+#endif
 }
+
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+TEST_CASE("variant<NonAssignable>::swap(variant<...>&)", "[variant.swap]")
+{
+    eggs::variant<int, NonAssignable> v1(42);
+
+    REQUIRE(v1.which() == 0u);
+
+    eggs::variant<int, NonAssignable> v2(NonAssignable{});
+
+    REQUIRE(v2.which() == 1u);
+
+    v2.swap(v1);
+
+    CHECK(v1.which() == 1u);
+    CHECK(v2.which() == 0u);
+
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+    // trivially_copyable
+    {
+        eggs::variant<int, NonAssignableTrivial> v1(42);
+
+        REQUIRE(v1.which() == 0u);
+
+        eggs::variant<int, NonAssignableTrivial> v2(NonAssignableTrivial{});
+
+        REQUIRE(v2.which() == 1u);
+
+        v2.swap(v1);
+
+        CHECK(v1.which() == 1u);
+        CHECK(v2.which() == 0u);
+    }
+#endif
+}
+#endif
 
 TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
 {

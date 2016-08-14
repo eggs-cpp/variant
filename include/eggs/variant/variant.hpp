@@ -97,18 +97,62 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+#if EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
+        using std::is_swappable;
+        using std::is_nothrow_swappable;
+#else
         namespace _swap
         {
-            using std::swap;
+            template <typename T>
+            typename std::enable_if<
+                std::is_move_constructible<T>::value
+             && std::is_move_assignable<T>::value
+            >::type swap(T&, T&)
+#  if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+                EGGS_CXX11_NOEXCEPT_IF(
+                    std::is_nothrow_move_constructible<T>::value
+                 && std::is_nothrow_move_assignable<T>::value)
+#  endif
+                ;
+
+            struct _fallback {};
+
+            _fallback swap(...);
+
+            template <
+                typename T
+              , typename R = decltype(swap(
+                    std::declval<T>(), std::declval<T>()))
+            >
+            struct is_swappable : std::true_type
+            {};
 
             template <typename T>
+            struct is_swappable<T, _fallback> : std::false_type
+            {};
+
+            template <typename T, bool Swappable = is_swappable<T>::value>
             struct is_nothrow_swappable
             {
                 EGGS_CXX11_STATIC_CONSTEXPR bool value =
                     EGGS_CXX11_NOEXCEPT_EXPR(
                         swap(std::declval<T&>(), std::declval<T&>()));
             };
+
+            template <typename T>
+            struct is_nothrow_swappable<T, false>
+            {
+                EGGS_CXX11_STATIC_CONSTEXPR bool value = false;
+            };
         }
+
+        template <typename T>
+        struct is_swappable
+          : std::integral_constant<
+                bool
+              , _swap::is_swappable<T>::value
+            >
+        {};
 
         template <typename T>
         struct is_nothrow_swappable
@@ -117,6 +161,7 @@ namespace eggs { namespace variants
               , _swap::is_nothrow_swappable<T>::value
             >
         {};
+#endif
 
         ///////////////////////////////////////////////////////////////////////
         struct access
@@ -767,11 +812,11 @@ namespace eggs { namespace variants
         //!  If an exception is thrown during the call to a move constructor,
         //!  the state of `*this` and `rhs` is unspecified. The expression
         //!  inside `noexcept` is equivalent to the logical AND of
-        //!  `noexcept(swap(std::declval<Ts&>>(), std::declval<Ts&>()))...`
-        //!  where `std::swap` is in scope and
-        //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
-        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-        //!  `Ts...`, then this function shall be a `constexpr` function.
+        //!  `std::is_nothrow_move_constructible_v<T> &&
+        //!  std::is_nothrow_swappable_v<T>` for all `T` in `Ts...`. If
+        //!  `std::is_trivially_copyable_v<T> && std::is_copy_assignable_v<T>`
+        //!  is  `true` for all `T` in `Ts...`, then this function shall be a
+        //!  `constexpr` function.
         EGGS_CXX14_CONSTEXPR void swap(variant& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(detail::all_of<detail::pack<
@@ -1658,14 +1703,37 @@ namespace eggs { namespace variants
     //!
     //! \effects Calls `x.swap(y)`.
     //!
-    //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-    //!  `Ts...`, then this function shall be a `constexpr` function.
-    template <typename ...Ts>
+    //! \remarks This function shall be defined as deleted unless
+    //!  `std::is_move_constructible_v<T> && std::is_swappable_v<T>` is `true`
+    //!  for all `T` in `Ts...`. If `std::is_trivially_copyable_v<T> &&
+    //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`, then
+    //!  this function shall be a `constexpr` function.
+    template <
+        typename ...Ts
+      , typename std::enable_if<detail::all_of<detail::pack<
+            detail::is_swappable<Ts>...
+          , std::is_move_constructible<Ts>...
+        >>::value, bool>::type = true
+    >
     EGGS_CXX14_CONSTEXPR void swap(variant<Ts...>& x, variant<Ts...>& y)
         EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(x.swap(y)))
     {
         x.swap(y);
     }
+
+    template <
+        typename ...Ts
+      , typename std::enable_if<!detail::all_of<detail::pack<
+            detail::is_swappable<Ts>...
+          , std::is_move_constructible<Ts>...
+        >>::value, bool>::type = false
+    >
+    EGGS_CXX14_CONSTEXPR void swap(variant<Ts...>& x, variant<Ts...>& y)
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        = delete;
+#else
+        ;
+#endif
 }}
 
 namespace std
