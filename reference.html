@@ -42,11 +42,15 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt; <span style="color:blue;">class</span> <a href="#eggs-variant"><span style="color:#2b91af;">variant</span></a>;
 
 &nbsp;&nbsp;<span style="color:green;">// In-place construction</span>
-&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_t</span></a> {};
+&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_tag</span></a> {};    
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
-&nbsp;&nbsp;<span style="color:#2b91af;">in_place_t</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
+&nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-&nbsp;&nbsp;<span style="color:#2b91af;">in_place_t</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
+&nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_type_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>);
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
+&nbsp;&nbsp;<span style="color:#2b91af;">in_place_tag</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
+&nbsp;&nbsp;<span style="color:#2b91af;">in_place_tag</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
 
 &nbsp;&nbsp;<span style="color:green;">// Class bad_variant_access</span>
 &nbsp;&nbsp;<span style="color:blue;">class</span> <a href="#eggs-bad-variant-access"><span style="color:#2b91af;">bad_variant_access</span></a>;
@@ -64,13 +68,13 @@
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:green;">// Destructor</span>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#eggs-variant-dtor-1">~variant</a>();
@@ -218,17 +222,17 @@
 &nbsp;&nbsp;<span style="color:green;">// Constructors</span>
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-1">variant</a>() <span style="color:blue;">noexcept</span>;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-2">variant</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);    
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-5">variant</a>(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-6">variant</a>(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-7">variant</a>(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> <a href="#eggs-variant-cnstr-8">variant</a>(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt;, <span style="color:#2b91af;">Args</span>&amp;&amp;...);
 
 &nbsp;&nbsp;<span style="color:green;">// Destructor</span>
 &nbsp;&nbsp;<a href="#eggs-variant-dtor-1">~variant</a>();
@@ -306,41 +310,41 @@
                 </ul>
 
                 <a name="eggs-variant-cnstr-5"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
                     <li><em><em>Requires:</em></em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
                     <li><em>Effects:</em> Initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;I&gt;</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-6"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
                     <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
                     <li><em>Effects:</em> Initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;I&gt;</code>. This constructor shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-7"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>variant(in_place&lt;I&gt;, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;T&gt;</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-8"></a>
-                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_t</span>(&)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>), std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>variant(in_place&lt;I&gt;, il, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> The first argument shall be the expression <code>in_place&lt;T&gt;</code>. This constructor shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-dtor" href="#eggs-variant-dtor"><h2>Destructor</h2></a>
@@ -513,13 +517,17 @@
             <section>
                 <a name="eggs-inplace" href="#eggs-inplace"><h1>In-place construction</h1></a>
 <pre class="code">
-<span style="color:blue;">struct</span> <span style="color:#2b91af;">in_place_t</span> {};
+<span style="color:blue;">struct</span> <span style="color:#2b91af;">in_place_tag</span> {};
 <span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
-<span style="color:#2b91af;">in_place_t</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
+<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
 <span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-<span style="color:#2b91af;">in_place_t</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
+<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_type_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>);
+<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
+<span style="color:#2b91af;">in_place_tag</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
+<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
+<span style="color:#2b91af;">in_place_tag</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
 </pre>
-                <p>The struct <code>in_place_t</code> is an empty structure type used as a unique type to disambiguate constructor and function overloading. Specifically, <code>variant&lt;Ts...&gt;</code> has a constructor with an unspecified first parameter that matches an expression of the form <code>in_place&lt;T&gt;</code>, followed by a parameter pack; this indicates that <code>T</code> should be constructed in-place (as if by a call to a placement new expression) with the forwarded pack expansion as arguments for the initialization of <code>T</code>.</p>
+                <p>The struct <code>in_place_tag</code> is used as a unique type to disambiguate constructor and function overloading. Specifically, <code>variant&lt;Ts...&gt;</code> has a constructor with <code>in_place_type_t&lt;T&gt;</code> as the first parameter, followed by a parameter pack; this indicates that <code>T</code> should be constructed in-place (as if by a call to a placement new expression) with the forwarded pack expansion as arguments for the initialization of <code>T</code>.</p>
             </section>
 
             <section>
