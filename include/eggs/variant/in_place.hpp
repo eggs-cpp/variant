@@ -9,8 +9,6 @@
 #ifndef EGGS_VARIANT_IN_PLACE_HPP
 #define EGGS_VARIANT_IN_PLACE_HPP
 
-#include <eggs/variant/detail/pack.hpp>
-
 #include <cstddef>
 #include <stdexcept>
 #include <string>
@@ -19,31 +17,49 @@
 
 namespace eggs { namespace variants
 {
+    namespace detail
+    {
+        template <std::size_t I>
+        struct in_place_index_tag {};
+
+        template <typename T>
+        struct in_place_type_tag {};
+    }
+
     ///////////////////////////////////////////////////////////////////////////
-    //! struct in_place_t {};
+    //! struct in_place_tag {};
     //!
-    //! The struct `in_place_t` is an empty structure type used as a unique
-    //! type to disambiguate constructor and function overloading.
-    //! Specifically, `variant<Ts...>` has a constructor with an unspecified
-    //! first parameter that matches an expression of the form `in_place<T>`,
+    //! The struct `in_place_tag` is used as a unique type to disambiguate
+    //! constructor and function overloading. Specifically, `variant<Ts...>`
+    //! has a constructor with `in_place_type_t<T>`as the first parameter,
     //! followed by a parameter pack; this indicates that `T` should be
     //! constructed in-place (as if by a call to a placement new expression)
     //! with the forwarded pack expansion as arguments for the initialization
     //! of `T`.
-    struct in_place_t {};
+    struct in_place_tag {};
 
     //! template <std::size_t I>
-    //! in_place_t in_place(unspecified<I>);
+    //! using in_place_index_t = in_place_tag(&)(unspecified<I>);
     template <std::size_t I>
-    inline in_place_t in_place(detail::pack_c<std::size_t, I> = {})
+    using in_place_index_t = in_place_tag(&)(detail::in_place_index_tag<I>);
+
+    //! template <class T>
+    //! using in_place_type_t = in_place_tag(&)(unspecified<T>);
+    template <typename T>
+    using in_place_type_t = in_place_tag(&)(detail::in_place_type_tag<T>);
+
+    //! template <std::size_t I>
+    //! in_place_tag in_place(unspecified<I>);
+    template <std::size_t I>
+    inline in_place_tag in_place(detail::in_place_index_tag<I> = {})
     {
         return {};
     }
 
     //! template <class T>
-    //! in_place_t in_place(unspecified<T>);
+    //! in_place_tag in_place(unspecified<T>);
     template <typename T>
-    inline in_place_t in_place(detail::pack<T> = {})
+    inline in_place_tag in_place(detail::in_place_type_tag<T> = {})
     {
         return {};
     }

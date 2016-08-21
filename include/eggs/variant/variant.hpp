@@ -369,7 +369,7 @@ namespace eggs { namespace variants
         {}
 
         //! template <std::size_t I, class ...Args>
-        //! constexpr explicit variant(in_place_t(&)(unspecified<I>), Args&&... args);
+        //! constexpr explicit variant(in_place_index_t<I>, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -385,17 +385,15 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \remarks The first argument shall be the expression `in_place<I>`.
-        //!  If `T`'s selected constructor is a `constexpr` constructor, this
-        //!  constructor shall be a `constexpr` constructor.
+        //! \remarks If `T`'s selected constructor is a `constexpr`
+        //!  constructor, this constructor shall be a `constexpr` constructor.
         template <
             std::size_t I, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(&)(detail::pack_c<std::size_t, I>)
-          , Args&&... args)
+            in_place_index_t<I>, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -405,7 +403,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
-        //! constexpr explicit variant(in_place_t(&)(unspecified<I>), std::initializer_list<U> il, Args&&... args);
+        //! constexpr explicit variant(in_place_index_t<I>, std::initializer_list<U> il, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -421,9 +419,8 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \remarks The first argument shall be the expression `in_place<I>`.
-        //!  This constructor shall not participate in overload resolution
-        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //! \remarks This constructor shall not participate in overload
+        //!  resolution unless `std::is_constructible_v<T, std::initializer_list<U>&,
         //!  Args&&...>` is `true`. If `T`'s selected constructor is a
         //!  `constexpr` constructor, this constructor shall be a `constexpr`
         //!  constructor.
@@ -436,8 +433,7 @@ namespace eggs { namespace variants
             >::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(&)(detail::pack_c<std::size_t, I>)
-          , std::initializer_list<U> il, Args&&... args)
+            in_place_index_t<I>, std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
@@ -448,7 +444,7 @@ namespace eggs { namespace variants
 #endif
 
         //! template <class T, class ...Args>
-        //! constexpr explicit variant(in_place_t(&)(unspecified<T>), Args&&... args);
+        //! constexpr explicit variant(in_place_type_t<T>, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -456,13 +452,11 @@ namespace eggs { namespace variants
         //!  std::forward<Args>(args)...)` where `I` is the zero-based index
         //!  of `T` in `Ts...`.
         //!
-        //! \remarks The first argument shall be the expression `in_place<T>`.
-        //!  If `T`'s selected constructor is a `constexpr` constructor, this
-        //!  constructor shall be a `constexpr` constructor.
+        //! \remarks If `T`'s selected constructor is a `constexpr`
+        //!  constructor, this constructor shall be a `constexpr` constructor.
         template <typename T, typename ...Args>
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(&)(detail::pack<T>)
-          , Args&&... args)
+            in_place_type_t<T>, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -474,7 +468,7 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
-        //! constexpr explicit variant(in_place_t(&)(unspecified<T>), std::initializer_list<U> il, Args&&... args);
+        //! constexpr explicit variant(in_place_type_t<T>, std::initializer_list<U> il, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -482,9 +476,8 @@ namespace eggs { namespace variants
         //!  std::forward<Args>(args)...)` where `I` is the zero-based index
         //!  of `T` in `Ts...`.
         //!
-        //! \remarks The first argument shall be the expression `in_place<T>`.
-        //!  This constructor shall not participate in overload resolution
-        //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //! \remarks This constructor shall not participate in overload
+        //!  resolution unless `std::is_constructible_v<T, std::initializer_list<U>&,
         //!  Args&&...>` is `true`. If `T`'s selected constructor is a
         //!  `constexpr` constructor, this constructor shall be a `constexpr`
         //!  constructor.
@@ -495,8 +488,7 @@ namespace eggs { namespace variants
             >::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
-            in_place_t(&)(detail::pack<T>)
-          , std::initializer_list<U> il, Args&&... args)
+            in_place_type_t<T>, std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
