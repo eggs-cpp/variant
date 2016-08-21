@@ -455,7 +455,7 @@
                             <li>otherwise, calls <code>std::swap(*this, rhs)</code>.</li>
                         </ul>
                     </li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to function <code>swap</code> the state of the active members of type <code>T</code> is determined by the exception safety guarantee of <code>swap</code> for lvalues of <code>T</code>. If an exception is thrown during the call to a move constructor, the state of <code>*this</code> and <code>rhs</code> is unspecified. The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>noexcept(swap(std::declval&lt;Ts&amp;&gt;&gt;(), std::declval&lt;Ts&amp;&gt;()))...</code> where <code>std::swap</code> is in scope and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to function <code>swap</code> the state of the active members of type <code>T</code> is determined by the exception safety guarantee of <code>swap</code> for lvalues of <code>T</code>. If an exception is thrown during the call to a move constructor, the state of <code>*this</code> and <code>rhs</code> is unspecified. The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_constructible_v&lt;T&gt; &amp;&amp; std::is_nothrow_swappable_v&lt;T&gt;</code> for all <code>T</code> in <code>Ts...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-obs" href="#eggs-variant-obs"><h2>Observers</h2></a>
@@ -822,7 +822,7 @@
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">void</span> swap(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp; x, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp; y) <span style="color:blue;">noexcept</span>(<span style="color:blue;">noexcept</span>(x.swap(y)));</pre>
                 <ul>
                     <li><em>Effects:</em> Calls <code>x.swap(y)</code>.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall be defined as deleted unless <code>std::is_move_constructible_v&lt;T&gt; &amp;&amp; std::is_swappable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
             </section>
 
