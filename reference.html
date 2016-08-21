@@ -412,7 +412,7 @@
                     <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-5"></a>
@@ -423,7 +423,7 @@
                     <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-6"></a>
@@ -431,7 +431,7 @@
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>emplace&lt;I&gt;(std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-7"></a>
@@ -439,7 +439,7 @@
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>emplace&lt;I&gt;(il, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-swap" href="#eggs-variant-swap"><h2>Swap</h2></a>
