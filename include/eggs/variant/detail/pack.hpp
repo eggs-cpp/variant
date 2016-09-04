@@ -20,7 +20,11 @@ namespace eggs { namespace variants { namespace detail
     struct empty
     {
         EGGS_CXX11_CONSTEXPR bool operator==(empty) const { return true; }
+        EGGS_CXX11_CONSTEXPR bool operator!=(empty) const { return false; }
         EGGS_CXX11_CONSTEXPR bool operator<(empty) const { return false; }
+        EGGS_CXX11_CONSTEXPR bool operator>(empty) const { return false; }
+        EGGS_CXX11_CONSTEXPR bool operator<=(empty) const { return true; }
+        EGGS_CXX11_CONSTEXPR bool operator>=(empty) const { return true; }
     };
 
     template <typename T>

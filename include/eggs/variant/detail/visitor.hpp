@@ -172,6 +172,17 @@ namespace eggs { namespace variants { namespace detail
     };
 
     template <typename Union>
+    struct not_equal_to
+      : visitor<not_equal_to<Union>, bool(Union const&, Union const&)>
+    {
+        template <typename I>
+        static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
+        {
+            return lhs.get(I{}) != rhs.get(I{});
+        }
+    };
+
+    template <typename Union>
     struct less
       : visitor<less<Union>, bool(Union const&, Union const&)>
     {
@@ -179,6 +190,39 @@ namespace eggs { namespace variants { namespace detail
         static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
         {
             return lhs.get(I{}) < rhs.get(I{});
+        }
+    };
+
+    template <typename Union>
+    struct greater
+      : visitor<greater<Union>, bool(Union const&, Union const&)>
+    {
+        template <typename I>
+        static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
+        {
+            return lhs.get(I{}) > rhs.get(I{});
+        }
+    };
+
+    template <typename Union>
+    struct less_equal
+      : visitor<less_equal<Union>, bool(Union const&, Union const&)>
+    {
+        template <typename I>
+        static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
+        {
+            return lhs.get(I{}) <= rhs.get(I{});
+        }
+    };
+
+    template <typename Union>
+    struct greater_equal
+      : visitor<greater_equal<Union>, bool(Union const&, Union const&)>
+    {
+        template <typename I>
+        static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
+        {
+            return lhs.get(I{}) >= rhs.get(I{});
         }
     };
 

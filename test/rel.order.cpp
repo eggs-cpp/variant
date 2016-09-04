@@ -6,6 +6,7 @@
 // file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
 #include <eggs/variant.hpp>
+#include <cmath>
 #include <string>
 #include <type_traits>
 #include <utility>
@@ -92,7 +93,22 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         REQUIRE(v2.which() == v1.which());
         REQUIRE(*v2.target<int>() == 43);
 
-        CHECK(v1 < v2);
+        CHECK((v1 < v2) == true);
+        CHECK((v1 > v2) == false);
+        CHECK((v1 <= v2) == true);
+        CHECK((v1 >= v2) == false);
+
+        // partial order
+        {
+            eggs::variant<float, std::string> const v(NAN);
+
+            REQUIRE(v.which() == 0u);
+
+            CHECK((v < v) == false);
+            CHECK((v > v) == false);
+            CHECK((v <= v) == false);
+            CHECK((v >= v) == false);
+        }
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -118,7 +134,10 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         REQUIRE(v2.which() == 0u);
         REQUIRE(*v2.target<int>() == 42);
 
-        CHECK(v1 < v2);
+        CHECK((v1 < v2) == true);
+        CHECK((v1 > v2) == false);
+        CHECK((v1 <= v2) == true);
+        CHECK((v1 >= v2) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -145,7 +164,10 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         REQUIRE(v2.which() == 1u);
         REQUIRE(*v2.target<std::string>() == "");
 
-        CHECK(v1 < v2);
+        CHECK((v1 < v2) == true);
+        CHECK((v1 > v2) == false);
+        CHECK((v1 <= v2) == true);
+        CHECK((v1 >= v2) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -165,62 +187,83 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
 {
     // same members
     {
-        eggs::variant<int, std::string> const v1(42);
+        eggs::variant<int, std::string> const v(42);
 
-        REQUIRE(v1.which() == 0u);
-        REQUIRE(*v1.target<int>() == 42);
+        REQUIRE(v.which() == 0u);
+        REQUIRE(*v.target<int>() == 42);
 
-        CHECK(v1 < 43);
+        CHECK((v < 43) == true);
+        CHECK((v > 43) == false);
+        CHECK((v <= 43) == true);
+        CHECK((v >= 43) == false);
+
+        // partial order
+        {
+            eggs::variant<float, std::string> const v(NAN);
+
+            REQUIRE(v.which() == 0u);
+
+            CHECK((v < NAN) == false);
+            CHECK((v > NAN) == false);
+            CHECK((v <= NAN) == false);
+            CHECK((v >= NAN) == false);
+        }
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
-            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
-            constexpr bool vltb = v1 < Constexpr(43);
-            constexpr bool vgtb = v1 > Constexpr(43);
-            constexpr bool vlteb = v1 <= Constexpr(43);
-            constexpr bool vgteb = v1 >= Constexpr(43);
+            constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
+            constexpr bool vltb = v < Constexpr(43);
+            constexpr bool vgtb = v > Constexpr(43);
+            constexpr bool vlteb = v <= Constexpr(43);
+            constexpr bool vgteb = v >= Constexpr(43);
         }
 #endif
     }
 
     // empty member
     {
-        eggs::variant<int, std::string> const v1;
+        eggs::variant<int, std::string> const v;
 
-        REQUIRE(v1.which() == npos);
+        REQUIRE(v.which() == npos);
 
-        CHECK(v1 < 42);
+        CHECK((v < 42) == true);
+        CHECK((v > 42) == false);
+        CHECK((v <= 42) == true);
+        CHECK((v >= 42) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
-            constexpr eggs::variant<int, Constexpr> v1;
-            constexpr bool vltb = v1 < Constexpr(43);
-            constexpr bool vgtb = v1 > Constexpr(43);
-            constexpr bool vlteb = v1 <= Constexpr(43);
-            constexpr bool vgteb = v1 >= Constexpr(43);
+            constexpr eggs::variant<int, Constexpr> v;
+            constexpr bool vltb = v < Constexpr(43);
+            constexpr bool vgtb = v > Constexpr(43);
+            constexpr bool vlteb = v <= Constexpr(43);
+            constexpr bool vgteb = v >= Constexpr(43);
         }
 #endif
     }
 
     // different members
     {
-        eggs::variant<int, std::string> const v1(42);
+        eggs::variant<int, std::string> const v(42);
 
-        REQUIRE(v1.which() == 0u);
-        REQUIRE(*v1.target<int>() == 42);
+        REQUIRE(v.which() == 0u);
+        REQUIRE(*v.target<int>() == 42);
 
-        CHECK(v1 < std::string(""));
+        CHECK((v < std::string("")) == true);
+        CHECK((v > std::string("")) == false);
+        CHECK((v <= std::string("")) == true);
+        CHECK((v >= std::string("")) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
-            constexpr eggs::variant<int, Constexpr> v1(42);
-            constexpr bool vltb = v1 < Constexpr(43);
-            constexpr bool vgtb = v1 > Constexpr(43);
-            constexpr bool vlteb = v1 <= Constexpr(43);
-            constexpr bool vgteb = v1 >= Constexpr(43);
+            constexpr eggs::variant<int, Constexpr> v(42);
+            constexpr bool vltb = v < Constexpr(43);
+            constexpr bool vgtb = v > Constexpr(43);
+            constexpr bool vlteb = v <= Constexpr(43);
+            constexpr bool vgteb = v >= Constexpr(43);
         }
 #endif
     }
@@ -232,7 +275,10 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "42");
 
-        CHECK(v < "43");
+        CHECK((v < "43") == true);
+        CHECK((v > "43") == false);
+        CHECK((v <= "43") == true);
+        CHECK((v >= "43") == false);
     }
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
@@ -262,62 +308,83 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
 {
     // same members
     {
-        eggs::variant<int, std::string> const v1(42);
+        eggs::variant<int, std::string> const v(42);
 
-        REQUIRE(v1.which() == 0u);
-        REQUIRE(*v1.target<int>() == 42);
+        REQUIRE(v.which() == 0u);
+        REQUIRE(*v.target<int>() == 42);
 
-        CHECK(41 < v1);
+        CHECK((41 < v) == true);
+        CHECK((41 > v) == false);
+        CHECK((41 <= v) == true);
+        CHECK((41 >= v) == false);
+
+        // partial order
+        {
+            eggs::variant<float, std::string> const v(NAN);
+
+            REQUIRE(v.which() == 0u);
+
+            CHECK((NAN < v) == false);
+            CHECK((NAN > v) == false);
+            CHECK((NAN <= v) == false);
+            CHECK((NAN >= v) == false);
+        }
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
-            constexpr eggs::variant<int, Constexpr> v1(Constexpr(42));
-            constexpr bool vltb = Constexpr(41) < v1;
-            constexpr bool vgtb = Constexpr(41) > v1;
-            constexpr bool vlteb = Constexpr(41) <= v1;
-            constexpr bool vgteb = Constexpr(41) >= v1;
+            constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
+            constexpr bool vltb = Constexpr(41) < v;
+            constexpr bool vgtb = Constexpr(41) > v;
+            constexpr bool vlteb = Constexpr(41) <= v;
+            constexpr bool vgteb = Constexpr(41) >= v;
         }
 #endif
     }
 
     // empty member
     {
-        eggs::variant<int, std::string> const v1;
+        eggs::variant<int, std::string> const v;
 
-        REQUIRE(v1.which() == npos);
+        REQUIRE(v.which() == npos);
 
-        CHECK((42 < v1) == false);
+        CHECK((42 < v) == false);
+        CHECK((42 > v) == true);
+        CHECK((42 <= v) == false);
+        CHECK((42 >= v) == true);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
-            constexpr eggs::variant<int, Constexpr> v1;
-            constexpr bool vltb = Constexpr(41) < v1;
-            constexpr bool vgtb = Constexpr(41) > v1;
-            constexpr bool vlteb = Constexpr(41) <= v1;
-            constexpr bool vgteb = Constexpr(41) >= v1;
+            constexpr eggs::variant<int, Constexpr> v;
+            constexpr bool vltb = Constexpr(41) < v;
+            constexpr bool vgtb = Constexpr(41) > v;
+            constexpr bool vlteb = Constexpr(41) <= v;
+            constexpr bool vgteb = Constexpr(41) >= v;
         }
 #endif
     }
 
     // different members
     {
-        eggs::variant<int, std::string> const v1(std::string(""));
+        eggs::variant<int, std::string> const v(std::string(""));
 
-        REQUIRE(v1.which() == 1u);
-        REQUIRE(*v1.target<std::string>() == "");
+        REQUIRE(v.which() == 1u);
+        REQUIRE(*v.target<std::string>() == "");
 
-        CHECK(42 < v1);
+        CHECK((42 < v) == true);
+        CHECK((42 > v) == false);
+        CHECK((42 <= v) == true);
+        CHECK((42 >= v) == false);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
-            constexpr eggs::variant<int, Constexpr> v1(42);
-            constexpr bool vltb = Constexpr(41) < v1;
-            constexpr bool vgtb = Constexpr(41) > v1;
-            constexpr bool vlteb = Constexpr(41) <= v1;
-            constexpr bool vgteb = Constexpr(41) >= v1;
+            constexpr eggs::variant<int, Constexpr> v(42);
+            constexpr bool vltb = Constexpr(41) < v;
+            constexpr bool vgtb = Constexpr(41) > v;
+            constexpr bool vlteb = Constexpr(41) <= v;
+            constexpr bool vgteb = Constexpr(41) >= v;
         }
 #endif
     }
@@ -329,7 +396,10 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "43");
 
-        CHECK("42" < v);
+        CHECK(("42" < v) == true);
+        CHECK(("42" > v) == false);
+        CHECK(("42" <= v) == true);
+        CHECK(("42" >= v) == false);
     }
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
@@ -366,7 +436,9 @@ TEST_CASE("operator<(variant<> const&, variant<> const&)", "[variant.rel]")
     REQUIRE(v2.which() == npos);
 
     CHECK((v1 < v2) == false);
-    CHECK((v2 < v1) == false);
+    CHECK((v1 > v2) == false);
+    CHECK((v1 <= v2) == true);
+    CHECK((v1 >= v2) == true);
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr
