@@ -10,29 +10,6 @@ sudo: false
 
 matrix:
   include:
-    # clang-3.5
-    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
-      os: linux
-      addons: &clang35
-        apt:
-          packages:
-            - clang-3.5
-          sources:
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.5
-
-    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
-      os: linux
-      addons: *clang35
-
-    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
-      os: linux
-      addons: *clang35
-
-    - env: CLANG_VERSION=3.5 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
-      os: linux
-      addons: *clang35
-
     # clang-3.6
     - env: CLANG_VERSION=3.6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
@@ -55,6 +32,52 @@ matrix:
     - env: CLANG_VERSION=3.6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
       os: linux
       addons: *clang36
+
+    # clang-3.7
+    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+      os: linux
+      addons: &clang37
+        apt:
+          packages:
+            - clang-3.7
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.7
+
+    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+      os: linux
+      addons: *clang37
+
+    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang37
+
+    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *clang37
+
+    # clang-3.8
+    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+      os: linux
+      addons: &clang38
+        apt:
+          packages:
+            - clang-3.8
+          sources:
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-precise-3.8
+
+    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+      os: linux
+      addons: *clang38
+
+    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang38
+
+    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *clang38
 
     # gcc-4.9
     - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
@@ -100,6 +123,28 @@ matrix:
       os: linux
       addons: *gcc5
 
+    # gcc-6
+    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+      os: linux
+      addons: &gcc6
+        apt:
+          packages:
+            - g++-6
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc6
+
+    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+      os: linux
+      addons: *gcc6
+
+    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc6
+
     # Xcode 7
     - env: CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
       os: osx
@@ -125,6 +170,7 @@ branches:
   only:
     - master
     - develop
+    - travis
 
 before_install:
   - if [ -n "$GCC_VERSION" ]; then export CXX="g++-${GCC_VERSION}" CC="gcc-${GCC_VERSION}"; fi
