@@ -1,0 +1,34 @@
+# Eggs.Variant
+#
+# Copyright Agustin K-ballo Berge, Fusion Fenix 2014-2016
+#
+# Distributed under the Boost Software License, Version 1.0. (See accompanying
+# file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+
+# - Config file for Eggs.Variant
+#
+#  EGGS_VARIANT_INCLUDE_DIRS - include directories
+#  EGGS_VARIANT_LIBRARIES    - libraries to link against
+#
+# The following `IMPORTED` target is also defined:
+#
+#  Eggs::Variant
+
+get_filename_component(
+  EGGS_VARIANT_CMAKE_DIR "${CMAKE_CURRENT_LIST_DIR}" ABSOLUTE)
+
+include("${EGGS_VARIANT_CMAKE_DIR}/eggs.variant-targets.cmake")
+
+get_target_property(
+  _eggs_variant_include_dirs
+  Eggs::Variant INTERFACE_INCLUDE_DIRECTORIES)
+set(EGGS_VARIANT_INCLUDE_DIRS ${_eggs_variant_include_dirs})
+foreach (_eggs_variant_include_dir ${_eggs_variant_include_dirs})
+  if (NOT EXISTS "${_eggs_variant_include_dir}")
+    message(FATAL_ERROR
+      "Directory ${_eggs_variant_include_dir} referenced by"
+      " variable \${EGGS_VARIANT_INCLUDE_DIRS} does not exist!")
+  endif()
+endforeach()
+
+set(EGGS_VARIANT_LIBRARIES Eggs::Variant)
