@@ -42,7 +42,7 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt; <span style="color:blue;">class</span> <a href="#eggs-variant"><span style="color:#2b91af;">variant</span></a>;
 
 &nbsp;&nbsp;<span style="color:green;">// In-place construction</span>
-&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_tag</span></a> {};    
+&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_tag</span></a> {};
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
 &nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
@@ -109,9 +109,10 @@
 &nbsp;&nbsp;};
 
 &nbsp;&nbsp;<span style="color:green;">// Class bad_variant_access</span>
-&nbsp;&nbsp;<span style="color:blue;">class</span> <a href="#eggs-bad-variant-access"><span style="color:#2b91af;">bad_variant_access</span></a> : <span style="color:blue;">public</span> std::<span style="color:#2b91af;">logic_error</span> {
+&nbsp;&nbsp;<span style="color:blue;">class</span> <a href="#eggs-bad-variant-access"><span style="color:#2b91af;">bad_variant_access</span></a> : <span style="color:blue;">public</span> std::<span style="color:#2b91af;">exception</span> {
 &nbsp;&nbsp;<span style="color:blue;">public</span>:
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#eggs-bad-variant-access-cnstr-1">bad_variant_access</a>();
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#eggs-bad-variant-access-cnstr-1">bad_variant_access</a>() <span style="color:blue;">noexcept</span>;
+&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:blue;">char</span> <span style="color:blue;">const</span>* <a href="#eggs-bad-variant-access-obs-1">what</a>() <span style="color:blue;">const</span> <span style="color:blue;">noexcept</span> <span style="color:blue;">override</span>;
 &nbsp;&nbsp;};
 
 &nbsp;&nbsp;<span style="color:green;">// Helper classes</span>
@@ -222,7 +223,7 @@
 &nbsp;&nbsp;<span style="color:green;">// Constructors</span>
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-1">variant</a>() <span style="color:blue;">noexcept</span>;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-2">variant</a>(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp;);
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);    
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-3">variant</a>(<span style="color:#2b91af;">variant</span>&amp;&amp;) <span style="color:blue;">noexcept</span>(<em>see below</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">U</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <a href="#eggs-variant-cnstr-4">variant</a>(<span style="color:#2b91af;">U</span>&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Args</span>&gt;
@@ -533,18 +534,24 @@
             <section>
                 <a name="eggs-bad-variant-access" href="#eggs-bad-variant-access"><h1>Class <code>bad_variant_access</code></h1></a>
 <pre class="code">
-<span style="color:blue;">class</span> <span style="color:#2b91af;">bad_variant_access</span> : <span style="color:blue;">public</span> std::<span style="color:#2b91af;">logic_error</span> {
+<span style="color:blue;">class</span> <span style="color:#2b91af;">bad_variant_access</span> : <span style="color:blue;">public</span> std::<span style="color:#2b91af;">exception</span> {
 <span style="color:blue;">public</span>:
-&nbsp;&nbsp;<a href="#eggs-bad-variant-access-cnstr-1">bad_variant_access</a>();
+&nbsp;&nbsp;<a href="#eggs-bad-variant-access-cnstr-1">bad_variant_access</a>() <span style="color:blue;">noexcept</span>;
+&nbsp;&nbsp;<span style="color:blue;">char</span> <span style="color:blue;">const</span>* <a href="#eggs-bad-variant-access-obs-1">what</a>() <span style="color:blue;">const</span> <span style="color:blue;">noexcept</span> <span style="color:blue;">override</span>;
 };
 </pre>
-                <p>The class <code>bad_variant_access</code> defines the type of objects thrown as exceptions to report the situation where an attempt is made to access an inactive member of a <code>variant</code> object.</p>
+                <p>Objects of type <code>bad_variant_access</code> are thrown to report attempts to access an inactive member of a <code>variant</code> object.</p>
 
                 <a name="eggs-bad-variant-access-cnstr-1"></a>
-                <pre class="code">bad_variant_access();</pre>
+                <pre class="code">bad_variant_access() <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
-                    <li><em>Effects:</em> Constructs an object of class <code>bad_variant_access</code>.</li>
-                    <li><em>Postconditions:</em> <code>what()</code> returns an implementation-defined NTBS.</li>
+                    <li><em>Effects:</em> Constructs a <code>bad_variant_access</code> object.</li>
+                </ul>
+
+                <a name="eggs-bad-variant-access-obs-1"></a>
+                <pre class="code"><span style="color:blue;">char</span> <span style="color:blue;">const</span>* what() <span style="color:blue;">const</span> <span style="color:blue;">noexcept</span> <span style="color:blue;">override</span>;</pre>
+                <ul>
+                    <li><em>Returns:</em> An implementation-defined NTBS.</li>
                 </ul>
             </section>
 
