@@ -9,7 +9,13 @@ cmake_minimum_required(VERSION 3.0)
 
 project(Eggs.Variant CXX)
 
-option(WITH_TESTS "Compile with unit tests." ON)
+if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+  option(WITH_TESTS "Compile with unit tests." ON)
+  set(HAVE_TESTS ${WITH_TESTS})
+else()
+  option(EGGS_VARIANT_WITH_TESTS "Compile with unit tests." ON)
+  set(HAVE_TESTS ${EGGS_VARIANT_WITH_TESTS})
+endif()
 
 # Build
 add_library(_eggs_variant INTERFACE)
@@ -22,7 +28,7 @@ set_target_properties(_eggs_variant
 add_library(Eggs::Variant ALIAS _eggs_variant)
 
 # Test
-if (WITH_TESTS)
+if (HAVE_TESTS)
   enable_testing()
   add_subdirectory(test)
 endif()
