@@ -15,6 +15,7 @@
 #include <cassert>
 #include <cstddef>
 #include <exception>
+#include <functional>
 #include <memory>
 #include <type_traits>
 #include <typeinfo>
@@ -223,6 +224,17 @@ namespace eggs { namespace variants { namespace detail
         static EGGS_CXX11_CONSTEXPR bool call(Union const& lhs, Union const& rhs)
         {
             return lhs.get(I{}) >= rhs.get(I{});
+        }
+    };
+
+    struct hash
+      : visitor<hash, std::size_t(void const*)>
+    {
+        template <typename T>
+        static std::size_t call(void const* ptr)
+        {
+            std::hash<typename std::remove_const<T>::type> h;
+            return h(*static_cast<T const*>(ptr));
         }
     };
 

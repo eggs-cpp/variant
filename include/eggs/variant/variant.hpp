@@ -227,16 +227,73 @@ namespace eggs { namespace variants
         };
 
         ///////////////////////////////////////////////////////////////////////
-        struct hash
+        namespace _hash
         {
-            using result_type = std::size_t;
+            template <typename T>
+            auto hash(T const&)
+             -> decltype(std::hash<T>{}(std::declval<T const&>()));
+
+            struct _fallback {};
+
+            _fallback hash(...);
+
+            template <
+                typename T
+              , typename R = decltype(hash(std::declval<T>()))
+            >
+            struct is_hashable : std::true_type
+            {};
 
             template <typename T>
-            std::size_t operator()(T const& v) const
+            struct is_hashable<T, _fallback> : std::false_type
+            {};
+        }
+
+        template <typename T>
+        struct is_hashable
+          : std::integral_constant<
+                bool
+              , _hash::is_hashable<T>::value
+            >
+        {};
+
+        template <typename Ts, bool Enable>
+        struct _std_hash;
+
+        template <typename ...Ts>
+        struct _std_hash<pack<Ts...>, false>
+        {
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+            _std_hash() = delete;
+            _std_hash(_std_hash const&) = delete;
+            _std_hash& operator=(_std_hash const&) = delete;
+#else
+        private:
+            _std_hash();
+            _std_hash(_std_hash const&);
+            _std_hash& operator=(_std_hash const&);
+#endif
+        };
+
+        template <typename ...Ts>
+        struct _std_hash<pack<Ts...>, true>
+        {
+            std::size_t operator()(variant<Ts...> const& v) const
             {
-                return std::hash<T>{}(v);
+                return bool(v)
+                  ? detail::hash{}(
+                        detail::pack<Ts...>{}, v.which()
+                      , v.target()
+                    )
+                  : 0u;
             }
         };
+
+        template <typename ...Ts>
+        using std_hash = _std_hash<
+            pack<Ts...>,
+            all_of<pack<is_hashable<Ts>...>>::value
+        >;
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -1937,28 +1994,16 @@ namespace std
     //! template <class ...Ts>
     //! struct hash<::eggs::variants::variant<Ts...>>;
     //!
-    //! \requires The template specialization `std::hash<T>` shall meet the
-    //!  requirements of class template `std::hash` for all `T` in `Ts...`.
-    //!  The template specialization `std::hash<variant<Ts...>>` shall meet
-    //!  the requirements of class template `std::hash`. For an object `v` of
-    //!  type `variant<Ts...>`, if `v` has an active member of type `T`,
-    //!  `std::hash<variant<Ts...>>()(v)` shall evaluate to the same value as
-    //!  `std::hash<T>()(*v.target<T>())`; otherwise it evaluates to an
-    //!  unspecified value.
+    //! The specialization `std::hash<variant<Ts...>>` is enabled if and only if
+    //!  every specialization in `std::hash<std::remove_const_t<Ts>>...` is
+    //!  enabled. When enabled, for an object `v` of type `variant<Ts...>`, if
+    //!  `v` has an active member of type `T`, `std::hash<variant<Ts...>>()(v)`
+    //!  shall evaluate to the same value as `std::hash<T>()(*v.target<T>())`;
+    //!  otherwise it evaluates to an unspecified value.
     template <typename ...Ts>
     struct hash< ::eggs::variants::variant<Ts...>>
-    {
-        using argument_type = ::eggs::variants::variant<Ts...>;
-        using result_type = std::size_t;
-
-        std::size_t operator()(::eggs::variants::variant<Ts...> const& v) const
-        {
-            ::eggs::variants::detail::hash h;
-            return bool(v)
-              ? ::eggs::variants::apply<std::size_t>(h, v)
-              : 0u;
-        }
-    };
+      : ::eggs::variants::detail::std_hash<Ts...>
+    {};
 }
 
 #include <eggs/variant/detail/config/suffix.hpp>
