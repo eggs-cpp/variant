@@ -869,7 +869,9 @@
                 <a name="eggs-hash-1"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">struct</span> std::<span style="color:#2b91af;">hash</span>&lt;eggs::variants::<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;;</pre>
                 <ul>
-                    <li><em>Requires:</em> The template specialization <code>std::hash&lt;T&gt;</code> shall meet the requirements of class template <code>std::hash</code> for all <code>T</code> in <code>Ts...</code>. The template specialization <code>std::hash&lt;variant&lt;Ts...&gt;&gt;</code> shall meet the requirements of class template <code>std::hash</code>. For an object <code>v</code> of type <code>variant&lt;Ts...&gt;</code>, if <code>v</code> has an active member of type <code>T</code>, <code>std::hash&lt;variant&lt;Ts...&gt;&gt;()(v)</code> shall evaluate to the same value as <code>std::hash&lt;T&gt;()(*v.target&lt;T&gt;())</code>; otherwise it evaluates to an unspecified value.</li>
+                    <li>
+                        The specialization <code>std::hash&lt;variant&lt;Ts...&gt;&gt;</code> is enabled if and only if every specialization in <code>std::hash&lt;std::remove_const_t&lt;Ts&gt;&gt;...</code> is enabled. When enabled, for an object <code>v</code> of type <code>variant&lt;Ts...&gt;</code>, if <code>v</code> has an active member of type <code>T</code>, <code>std::hash&lt;variant&lt;Ts...&gt;&gt;()(v)</code> shall evaluate to the same value as <code>std::hash&lt;T&gt;()(*v.target&lt;T&gt;())</code>; otherwise it evaluates to an unspecified value.
+                    </li>
                 </ul>
             </section>
         </div>
