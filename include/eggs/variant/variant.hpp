@@ -697,7 +697,7 @@ namespace eggs { namespace variants
         }
 
         //! template <std::size_t I, class ...Args>
-        //! constexpr void emplace(Args&&... args);
+        //! constexpr T& emplace(Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -710,6 +710,8 @@ namespace eggs { namespace variants
         //!  the arguments `std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
+        //!
+        //! \returns  A reference to the new contained value.
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
@@ -725,7 +727,7 @@ namespace eggs { namespace variants
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
         >
-        EGGS_CXX14_CONSTEXPR void emplace(Args&&... args)
+        EGGS_CXX14_CONSTEXPR T& emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -733,12 +735,13 @@ namespace eggs { namespace variants
         {
             using t_which = detail::index<I + 1>;
 
-            _storage.emplace(t_which{}, detail::forward<Args>(args)...);
+            return _storage.emplace(
+                t_which{}, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <std::size_t I, class U, class ...Args>
-        //! constexpr void emplace(std::initializer_list<U> il, Args&&... args);
+        //! constexpr T& emplace(std::initializer_list<U> il, Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
@@ -751,6 +754,8 @@ namespace eggs { namespace variants
         //!  the arguments `il, std::forward<Args>(args)...`.
         //!
         //! \postconditions `*this` has an active member of type `T`.
+        //!
+        //! \returns  A reference to the new contained value.
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
@@ -771,7 +776,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        EGGS_CXX14_CONSTEXPR void emplace(std::initializer_list<U> il, Args&&... args)
+        EGGS_CXX14_CONSTEXPR T& emplace(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
@@ -780,13 +785,14 @@ namespace eggs { namespace variants
         {
             using t_which = detail::index<I + 1>;
 
-            _storage.emplace(t_which{}, il, detail::forward<Args>(args)...);
+            return _storage.emplace(
+                t_which{}, il, detail::forward<Args>(args)...);
         }
 #endif
 
 #if EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
         //! template <class T, class ...Args>
-        //! constexpr void emplace(Args&&... args);
+        //! constexpr T& emplace(Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -798,7 +804,7 @@ namespace eggs { namespace variants
         //!  and `T`'s selected constructor is a `constexpr` constructor, then
         //!  this function shall be a `constexpr` function.
         template <typename T, typename ...Args>
-        EGGS_CXX14_CONSTEXPR void emplace(Args&&... args)
+        EGGS_CXX14_CONSTEXPR T& emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
                 std::is_nothrow_constructible<T, Args&&...>::value)
@@ -807,12 +813,13 @@ namespace eggs { namespace variants
             using t_which = detail::index_of<T, detail::pack<
                 detail::empty, Ts...>>;
 
-            _storage.emplace(t_which{}, detail::forward<Args>(args)...);
+            return _storage.emplace(
+                t_which{}, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
-        //! constexpr void emplace(std::initializer_list<U> il, Args&&... args);
+        //! constexpr T& emplace(std::initializer_list<U> il, Args&&... args);
         //!
         //! \requires `T` shall occur exactly once in `Ts...`.
         //!
@@ -831,7 +838,7 @@ namespace eggs { namespace variants
                 T, std::initializer_list<U>&, Args&&...
             >::value>::type
         >
-        EGGS_CXX14_CONSTEXPR void emplace(std::initializer_list<U> il, Args&&... args)
+        EGGS_CXX14_CONSTEXPR T& emplace(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
                 T, std::initializer_list<U>&, Args&&...
@@ -841,7 +848,8 @@ namespace eggs { namespace variants
             using t_which = detail::index_of<T, detail::pack<
                 detail::empty, Ts...>>;
 
-            _storage.emplace(t_which{}, il, detail::forward<Args>(args)...);
+            return _storage.emplace(
+                t_which{}, il, detail::forward<Args>(args)...);
         }
 #endif
 #endif

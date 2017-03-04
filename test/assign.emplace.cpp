@@ -48,12 +48,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
 
-        v.emplace<0>(42);
+        int& r = v.emplace<0>(42);
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        REQUIRE(v.target<int>() != nullptr);
-        CHECK(*v.target<int>() == 42);
+        CHECK(v.target<int>() == &r);
+        CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(int));
@@ -65,7 +65,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v;
-                v.emplace<1>(42);
+                ConstexprTrivial& r = v.emplace<1>(42);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -81,12 +81,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
-        v.emplace<0>(42);
+        int& r = v.emplace<0>(42);
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        REQUIRE(v.target<int>() != nullptr);
-        CHECK(*v.target<int>() == 42);
+        CHECK(v.target<int>() == &r);
+        CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(int));
@@ -112,7 +112,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
-                v.emplace<1>(42);
+                ConstexprTrivial& r = v.emplace<1>(42);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -128,12 +128,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
-        v.emplace<0>(42);
+        int& r = v.emplace<0>(42);
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        REQUIRE(v.target<int>() != nullptr);
-        CHECK(*v.target<int>() == 42);
+        CHECK(v.target<int>() == &r);
+        CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(int));
@@ -178,7 +178,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(43);
-                v.emplace<1>(42);
+                ConstexprTrivial& r = v.emplace<1>(42);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -194,11 +194,12 @@ TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
     REQUIRE(bool(v) == false);
     REQUIRE(v.which() == npos);
 
-    v.emplace<0>(42);
+    int& r = v.emplace<0>(42);
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 0u);
-    REQUIRE(v.target() != nullptr);
+    CHECK(v.target<int>() == &r);
+    CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
     CHECK(v.target_type() == typeid(int));
@@ -212,10 +213,11 @@ TEST_CASE("variant<NonAssignable>::emplace<I>(Args&&...)", "[variant.assign]")
 
     REQUIRE(v.which() == 0);
 
-    v.emplace<1>();
+    NonAssignable& r = v.emplace<1>();
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 1u);
+    CHECK(v.target<NonAssignable>() == &r);
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     // trivially_copyable
@@ -224,10 +226,11 @@ TEST_CASE("variant<NonAssignable>::emplace<I>(Args&&...)", "[variant.assign]")
 
         REQUIRE(v.which() == 0);
 
-        v.emplace<1>();
+        NonAssignableTrivial& r = v.emplace<1>();
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
+        CHECK(v.target<NonAssignableTrivial>() == &r);
     }
 #endif
 }
@@ -243,12 +246,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
 
-        v.emplace<1>({'4', '2'});
+        std::string& r = v.emplace<1>({'4', '2'});
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        REQUIRE(v.target<std::string>() != nullptr);
-        CHECK(*v.target<std::string>() == "42");
+        CHECK(v.target<std::string>() == &r);
+        CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
@@ -260,7 +263,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v;
-                v.emplace<1>({4, 2});
+                ConstexprTrivial& r = v.emplace<1>({4, 2});
                 return 0;
             }};
             constexpr int c = test::call();
@@ -276,12 +279,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
-        v.emplace<1>({'4', '2'});
+        std::string& r = v.emplace<1>({'4', '2'});
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        REQUIRE(v.target<std::string>() != nullptr);
-        CHECK(*v.target<std::string>() == "42");
+        CHECK(v.target<std::string>() == &r);
+        CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
@@ -293,7 +296,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
-                v.emplace<1>({4, 2});
+                ConstexprTrivial& r = v.emplace<1>({4, 2});
                 return 0;
             }};
             constexpr int c = test::call();
@@ -309,12 +312,12 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
-        v.emplace<1>({'4', '2'});
+        std::string& r = v.emplace<1>({'4', '2'});
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        REQUIRE(v.target<std::string>() != nullptr);
-        CHECK(*v.target<std::string>() == "42");
+        CHECK(v.target<std::string>() == &r);
+        CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
@@ -345,7 +348,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(43);
-                v.emplace<1>({4, 2});
+                ConstexprTrivial& r = v.emplace<1>({4, 2});
                 return 0;
             }};
             constexpr int c = test::call();
@@ -361,11 +364,12 @@ TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[va
     REQUIRE(bool(v) == false);
     REQUIRE(v.which() == npos);
 
-    v.emplace<1>({'4', '2'});
+    std::string& r = v.emplace<1>({'4', '2'});
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 1u);
-    REQUIRE(v.target() != nullptr);
+    CHECK(v.target<std::string>() == &r);
+    CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
     CHECK(v.target_type() == typeid(std::string));
@@ -383,12 +387,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
 
-        v.emplace<int>(42);
+        int& r = v.emplace<int>(42);
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        REQUIRE(v.target<int>() != nullptr);
-        CHECK(*v.target<int>() == 42);
+        CHECK(v.target<int>() == &r);
+        CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(int));
@@ -400,7 +404,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v;
-                v.emplace<ConstexprTrivial>(42);
+                ConstexprTrivial& r = v.emplace<ConstexprTrivial>(42);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -416,12 +420,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
-        v.emplace<int>(42);
+        int& r = v.emplace<int>(42);
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        REQUIRE(v.target<int>() != nullptr);
-        CHECK(*v.target<int>() == 42);
+        CHECK(v.target<int>() == &r);
+        CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(int));
@@ -447,7 +451,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
-                v.emplace<ConstexprTrivial>(42);
+                ConstexprTrivial& r = v.emplace<ConstexprTrivial>(42);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -463,12 +467,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
-        v.emplace<int>(42);
+        int& r = v.emplace<int>(42);
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 0u);
-        REQUIRE(v.target<int>() != nullptr);
-        CHECK(*v.target<int>() == 42);
+        CHECK(v.target<int>() == &r);
+        CHECK(r == 42);
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(int));
@@ -513,7 +517,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(43);
-                v.emplace<ConstexprTrivial>(42);
+                ConstexprTrivial& r = v.emplace<ConstexprTrivial>(42);
                 return 0;
             }};
             constexpr int c = test::call();
@@ -529,10 +533,11 @@ TEST_CASE("variant<NonAssignable>::emplace<T>(Args&&...)", "[variant.assign]")
 
     REQUIRE(v.which() == 0);
 
-    v.emplace<NonAssignable>();
+    NonAssignable& r = v.emplace<NonAssignable>();
 
     CHECK(bool(v) == true);
     CHECK(v.which() == 1u);
+    CHECK(v.target<NonAssignable>() == &r);
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     // trivially_copyable
@@ -541,10 +546,11 @@ TEST_CASE("variant<NonAssignable>::emplace<T>(Args&&...)", "[variant.assign]")
 
         REQUIRE(v.which() == 0);
 
-        v.emplace<NonAssignableTrivial>();
+        NonAssignableTrivial& r = v.emplace<NonAssignableTrivial>();
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
+        CHECK(v.target<NonAssignableTrivial>() == &r);
     }
 #endif
 }
@@ -560,12 +566,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(bool(v) == false);
         REQUIRE(v.which() == npos);
 
-        v.emplace<std::string>({'4', '2'});
+        std::string& r = v.emplace<std::string>({'4', '2'});
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        REQUIRE(v.target<std::string>() != nullptr);
-        CHECK(*v.target<std::string>() == "42");
+        CHECK(v.target<std::string>() == &r);
+        CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
@@ -577,7 +583,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v;
-                v.emplace<ConstexprTrivial>({4, 2});
+                ConstexprTrivial& r = v.emplace<ConstexprTrivial>({4, 2});
                 return 0;
             }};
             constexpr int c = test::call();
@@ -593,12 +599,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 1u);
         REQUIRE(*v.target<std::string>() == "");
 
-        v.emplace<std::string>({'4', '2'});
+        std::string& r = v.emplace<std::string>({'4', '2'});
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        REQUIRE(v.target<std::string>() != nullptr);
-        CHECK(*v.target<std::string>() == "42");
+        CHECK(v.target<std::string>() == &r);
+        CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
@@ -610,7 +616,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(ConstexprTrivial(43));
-                v.emplace<ConstexprTrivial>({4, 2});
+                ConstexprTrivial& r = v.emplace<ConstexprTrivial>({4, 2});
                 return 0;
             }};
             constexpr int c = test::call();
@@ -626,12 +632,12 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         REQUIRE(v.which() == 0u);
         REQUIRE(*v.target<int>() == 43);
 
-        v.emplace<std::string>({'4', '2'});
+        std::string& r = v.emplace<std::string>({'4', '2'});
 
         CHECK(bool(v) == true);
         CHECK(v.which() == 1u);
-        REQUIRE(v.target<std::string>() != nullptr);
-        CHECK(*v.target<std::string>() == "42");
+        CHECK(v.target<std::string>() == &r);
+        CHECK(r == "42");
 
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
@@ -662,7 +668,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             struct test { static constexpr int call()
             {
                 eggs::variant<int, ConstexprTrivial> v(43);
-                v.emplace<ConstexprTrivial>({4, 2});
+                ConstexprTrivial& r = v.emplace<ConstexprTrivial>({4, 2});
                 return 0;
             }};
             constexpr int c = test::call();

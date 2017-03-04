@@ -397,13 +397,17 @@ namespace eggs { namespace variants { namespace detail
             _which = I;
         }
 
-        template <std::size_t I, typename ...Args>
-        EGGS_CXX14_CONSTEXPR void emplace(index<I> which, Args&&... args)
+        template <
+            std::size_t I, typename ...Args
+          , typename T = typename at_index<I, pack<Ts...>>::type
+        >
+        EGGS_CXX14_CONSTEXPR T& emplace(index<I> which, Args&&... args)
         {
             using is_copy_assignable = all_of<pack<std::is_copy_assignable<Ts>...>>;
             _emplace(
                 is_copy_assignable{}
               , which, detail::forward<Args>(args)...);
+            return get(which);
         }
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
@@ -529,11 +533,12 @@ namespace eggs { namespace variants { namespace detail
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
         >
-        void emplace(index<I> /*which*/, Args&&... args)
+        T& emplace(index<I> which, Args&&... args)
         {
             _destroy();
             ::new (target()) T(detail::forward<Args>(args)...);
             _which = I;
+            return get(which);
         }
 
         _storage& operator=(_storage const& rhs)
@@ -600,6 +605,7 @@ namespace eggs { namespace variants { namespace detail
 
         using base_type::which;
         using base_type::target;
+        using base_type::get;
 
     protected:
         void _destroy(
@@ -704,6 +710,7 @@ namespace eggs { namespace variants { namespace detail
 
         using base_type::which;
         using base_type::target;
+        using base_type::get;
 
     protected:
         using base_type::_which;
