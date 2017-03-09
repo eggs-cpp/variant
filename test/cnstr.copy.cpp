@@ -25,8 +25,8 @@ struct Maleficent
     int x;
 
     Maleficent(int i) : x(i) {}
-    Maleficent(eggs::variant<Maleficent>&) : x(-1) {}
-    Maleficent(eggs::variant<Maleficent> const&&) : x(-1) {}
+    template <typename T>
+    Maleficent(T&&) : x(-1) {}
     ~Maleficent() {} // not trivially copyable
 };
 
