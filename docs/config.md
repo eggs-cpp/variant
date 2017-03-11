@@ -12,6 +12,7 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS`           | `1`                     | `0`
 `EGGS_CXX11_HAS_DELETED_FUNCTIONS`             | `1`                     | `0`
 `EGGS_CXX98_HAS_RTTI`                          | `1`                     | `0`
+`EGGS_CXX11_HAS_CONSTEXPR_RTTI`                | `1`                     | `0`
 `EGGS_CXX98_HAS_EXCEPTIONS`                    | `1`                     | `0`
 `EGGS_CXX11_NOEXCEPT`                          | `noexcept`              | ``
 `EGGS_CXX11_NOEXCEPT_IF(...)`                  | `noexcept(__VA_ARGS__)` | ``

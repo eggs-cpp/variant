@@ -36,7 +36,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
         constexpr std::size_t vw = v.which();
         constexpr bool vttb = v.target<Constexpr>()->x == 42;
 
-#  if EGGS_CXX98_HAS_RTTI
+#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         constexpr std::type_info const& vtt = v.target_type();
 #  endif
 
@@ -88,7 +88,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&
         constexpr std::size_t vw = v.which();
         constexpr bool vttb = v.target<Constexpr>()->x == 4;
 
-#  if EGGS_CXX98_HAS_RTTI
+#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         constexpr std::type_info const& vtt = v.target_type();
 #  endif
 
@@ -140,7 +140,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
         constexpr std::size_t vw = v.which();
         constexpr bool vttb = v.target<Constexpr>()->x == 42;
 
-#  if EGGS_CXX98_HAS_RTTI
+#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         constexpr std::type_info const& vtt = v.target_type();
 #  endif
 
@@ -179,7 +179,7 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&
         constexpr std::size_t vw = v.which();
         constexpr bool vttb = v.target<Constexpr>()->x == 4;
 
-#  if EGGS_CXX98_HAS_RTTI
+#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         constexpr std::type_info const& vtt = v.target_type();
 #  endif
 

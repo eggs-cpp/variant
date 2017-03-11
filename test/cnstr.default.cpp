@@ -37,7 +37,7 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
         constexpr std::size_t vw = v.which();
         constexpr void const* vt = v.target();
 
-#  if EGGS_CXX98_HAS_RTTI
+#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         constexpr std::type_info const& vtt = v.target_type();
 #  endif
     }
@@ -64,7 +64,7 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
         constexpr std::size_t vw = v.which();
         constexpr void const* vt = v.target();
 
-#  if EGGS_CXX98_HAS_RTTI
+#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         constexpr std::type_info const& vtt = v.target_type();
 #  endif
     }

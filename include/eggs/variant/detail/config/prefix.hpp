@@ -100,6 +100,16 @@
 #  define EGGS_CXX98_HAS_RTTI_DEFINED
 #endif
 
+/// RTTI constexpr support
+#ifndef EGGS_CXX11_HAS_CONSTEXPR_RTTI
+#  if EGGS_CXX98_HAS_RTTI == 0 || EGGS_CXX11_HAS_CONSTEXPR == 0
+#    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 0
+#  else
+#    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 1
+#  endif
+#  define EGGS_CXX11_HAS_CONSTEXPR_RTTI_DEFINED
+#endif
+
 /// exception support
 #ifndef EGGS_CXX98_HAS_EXCEPTIONS
 #  if defined(_MSC_FULL_VER) && !defined(_CPPUNWIND)
