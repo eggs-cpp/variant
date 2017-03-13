@@ -16,7 +16,7 @@
 
 /// constexpr support
 #ifndef EGGS_CXX11_HAS_CONSTEXPR
-#  if defined(_MSC_FULL_VER)
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 191000000
 #    define EGGS_CXX11_HAS_CONSTEXPR 0
 #  else
 #    define EGGS_CXX11_HAS_CONSTEXPR 1
@@ -43,7 +43,15 @@
 #endif
 
 #ifndef EGGS_CXX14_HAS_CONSTEXPR
-#  if EGGS_CXX11_HAS_CONSTEXPR == 0 || __cplusplus < 201402L
+#  if EGGS_CXX11_HAS_CONSTEXPR == 0
+#    define EGGS_CXX14_HAS_CONSTEXPR 0
+#  elif defined(_MSC_FULL_VER)
+#    if _MSC_FULL_VER < 191000000
+#      define EGGS_CXX14_HAS_CONSTEXPR 0
+#    else
+#      define EGGS_CXX14_HAS_CONSTEXPR 1
+#    endif
+#  elif __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_CONSTEXPR 0
 #  elif defined(__GNUC__) && !defined(__clang__)
 #    if __GNUC__ < 5
@@ -103,6 +111,8 @@
 /// RTTI constexpr support
 #ifndef EGGS_CXX11_HAS_CONSTEXPR_RTTI
 #  if EGGS_CXX98_HAS_RTTI == 0 || EGGS_CXX11_HAS_CONSTEXPR == 0
+#    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 0
+#  elif defined(_MSC_FULL_VER)
 #    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 0
 #  else
 #    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 1
@@ -196,7 +206,7 @@
 
 /// sfinae for expressions support
 #ifndef EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-#  if defined(_MSC_FULL_VER)
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 191000000
 #    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
 #  elif defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9)) && !defined(__clang__)
 #    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
@@ -218,7 +228,13 @@
 
 /// variable templates support
 #ifndef EGGS_CXX14_HAS_VARIABLE_TEMPLATES
-#  if __cplusplus < 201402L
+#  if defined(_MSC_FULL_VER)
+#    if _MSC_FULL_VER < 190024210
+#      define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
+#    else
+#      define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 1
+#    endif
+#  elif __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
 #  elif defined(__GNUC__) && !defined(__clang__)
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
