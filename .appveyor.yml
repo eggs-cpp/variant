@@ -5,9 +5,12 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
-os:
+platform: x64
+
+image:
   - Visual Studio 2013
   - Visual Studio 2015
+  - Visual Studio 2017
 
 configuration:
   - Debug
@@ -17,9 +20,22 @@ branches:
   only:
     - master
     - develop
+    - msvc
+
+init:
+  - ps: >-
+      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2013") {
+        $env:GENERATOR="Visual Studio 12 2013"
+      } elseif ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2015") {
+        $env:GENERATOR="Visual Studio 14 2015"
+      } elseif ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2017") {
+        $env:GENERATOR="Visual Studio 15 2017"
+      }
 
 build_script:
   - mkdir build
   - cd build
-  - cmake ..
+  - echo cmake -G "%GENERATOR%" -A x64
+  - cmake -G "%GENERATOR%" -A x64 ..
+  - echo cmake --build . --config %CONFIG%
   - cmake --build . --config %CONFIG%
