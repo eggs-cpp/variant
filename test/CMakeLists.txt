@@ -18,6 +18,7 @@ set(_tests
   cnstr.move
   dtor
   elem.get
+  elem.get_if
   hash
   helper
   obs.target

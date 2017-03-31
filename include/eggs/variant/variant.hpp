@@ -1247,6 +1247,89 @@ namespace eggs { namespace variants
     }
 
     ///////////////////////////////////////////////////////////////////////////
+    //! template <std::size_t I, class ...Ts>
+    //! constexpr variant_element_t<I, variant<Ts...>>* get_if(variant<Ts...>* v) noexcept;
+    //!
+    //! \requires `I < sizeof...(Ts)`.
+    //!
+    //! \returns If `v != nullptr`, a pointer to the `I`th member of `*v` if
+    //!  it is active, where indexing is zero-based; otherwise, `nullptr`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        std::size_t I, typename ...Ts
+      , typename T = typename variant_element<I, variant<Ts...>>::type
+    >
+    EGGS_CXX14_CONSTEXPR T* get_if(variant<Ts...>* v) EGGS_CXX11_NOEXCEPT
+    {
+        return v && v->which() == I
+          ? detail::addressof(detail::access::get(*v, detail::index<I>{}))
+          : nullptr;
+    }
+
+    //! template <std::size_t I, class ...Ts>
+    //! constexpr variant_element_t<I, variant<Ts...>> const* get_if(variant<Ts...> const* v) noexcept;
+    //!
+    //! \requires `I < sizeof...(Ts)`.
+    //!
+    //! \returns If `v != nullptr`, a const pointer to the `I`th member of `*v`
+    //!  if it is active, where indexing is zero-based; otherwise, `nullptr`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        std::size_t I, typename ...Ts
+      , typename T = typename variant_element<I, variant<Ts...>>::type
+    >
+    EGGS_CXX11_CONSTEXPR T const* get_if(variant<Ts...> const* v) EGGS_CXX11_NOEXCEPT
+    {
+        return v && v->which() == I
+          ? detail::addressof(detail::access::get(*v, detail::index<I>{}))
+          : nullptr;
+    }
+
+    //! template <class T, class ...Ts>
+    //! constexpr T* get_if(variant<Ts...>* v) noexcept;
+    //!
+    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //!
+    //! \returns If `v != nullptr`, a pointer to the active member of `*v` if
+    //!  it is of type `T`; otherwise,`nullptr`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        typename T, typename ...Ts
+      , std::size_t I = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+    >
+    EGGS_CXX14_CONSTEXPR T* get_if(variant<Ts...>* v) EGGS_CXX11_NOEXCEPT
+    {
+        return v && v->which() == I
+          ? detail::addressof(detail::access::get(*v, detail::index<I>{}))
+          : nullptr;
+    }
+
+    //! template <class T, class ...Ts>
+    //! constexpr T const* get_if(variant<Ts...> const* v) noexcept;
+    //!
+    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //!
+    //! \returns If `v != nullptr`, a const pointer to the active member of
+    //!  `*v` if it is of type `T`; otherwise,`nullptr`.
+    //!
+    //! \remarks This function shall be a `constexpr` function.
+    template <
+        typename T, typename ...Ts
+      , std::size_t I = detail::index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+    >
+    EGGS_CXX11_CONSTEXPR T const* get_if(variant<Ts...> const* v) EGGS_CXX11_NOEXCEPT
+    {
+        return v && v->which() == I
+          ? detail::addressof(detail::access::get(*v, detail::index<I>{}))
+          : nullptr;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     //! template <class ...Ts>
     //! constexpr bool operator==(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
