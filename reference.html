@@ -142,6 +142,7 @@
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;&amp;&amp; <a href="#eggs-elem-3">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>&amp;&amp; <a href="#eggs-elem-4">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp;);
+
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp; <a href="#eggs-elem-5">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
@@ -150,6 +151,15 @@
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp;&amp; <a href="#eggs-elem-7">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp;);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp;&amp; <a href="#eggs-elem-8">get</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp;);
+
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;* <a href="#eggs-elem-9">get_if</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;*) <span style="color:blue;">noexcept</span>;
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>* <a href="#eggs-elem-10">get_if</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>*) <span style="color:blue;">noexcept</span>;
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>* <a href="#eggs-elem-11">get_if</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;*) <span style="color:blue;">noexcept</span>;
+&nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>* <a href="#eggs-elem-12">get_if</a>(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>*) <span style="color:blue;">noexcept</span>;
 
 &nbsp;&nbsp;<span style="color:green;">// Relational operators</span>
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
@@ -662,6 +672,38 @@
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp; v);</pre>
                 <ul>
                     <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;T const&gt;(get&lt;T&gt;(v))</code>.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
+                </ul>
+
+                <a name="eggs-elem-9"></a>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;* v) <span style="color:blue;">noexcept</span>;</pre>
+                <ul>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Returns:</em> If <code>v != nullptr</code>, a pointer to the <code>I</code>th member of <code>*v</code> if it is active, where indexing is zero-based; otherwise, <code>nullptr</code>.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
+                </ul>
+
+                <a name="eggs-elem-10"></a>
+                <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>* v) <span style="color:blue;">noexcept</span>;</pre>
+                <ul>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Returns:</em> If <code>v != nullptr</code>, a const pointer to the <code>I</code>th member of <code>*v</code> if it is active, where indexing is zero-based; otherwise, <code>nullptr</code>.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
+                </ul>
+
+                <a name="eggs-elem-11"></a>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;* v) <span style="color:blue;">noexcept</span>;</pre>
+                <ul>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
+                    <li><em>Returns:</em> If <code>v != nullptr</code>, a pointer to the active member of <code>*v</code> if it is of type <code>T</code>; otherwise, <code>nullptr</code>.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
+                </ul>
+
+                <a name="eggs-elem-12"></a>
+                <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>* v) <span style="color:blue;">noexcept</span>;</pre>
+                <ul>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
+                    <li><em>Returns:</em> If <code>v != nullptr</code>, a const pointer to the active member of <code>*v</code> if it is of type <code>T</code>; otherwise, <code>nullptr</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
             </section>
