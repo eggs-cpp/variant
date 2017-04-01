@@ -168,24 +168,52 @@ namespace eggs { namespace variants { namespace detail
       : _indexed<Is, Ts>...
     {};
 
-    empty _at_index(...);
+    template <std::size_t I>
+    static empty _at_index(...);
 
     template <std::size_t I, typename T>
-    identity<T> _at_index(_indexed<I, T> const&);
+    static identity<T> _at_index(_indexed<I, T> const&);
 
     template <std::size_t I, typename Ts>
     struct at_index
-      : decltype(_at_index<I>(_indexer<Ts>{}))
+      : decltype(detail::_at_index<I>(_indexer<Ts>{}))
     {};
 
-    empty _index_of(...);
+    template <typename T, typename Ts>
+    struct count_of;
+
+    template <typename T>
+    struct count_of<T, pack<>>
+    {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t value = 0;
+    };
+
+    template <typename T, typename H, typename ...Ts>
+    struct count_of<T, pack<H, Ts...>>
+    {
+        EGGS_CXX11_STATIC_CONSTEXPR std::size_t value =
+            count_of<T, pack<Ts...>>::value
+          + (std::is_same<T, H>::value ? 1 : 0);
+    };
+
+    template <typename T>
+    static empty _index_of(...);
 
     template <typename T, std::size_t I>
-    index<I> _index_of(_indexed<I, T> const&);
+    static index<I> _index_of(_indexed<I, T> const&);
 
     template <typename T, typename Ts>
     struct index_of
-      : decltype(_index_of<T>(_indexer<Ts>{}))
+#if 0
+        // most compilers get this wrong in the case of duplicated types
+      : decltype(detail::_index_of<T>(_indexer<Ts>{}))
+#else
+      : std::conditional<
+            count_of<T, Ts>::value == 1
+          , decltype(detail::_index_of<T>(_indexer<Ts>{}))
+          , empty
+        >::type
+#endif
     {};
 }}}
 

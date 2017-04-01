@@ -56,6 +56,37 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        template <
+            std::size_t I, typename Ts,
+            bool Empty = std::is_base_of<empty, at_index<I, Ts>>::value
+        >
+        struct checked_at_index
+          : at_index<I, Ts>
+        {};
+
+        template <std::size_t I, typename Ts>
+        struct checked_at_index<I, Ts, /*Empty=*/true>
+        {
+            static_assert(I < Ts::size, "variant index out of range");
+        };
+
+        template <
+            typename T, typename Ts,
+            bool Empty = std::is_base_of<empty, index_of<T, Ts>>::value
+        >
+        struct checked_index_of
+          : index_of<T, Ts>
+        {};
+
+        template <typename T, typename Ts>
+        struct checked_index_of<T, Ts, /*Empty=*/true>
+        {
+            EGGS_CXX11_STATIC_CONSTEXPR std::size_t count = count_of<T, Ts>::value;
+            static_assert(count != 0, "type not found in variant alternatives");
+            static_assert(count <= 1, "type occurs more than once in variant alternatives");
+        };
+
+        ///////////////////////////////////////////////////////////////////////
         namespace _best_match
         {
             template <typename Ts, std::size_t I = 0>
@@ -1073,14 +1104,16 @@ namespace eggs { namespace variants
     //! template <std::size_t I, class ...Ts>
     //! struct variant_element<I, variant<Ts...>>;
     //!
-    //! \requires `I < sizeof...(Ts)`.
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
     //!
     //! \remarks The member typedef `type` shall name the type of the `I`th
     //!  element of `Ts...`, where indexing is zero-based.
     template <std::size_t I, typename ...Ts>
     struct variant_element<I, variant<Ts...>>
       : detail::at_index<I, detail::pack<Ts...>>
-    {};
+    {
+        static_assert(I < sizeof...(Ts), "variant_element index out of range");
+    };
 
     //! template <std::size_t I, class T>
     //! struct variant_element<I, T const>;
@@ -1102,7 +1135,7 @@ namespace eggs { namespace variants
     //! template <std::size_t I, class ...Ts>
     //! constexpr variant_element_t<I, variant<Ts...>>& get(variant<Ts...>& v);
     //!
-    //! \requires `I < sizeof...(Ts)`.
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
     //!
     //! \returns A reference to the `I`th member of `v` if it is active, where
     //!  indexing is zero-based.
@@ -1112,7 +1145,8 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
-      , typename T = typename variant_element<I, variant<Ts...>>::type
+      , typename T = typename detail::checked_at_index<
+            I, detail::pack<Ts...>>::type
     >
     EGGS_CXX14_CONSTEXPR T& get(variant<Ts...>& v)
     {
@@ -1124,7 +1158,7 @@ namespace eggs { namespace variants
     //! template <std::size_t I, class ...Ts>
     //! constexpr variant_element_t<I, variant<Ts...>> const& get(variant<Ts...> const& v);
     //!
-    //! \requires `I < sizeof...(Ts)`.
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
     //!
     //! \returns A const reference to the `I`th member of `v` if it is active,
     //!  where indexing is zero-based.
@@ -1134,7 +1168,8 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
-      , typename T = typename variant_element<I, variant<Ts...>>::type
+      , typename T = typename detail::checked_at_index<
+            I, detail::pack<Ts...>>::type
     >
     EGGS_CXX11_CONSTEXPR T const& get(variant<Ts...> const& v)
     {
@@ -1146,21 +1181,26 @@ namespace eggs { namespace variants
     //! template <std::size_t I, class ...Ts>
     //! constexpr variant_element_t<I, variant<Ts...>>&& get(variant<Ts...>&& v);
     //!
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
+    //!
     //! \effects Equivalent to return `std::forward<variant_element_t<I,
     //!  variant<Ts...>>>(get<I>(v))`.
     //!
     //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
-      , typename T = typename variant_element<I, variant<Ts...>>::type
+      , typename T = typename detail::checked_at_index<
+            I, detail::pack<Ts...>>::type
     >
     EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
-        return detail::forward<T>(get<I>(v));
+        return detail::forward<T>(variants::get<I>(v));
     }
 
     //! template <std::size_t I, class ...Ts>
     //! constexpr variant_element_t<I, variant<Ts...>> const&& get(variant<Ts...> const&& v);
+    //!
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
     //!
     //! \effects Equivalent to return `std::forward<variant_element_t<I,
     //!  variant<Ts...>> const>(get<I>(v))`.
@@ -1168,17 +1208,19 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
-      , typename T = typename variant_element<I, variant<Ts...>>::type
+      , typename T = typename detail::checked_at_index<
+            I, detail::pack<Ts...>>::type
     >
     EGGS_CXX14_CONSTEXPR T const&& get(variant<Ts...> const&& v)
     {
-        return detail::forward<T const>(get<I>(v));
+        return detail::forward<T const>(variants::get<I>(v));
     }
 
     //! template <class T, class ...Ts>
     //! constexpr T& get(variant<Ts...>& v);
     //!
-    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //! \requires The type `T` occurs exactly once in `Ts...`. Otherwise, the
+    //!  program is ill-formed.
     //!
     //! \returns A reference to the active member of `v` if it is of type `T`.
     //!
@@ -1188,7 +1230,7 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         typename T, typename ...Ts
-      , std::size_t I = detail::index_of<
+      , std::size_t I = detail::checked_index_of<
             T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
     >
     EGGS_CXX14_CONSTEXPR T& get(variant<Ts...>& v)
@@ -1201,7 +1243,8 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr T const& get(variant<Ts...> const& v);
     //!
-    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //! \requires The type `T` occurs exactly once in `Ts...`. Otherwise, the
+    //!  program is ill-formed.
     //!
     //! \returns A const reference to the active member of `v` if it is of
     //!  type `T`.
@@ -1212,7 +1255,7 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         typename T, typename ...Ts
-      , std::size_t I = detail::index_of<
+      , std::size_t I = detail::checked_index_of<
             T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
     >
     EGGS_CXX11_CONSTEXPR T const& get(variant<Ts...> const& v)
@@ -1225,32 +1268,46 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr T&& get(variant<Ts...>&& v);
     //!
+    //! \requires The type `T` occurs exactly once in `Ts...`. Otherwise, the
+    //!  program is ill-formed.
+    //!
     //! \effects Equivalent to return `std::forward<T>(get<T>(v))`.
     //!
     //! \remarks This function shall be a `constexpr` function.
-    template <typename T, typename ...Ts>
+    template <
+        typename T, typename ...Ts
+      , std::size_t I = detail::checked_index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+    >
     EGGS_CXX14_CONSTEXPR T&& get(variant<Ts...>&& v)
     {
-        return detail::forward<T>(get<T>(v));
+        return detail::forward<T>(variants::get<T>(v));
     }
 
     //! template <class T, class ...Ts>
     //! constexpr T const&& get(variant<Ts...> const&& v);
     //!
+    //! \requires The type `T` occurs exactly once in `Ts...`. Otherwise, the
+    //!  program is ill-formed.
+    //!
     //! \effects Equivalent to return `std::forward<T const>(get<T>(v))`.
     //!
     //! \remarks This function shall be a `constexpr` function.
-    template <typename T, typename ...Ts>
+    template <
+        typename T, typename ...Ts
+      , std::size_t I = detail::checked_index_of<
+            T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+    >
     EGGS_CXX14_CONSTEXPR T const&& get(variant<Ts...> const&& v)
     {
-        return detail::forward<T const>(get<T>(v));
+        return detail::forward<T const>(variants::get<T>(v));
     }
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <std::size_t I, class ...Ts>
     //! constexpr variant_element_t<I, variant<Ts...>>* get_if(variant<Ts...>* v) noexcept;
     //!
-    //! \requires `I < sizeof...(Ts)`.
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
     //!
     //! \returns If `v != nullptr`, a pointer to the `I`th member of `*v` if
     //!  it is active, where indexing is zero-based; otherwise, `nullptr`.
@@ -1258,7 +1315,8 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
-      , typename T = typename variant_element<I, variant<Ts...>>::type
+      , typename T = typename detail::checked_at_index<
+            I, detail::pack<Ts...>>::type
     >
     EGGS_CXX14_CONSTEXPR T* get_if(variant<Ts...>* v) EGGS_CXX11_NOEXCEPT
     {
@@ -1270,7 +1328,7 @@ namespace eggs { namespace variants
     //! template <std::size_t I, class ...Ts>
     //! constexpr variant_element_t<I, variant<Ts...>> const* get_if(variant<Ts...> const* v) noexcept;
     //!
-    //! \requires `I < sizeof...(Ts)`.
+    //! \requires `I < sizeof...(Ts)`. Otherwise, the program is ill-formed.
     //!
     //! \returns If `v != nullptr`, a const pointer to the `I`th member of `*v`
     //!  if it is active, where indexing is zero-based; otherwise, `nullptr`.
@@ -1278,7 +1336,8 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         std::size_t I, typename ...Ts
-      , typename T = typename variant_element<I, variant<Ts...>>::type
+      , typename T = typename detail::checked_at_index<
+            I, detail::pack<Ts...>>::type
     >
     EGGS_CXX11_CONSTEXPR T const* get_if(variant<Ts...> const* v) EGGS_CXX11_NOEXCEPT
     {
@@ -1290,7 +1349,8 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr T* get_if(variant<Ts...>* v) noexcept;
     //!
-    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //! \requires The type `T` occurs exactly once in `Ts...`. Otherwise, the
+    //!  program is ill-formed.
     //!
     //! \returns If `v != nullptr`, a pointer to the active member of `*v` if
     //!  it is of type `T`; otherwise,`nullptr`.
@@ -1298,7 +1358,7 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         typename T, typename ...Ts
-      , std::size_t I = detail::index_of<
+      , std::size_t I = detail::checked_index_of<
             T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
     >
     EGGS_CXX14_CONSTEXPR T* get_if(variant<Ts...>* v) EGGS_CXX11_NOEXCEPT
@@ -1311,7 +1371,8 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr T const* get_if(variant<Ts...> const* v) noexcept;
     //!
-    //! \requires The type `T` occurs exactly once in `Ts...`.
+    //! \requires The type `T` occurs exactly once in `Ts...`. Otherwise, the
+    //!  program is ill-formed.
     //!
     //! \returns If `v != nullptr`, a const pointer to the active member of
     //!  `*v` if it is of type `T`; otherwise,`nullptr`.
@@ -1319,7 +1380,7 @@ namespace eggs { namespace variants
     //! \remarks This function shall be a `constexpr` function.
     template <
         typename T, typename ...Ts
-      , std::size_t I = detail::index_of<
+      , std::size_t I = detail::checked_index_of<
             T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
     >
     EGGS_CXX11_CONSTEXPR T const* get_if(variant<Ts...> const* v) EGGS_CXX11_NOEXCEPT
