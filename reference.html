@@ -124,6 +124,7 @@
 &nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-3"><span style="color:#2b91af;">variant_size</span></a>&lt;<span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&gt;;
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">constexpr</span> std::<span style="color:#2b91af;">size_t</span> variant_size_v = <span style="color:#2b91af;">variant_size</span>&lt;T&gt;::value;
+
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-4"><span style="color:#2b91af;">variant_element</span></a>; <span style="color:green;">// undefined</span>
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt;
@@ -597,7 +598,7 @@
                 <a name="eggs-helper-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">struct</span> <span style="color:#2b91af;">variant_element</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;;</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Remarks:</em> The member typedef <code>type</code> shall name the type of the <code>I</code>th element of <code>Ts...</code>, where indexing is zero-based.</li>
                 </ul>
 
@@ -614,7 +615,7 @@
                 <a name="eggs-elem-1"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp; v);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> A reference to the <code>I</code>th member of <code>v</code> if it is active, where indexing is zero-based.</li>
                     <li><em>Throws:</em> <code>bad_variant_access</code> if the <code>I</code>th member of <code>v</code> is not active.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
@@ -623,7 +624,7 @@
                 <a name="eggs-elem-2"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; v);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> A const reference to the <code>I</code>th member of <code>v</code> if it is active, where indexing is zero-based.</li>
                     <li><em>Throws:</em> <code>bad_variant_access</code> if the <code>I</code>th member of <code>v</code> is not active.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
@@ -632,6 +633,7 @@
                 <a name="eggs-elem-3"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp; v);</pre>
                 <ul>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;variant_element_t&lt;I, variant&lt;Ts...&gt;&gt;&gt;(get&lt;I&gt;(v))</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -639,6 +641,7 @@
                 <a name="eggs-elem-4"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp; v);</pre>
                 <ul>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;variant_element_t&lt;I, variant&lt;Ts...&gt;&gt; const&gt;(get&lt;I&gt;(v))</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -646,7 +649,7 @@
                 <a name="eggs-elem-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp; v);</pre>
                 <ul>
-                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> A reference to the active member of <code>v</code> if it is of type <code>T</code>.</li>
                     <li><em>Throws:</em> <code>bad_variant_access</code> if the active member of <code>v</code> is not of type <code>T</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
@@ -655,7 +658,7 @@
                 <a name="eggs-elem-6"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp; v);</pre>
                 <ul>
-                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> A const reference to the active member of <code>v</code> if it is of type <code>T</code>.</li>
                     <li><em>Throws:</em> <code>bad_variant_access</code> if the active member of <code>v</code> is not of type <code>T</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
@@ -664,6 +667,7 @@
                 <a name="eggs-elem-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&amp;&amp; v);</pre>
                 <ul>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;T&gt;(get&lt;T&gt;(v))</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -671,6 +675,7 @@
                 <a name="eggs-elem-8"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&amp;&amp; get(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>&amp;&amp; v);</pre>
                 <ul>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Effects:</em> Equivalent to return <code>std::forward&lt;T const&gt;(get&lt;T&gt;(v))</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -678,7 +683,7 @@
                 <a name="eggs-elem-9"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt;* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;* v) <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> If <code>v != nullptr</code>, a pointer to the <code>I</code>th member of <code>*v</code> if it is active, where indexing is zero-based; otherwise, <code>nullptr</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -686,7 +691,7 @@
                 <a name="eggs-elem-10"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant_element_t</span>&lt;I, <span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;&gt; <span style="color:blue;">const</span>* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>* v) <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> If <code>v != nullptr</code>, a const pointer to the <code>I</code>th member of <code>*v</code> if it is active, where indexing is zero-based; otherwise, <code>nullptr</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -694,7 +699,7 @@
                 <a name="eggs-elem-11"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt;* v) <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
-                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> If <code>v != nullptr</code>, a pointer to the active member of <code>*v</code> if it is of type <code>T</code>; otherwise, <code>nullptr</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
@@ -702,7 +707,7 @@
                 <a name="eggs-elem-12"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Ts&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>* get_if(<span style="color:#2b91af;">variant</span>&lt;<span style="color:#2b91af;">Ts</span>...&gt; <span style="color:blue;">const</span>* v) <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
-                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>.</li>
+                    <li><em>Requires:</em> The type <code>T</code> occurs exactly once in <code>Ts...</code>. Otherwise, the program is ill-formed.</li>
                     <li><em>Returns:</em> If <code>v != nullptr</code>, a const pointer to the active member of <code>*v</code> if it is of type <code>T</code>; otherwise, <code>nullptr</code>.</li>
                     <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
