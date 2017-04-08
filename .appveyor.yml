@@ -36,5 +36,7 @@ build_script:
   - cd build
   - echo cmake -G "%GENERATOR%" -A x64
   - cmake -G "%GENERATOR%" -A x64 ..
-  - echo cmake --build . --config %CONFIG%
-  - cmake --build . --config %CONFIG%
+  - echo cmake --build . --config %CONFIGURATION%
+  - cmake --build . --config %CONFIGURATION%
+  - echo ctest -V --build-config %CONFIGURATION%
+  - ctest -V --build-config %CONFIGURATION%
