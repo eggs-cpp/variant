@@ -200,7 +200,7 @@ install:
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 
 script:
-  - make
+  - make -k
   - ctest -V
 
 notifications:
