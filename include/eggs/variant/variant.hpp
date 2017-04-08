@@ -128,6 +128,132 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        namespace _relops
+        {
+            struct _fallback {};
+
+            template <typename T, typename U>
+            static _fallback operator==(T const&, U const&);
+
+            template <typename T, typename U>
+            struct has_equal_to
+            {
+                using R = decltype(std::declval<T>() == std::declval<U>());
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    !std::is_same<R, _fallback>::value;
+            };
+
+            template <typename T, typename U>
+            static _fallback operator!=(T const&, U const&);
+
+            template <typename T, typename U>
+            struct has_not_equal_to
+            {
+                using R = decltype(std::declval<T>() != std::declval<U>());
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    !std::is_same<R, _fallback>::value;
+            };
+
+            template <typename T, typename U>
+            static _fallback operator<(T const&, U const&);
+
+            template <typename T, typename U>
+            struct has_less
+            {
+                using R = decltype(std::declval<T>() < std::declval<U>());
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    !std::is_same<R, _fallback>::value;
+            };
+
+            template <typename T, typename U>
+            static _fallback operator>(T const&, U const&);
+
+            template <typename T, typename U>
+            struct has_greater
+            {
+                using R = decltype(std::declval<T>() > std::declval<U>());
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    !std::is_same<R, _fallback>::value;
+            };
+
+            template <typename T, typename U>
+            static _fallback operator<=(T const&, U const&);
+
+            template <typename T, typename U>
+            struct has_less_equal
+            {
+                using R = decltype(std::declval<T>() <= std::declval<U>());
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    !std::is_same<R, _fallback>::value;
+            };
+
+            template <typename T, typename U>
+            static _fallback operator>=(T const&, U const&);
+
+            template <typename T, typename U>
+            struct has_greater_equal
+            {
+                using R = decltype(std::declval<T>() >= std::declval<U>());
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    !std::is_same<R, _fallback>::value;
+            };
+        }
+
+        template <typename T, typename U = T>
+        struct has_equal_to
+          : std::integral_constant<
+                bool
+              , _relops::has_equal_to<T, U>::value
+            >
+        {};
+
+        template <typename T, typename U = T>
+        struct has_not_equal_to
+          : std::integral_constant<
+                bool
+              , _relops::has_not_equal_to<T, U>::value
+            >
+        {};
+
+        template <typename T, typename U = T>
+        struct has_less
+          : std::integral_constant<
+                bool
+              , _relops::has_less<T, U>::value
+            >
+        {};
+
+        template <typename T, typename U = T>
+        struct has_greater
+          : std::integral_constant<
+                bool
+              , _relops::has_greater<T, U>::value
+            >
+        {};
+
+        template <typename T, typename U = T>
+        struct has_less_equal
+          : std::integral_constant<
+                bool
+              , _relops::has_less_equal<T, U>::value
+            >
+        {};
+
+        template <typename T, typename U = T>
+        struct has_greater_equal
+          : std::integral_constant<
+                bool
+              , _relops::has_greater_equal<T, U>::value
+            >
+        {};
+
+        ///////////////////////////////////////////////////////////////////////
 #if EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
         using std::is_swappable;
         using std::is_nothrow_swappable;
@@ -1413,18 +1539,24 @@ namespace eggs { namespace variants
     //! template <class ...Ts>
     //! constexpr bool operator==(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
-    //! \requires `*lhs.target<T>() == *rhs.target<T>()` is a valid expression
-    //!  returning a type that is convertible to `bool` for all `T` in `Ts...`.
+    //! \requires The expression `*lhs.target<T>() == *rhs.target<T>()` shall
+    //!  be convertible to `bool` for all `T` in `Ts...`.
     //!
     //! \returns If `lhs.which() != rhs.which()`, `false`; otherwise, if
     //!  `!bool(lhs)`, `true`; otherwise, `*lhs.target<T>() == *rhs.target<T>()`
     //!  where `T` is the type of the active member of both `lhs` and `rhs`.
     //!
-    //! \remarks This function shall be a `constexpr` function unless
-    //!  `lhs.which() == rhs.which()` and `*lhs.target<T>() == *rhs.target<T>()`
-    //!  where `T` is the type of the active member of both `lhs` and `rhs` is
-    //!  not a constant expression.
-    template <typename ...Ts>
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless the expression `*lhs.target<T>() == *rhs.target<T>()` is
+    //!  well-formed for all `T` in `Ts...`. This function shall be a
+    //!  `constexpr` function unless `lhs.which() == rhs.which()` and
+    //!  `*lhs.target<T>() == *rhs.target<T>()` where `T` is the type of the
+    //!  active member of both `lhs` and `rhs` is not a constant expression.
+    template <
+        typename ...Ts
+      , typename Enable = typename std::enable_if<detail::all_of<detail::pack<
+            detail::has_equal_to<Ts>...>>::value>::type
+    >
     EGGS_CXX11_CONSTEXPR bool operator==(
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
@@ -1446,18 +1578,24 @@ namespace eggs { namespace variants
     //! template <class ...Ts>
     //! constexpr bool operator!=(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
-    //! \requires `*lhs.target<T>() != *rhs.target<T>()` is a valid expression
-    //!  returning a type that is convertible to `bool` for all `T` in `Ts...`.
+    //! \requires The expression `*lhs.target<T>() != *rhs.target<T>()` shall
+    //!  be convertible to `bool` for all `T` in `Ts...`.
     //!
     //! \returns If `lhs.which() != rhs.which()`, `true`; otherwise, if
     //!  `!bool(lhs)`, `false`; otherwise, `*lhs.target<T>() != *rhs.target<T>()`
     //!  where `T` is the type of the active member of both `lhs` and `rhs`.
     //!
-    //! \remarks This function shall be a `constexpr` function unless
-    //!  `lhs.which() == rhs.which()` and `*lhs.target<T>() != *rhs.target<T>()`
-    //!  where `T` is the type of the active member of both `lhs` and `rhs` is
-    //!  not a constant expression.
-    template <typename ...Ts>
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless the expression `*lhs.target<T>() != *rhs.target<T>()` is
+    //!  well-formed for all `T` in `Ts...`.  This function shall be a
+    //!  `constexpr` function unless `lhs.which() == rhs.which()` and
+    //!  `*lhs.target<T>() != *rhs.target<T>()` where `T` is the type of the
+    //!  active member of both `lhs` and `rhs` is not a constant expression.
+    template <
+        typename ...Ts
+      , typename Enable = typename std::enable_if<detail::all_of<detail::pack<
+            detail::has_not_equal_to<Ts>...>>::value>::type
+    >
     EGGS_CXX11_CONSTEXPR bool operator!=(
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
@@ -1479,19 +1617,25 @@ namespace eggs { namespace variants
     //! template <class ...Ts>
     //! constexpr bool operator<(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
-    //! \requires `*lhs.target<T>() < *rhs.target<T>()` is a valid expression
-    //!  returning a type that is convertible to `bool` for all `T` in `Ts...`.
+    //! \requires The expression `*lhs.target<T>() < *rhs.target<T>()` shall
+    //!  be convertible to `bool` for all `T` in `Ts...`.
     //!
     //! \returns If `!bool(rhs)`, `false`; otherwise, if `!bool(lhs)`, `true`;
     //!  otherwise, if `lhs.which() == rhs.which()`, `*lhs.target<T>() <
     //!  *rhs.target<T>()` where `T` is the type of the active member of both
     //!  `lhs` and `rhs`; otherwise, `lhs.which() < rhs.which()`.
     //!
-    //! \remarks This function shall be a `constexpr` function unless
-    //!  `lhs.which() == rhs.which()` and `*lhs.target<T>() < *rhs.target<T>()`
-    //!  where `T` is the type of the active member of both `lhs` and `rhs` is
-    //!  not a constant expression.
-    template <typename ...Ts>
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless the expression `*lhs.target<T>() < *rhs.target<T>()` is
+    //!  well-formed for all `T` in `Ts...`. This function shall be a
+    //!  `constexpr` function unless `lhs.which() == rhs.which()` and
+    //!  `*lhs.target<T>() < *rhs.target<T>()` where `T` is the type of the
+    //!  active member of both `lhs` and `rhs` is not a constant expression.
+    template <
+        typename ...Ts
+      , typename Enable = typename std::enable_if<detail::all_of<detail::pack<
+            detail::has_less<Ts>...>>::value>::type
+    >
     EGGS_CXX11_CONSTEXPR bool operator<(
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
@@ -1515,19 +1659,25 @@ namespace eggs { namespace variants
     //! template <class ...Ts>
     //! constexpr bool operator>(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
-    //! \requires `*lhs.target<T>() > *rhs.target<T>()` is a valid expression
-    //!  returning a type that is convertible to `bool` for all `T` in `Ts...`.
+    //! \requires The expression `*lhs.target<T>() > *rhs.target<T>()` shall
+    //!  be convertible to `bool` for all `T` in `Ts...`.
     //!
     //! \returns If `!bool(lhs)`, `false`; otherwise, if `!bool(rhs)`, `true`;
     //!  otherwise, if `lhs.which() == rhs.which()`, `*lhs.target<T>() >
     //!  *rhs.target<T>()` where `T` is the type of the active member of both
     //!  `lhs` and `rhs`; otherwise, `lhs.which() > rhs.which()`.
     //!
-    //! \remarks This function shall be a `constexpr` function unless
-    //!  `lhs.which() == rhs.which()` and `*lhs.target<T>() > *rhs.target<T>()`
-    //!  where `T` is the type of the active member of both `lhs` and `rhs` is
-    //!  not a constant expression.
-    template <typename ...Ts>
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless the expression `*lhs.target<T>() > *rhs.target<T>()` is
+    //!  well-formed for all `T` in `Ts...`. This function shall be a
+    //!  `constexpr` function unless `lhs.which() == rhs.which()` and
+    //!  `*lhs.target<T>() > *rhs.target<T>()` where `T` is the type of the
+    //!  active member of both `lhs` and `rhs` is not a constant expression.
+    template <
+        typename ...Ts
+      , typename Enable = typename std::enable_if<detail::all_of<detail::pack<
+            detail::has_greater<Ts>...>>::value>::type
+    >
     EGGS_CXX11_CONSTEXPR bool operator>(
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
@@ -1551,19 +1701,25 @@ namespace eggs { namespace variants
     //! template <class ...Ts>
     //! constexpr bool operator<=(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
-    //! \requires `*lhs.target<T>() <= *rhs.target<T>()` is a valid expression
-    //!  returning a type that is convertible to `bool` for all `T` in `Ts...`.
+    //! \requires The expression `*lhs.target<T>() <= *rhs.target<T>()` shall
+    //!  be convertible to `bool` for all `T` in `Ts...`.
     //!
     //! \returns If `!bool(lhs)`, `true`; otherwise, if `!bool(rhs)`, `false`;
     //!  otherwise, if `lhs.which() == rhs.which()`, `*lhs.target<T>() <=
     //!  *rhs.target<T>()` where `T` is the type of the active member of both
     //!  `lhs` and `rhs`; otherwise, `lhs.which() < rhs.which()`.
     //!
-    //! \remarks This function shall be a `constexpr` function unless
-    //!  `lhs.which() == rhs.which()` and `*lhs.target<T>() <= *rhs.target<T>()`
-    //!  where `T` is the type of the active member of both `lhs` and `rhs` is
-    //!  not a constant expression.
-    template <typename ...Ts>
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless the expression `*lhs.target<T>() <= *rhs.target<T>()` is
+    //!  well-formed for all `T` in `Ts...`. This function shall be a
+    //!  `constexpr` function unless `lhs.which() == rhs.which()` and
+    //!  `*lhs.target<T>() <= *rhs.target<T>()` where `T` is the type of the
+    //!  active member of both `lhs` and `rhs` is not a constant expression.
+    template <
+        typename ...Ts
+      , typename Enable = typename std::enable_if<detail::all_of<detail::pack<
+            detail::has_less_equal<Ts>...>>::value>::type
+    >
     EGGS_CXX11_CONSTEXPR bool operator<=(
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
@@ -1587,19 +1743,25 @@ namespace eggs { namespace variants
     //! template <class ...Ts>
     //! constexpr bool operator>=(variant<Ts...> const& lhs, variant<Ts...> const& rhs);
     //!
-    //! \requires `*lhs.target<T>() >= *rhs.target<T>()` is a valid expression
-    //!  returning a type that is convertible to `bool` for all `T` in `Ts...`.
+    //! \requires The expression `*lhs.target<T>() >= *rhs.target<T>()` shall
+    //!  be convertible to `bool` for all `T` in `Ts...`.
     //!
     //! \returns If `!bool(rhs)`, `true`; otherwise, if `!bool(lhs)`, `false`;
     //!  otherwise, if `lhs.which() == rhs.which()`, `*lhs.target<T>() >=
     //!  *rhs.target<T>()` where `T` is the type of the active member of both
     //!  `lhs` and `rhs`; otherwise, `lhs.which() > rhs.which()`.
     //!
-    //! \remarks This function shall be a `constexpr` function unless
-    //!  `lhs.which() == rhs.which()` and `*lhs.target<T>() >= *rhs.target<T>()`
-    //!  where `T` is the type of the active member of both `lhs` and `rhs` is
-    //!  not a constant expression.
-    template <typename ...Ts>
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless the expression `*lhs.target<T>() >= *rhs.target<T>()` is
+    //!  well-formed for all `T` in `Ts...`. This function shall be a
+    //!  `constexpr` function unless `lhs.which() == rhs.which()` and
+    //!  `*lhs.target<T>() >= *rhs.target<T>()` where `T` is the type of the
+    //!  active member of both `lhs` and `rhs` is not a constant expression.
+    template <
+        typename ...Ts
+      , typename Enable = typename std::enable_if<detail::all_of<detail::pack<
+            detail::has_greater_equal<Ts>...>>::value>::type
+    >
     EGGS_CXX11_CONSTEXPR bool operator>=(
         variant<Ts...> const& lhs, variant<Ts...> const& rhs)
     {
@@ -1624,27 +1786,29 @@ namespace eggs { namespace variants
     //! template <class ...Ts, class T>
     //! constexpr bool operator==(variant<Ts...> const& lhs, U const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `rhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `*lhs.target<T>() == rhs` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `*lhs.target<T>() == rhs` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `lhs` has an active member of type `T`,
     //!  `*lhs.target<T>() == rhs`; otherwise, `false`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `lhs` has an active
-    //!  member of type `T` and `*lhs.target<T>() == rhs` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `rhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `*lhs.target<T>() == rhs` is well-formed. This function
+    //!  shall be a `constexpr` function unless `lhs` has an active member of
+    //!  type `T` and `*lhs.target<T>() == rhs` is not a constant expression.
     template <
         typename ...Ts, typename U
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_equal_to<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator==(
         variant<Ts...> const& lhs, U const& rhs)
@@ -1657,27 +1821,29 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr bool operator==(U const& lhs, variant<Ts...> const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `lhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `lhs == *rhs.target<T>()` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `lhs == *rhs.target<T>()` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `rhs` has an active member of type `T`,
     //!  `lhs == *rhs.target<T>()`; otherwise, `false`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `rhs` has an active
-    //!  member of type `T` and `lhs == *rhs.target<T>()` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `lhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `lhs == *rhs.target<T>()' is well-formed. This function
+    //!  shall be a `constexpr` function unless `rhs` has an active member of
+    //!  type `T` and `lhs == *rhs.target<T>()` is not a constant expression.
     template <
         typename U, typename ...Ts
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_equal_to<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator==(
         U const& lhs, variant<Ts...> const& rhs)
@@ -1690,27 +1856,29 @@ namespace eggs { namespace variants
     //! template <class ...Ts, class T>
     //! constexpr bool operator!=(variant<Ts...> const& lhs, U const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `rhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `*lhs.target<T>() != rhs` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `*lhs.target<T>() != rhs` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `lhs` has an active member of type `T`,
     //!  `*lhs.target<T>() != rhs`; otherwise, `true`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `lhs` has an active
-    //!  member of type `T` and `*lhs.target<T>() != rhs` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `rhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `*lhs.target<T>() != rhs` is well-formed. This function
+    //!  shall be a `constexpr` function unless `lhs` has an active member of
+    //!  type `T` and `*lhs.target<T>() != rhs` is not a constant expression.
     template <
         typename ...Ts, typename U
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_not_equal_to<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator!=(
         variant<Ts...> const& lhs, U const& rhs)
@@ -1723,27 +1891,29 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr bool operator!=(U const& lhs, variant<Ts...> const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `lhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `lhs != *rhs.target<T>()` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `lhs != *rhs.target<T>()` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `rhs` has an active member of type `T`,
     //!  `lhs != *rhs.target<T>()`; otherwise, `true`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `rhs` has an active
-    //!  member of type `T` and `lhs != *rhs.target<T>()` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `lhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `lhs != *rhs.target<T>()' is well-formed. This function
+    //!  shall be a `constexpr` function unless `rhs` has an active member of
+    //!  type `T` and `lhs != *rhs.target<T>()` is not a constant expression.
     template <
         typename U, typename ...Ts
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_not_equal_to<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator!=(
         U const& lhs, variant<Ts...> const& rhs)
@@ -1756,28 +1926,30 @@ namespace eggs { namespace variants
     //! template <class ...Ts, class T>
     //! constexpr bool operator<(variant<Ts...> const& lhs, U const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `rhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `*lhs.target<T>() < rhs` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `*lhs.target<T>() < rhs` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(lhs)`, `true`; otherwise, if `lhs` has an active
     //!  member of type `T`, `*lhs.target<T>() < rhs`; otherwise,
     //!  `lhs.which() < I` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `lhs` has an active
-    //!  member of type `T` and `*lhs.target<T>() < rhs` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `rhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `*lhs.target<T>() < rhs` is well-formed. This function
+    //!  shall be a `constexpr` function unless `lhs` has an active member of
+    //!  type `T` and `*lhs.target<T>() < rhs` is not a constant expression.
     template <
         typename ...Ts, typename U
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_less<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator<(
         variant<Ts...> const& lhs, U const& rhs)
@@ -1792,28 +1964,30 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr bool operator<(U const& lhs, variant<Ts...> const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `lhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `lhs < *rhs.target<T>()` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `lhs < *rhs.target<T>()` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(rhs)`, `false`; otherwise, if `rhs` has an active
     //!  member of type `T`, `lhs < *rhs.target<T>()`; otherwise,
     //!  `I < rhs.which()` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `rhs` has an active
-    //!  member of type `T` and `lhs < *rhs.target<T>()` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `lhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `lhs < *rhs.target<T>()' is well-formed. This function
+    //!  shall be a `constexpr` function unless `rhs` has an active member of
+    //!  type `T` and `lhs < *rhs.target<T>()` is not a constant expression.
     template <
         typename U, typename ...Ts
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_less<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator<(
         U const& lhs, variant<Ts...> const& rhs)
@@ -1828,28 +2002,30 @@ namespace eggs { namespace variants
     //! template <class ...Ts, class T>
     //! constexpr bool operator>(variant<Ts...> const& lhs, U const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `rhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `*lhs.target<T>() > rhs` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `*lhs.target<T>() > rhs` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(lhs)`, `false`; otherwise, if `lhs` has an active
     //!  member of type `T`, `*lhs.target<T>() > rhs`; otherwise,
     //!  `lhs.which() > I` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `lhs` has an active
-    //!  member of type `T` and `*lhs.target<T>() > rhs` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `rhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `*lhs.target<T>() > rhs` is well-formed. This function
+    //!  shall be a `constexpr` function unless `lhs` has an active member of
+    //!  type `T` and `*lhs.target<T>() > rhs` is not a constant expression.
     template <
         typename ...Ts, typename U
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_greater<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator>(
         variant<Ts...> const& lhs, U const& rhs)
@@ -1864,28 +2040,30 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr bool operator>(U const& lhs, variant<Ts...> const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `lhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `lhs > *rhs.target<T>()` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `lhs > *rhs.target<T>()` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(rhs)`, `true`; otherwise, if `rhs` has an active
     //!  member of type `T`, `lhs > *rhs.target<T>()`; otherwise,
     //!  `I > rhs.which()` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `rhs` has an active
-    //!  member of type `T` and `lhs > *rhs.target<T>()` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `lhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `lhs > *rhs.target<T>()' is well-formed. This function
+    //!  shall be a `constexpr` function unless `rhs` has an active member of
+    //!  type `T` and `lhs > *rhs.target<T>()` is not a constant expression.
     template <
         typename U, typename ...Ts
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_greater<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator>(
         U const& lhs, variant<Ts...> const& rhs)
@@ -1900,28 +2078,30 @@ namespace eggs { namespace variants
     //! template <class ...Ts, class T>
     //! constexpr bool operator<=(variant<Ts...> const& lhs, U const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `rhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `*lhs.target<T>() <= rhs` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `*lhs.target<T>() <= rhs` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(lhs)`, `true`; otherwise, if `lhs` has an active
     //!  member of type `T`, `*lhs.target<T>() <= rhs`; otherwise,
     //!  `lhs.which() < I` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `lhs` has an active
-    //!  member of type `T` and `*lhs.target<T>() <= rhs` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `rhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `*lhs.target<T>() <= rhs` is well-formed. This function
+    //!  shall be a `constexpr` function unless `lhs` has an active member of
+    //!  type `T` and `*lhs.target<T>() <= rhs` is not a constant expression.
     template <
         typename ...Ts, typename U
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_less_equal<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator<=(
         variant<Ts...> const& lhs, U const& rhs)
@@ -1936,28 +2116,30 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr bool operator<=(U const& lhs, variant<Ts...> const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `lhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `lhs <= *rhs.target<T>()` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `lhs <= *rhs.target<T>()` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(rhs)`, `false`; otherwise, if `rhs` has an active
     //!  member of type `T`, `lhs <= *rhs.target<T>()`; otherwise,
     //!  `I < rhs.which()` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `rhs` has an active
-    //!  member of type `T` and `lhs <= *rhs.target<T>()` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `lhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `lhs <= *rhs.target<T>()' is well-formed. This function
+    //!  shall be a `constexpr` function unless `rhs` has an active member of
+    //!  type `T` and `lhs <= *rhs.target<T>()` is not a constant expression.
     template <
         typename U, typename ...Ts
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_less_equal<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator<=(
         U const& lhs, variant<Ts...> const& rhs)
@@ -1972,28 +2154,30 @@ namespace eggs { namespace variants
     //! template <class ...Ts, class T>
     //! constexpr bool operator>=(variant<Ts...> const& lhs, U const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `rhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `*lhs.target<T>() >= rhs` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `*lhs.target<T>() >= rhs` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(lhs)`, `false`; otherwise, if `lhs` has an active
     //!  member of type `T`, `*lhs.target<T>() >= rhs`; otherwise,
     //!  `lhs.which() > I` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `lhs` has an active
-    //!  member of type `T` and `*lhs.target<T>() >= rhs` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `rhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `*lhs.target<T>() >= rhs` is well-formed. This function
+    //!  shall be a `constexpr` function unless `lhs` has an active member of
+    //!  type `T` and `*lhs.target<T>() >= rhs` is not a constant expression.
     template <
         typename ...Ts, typename U
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_greater_equal<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator>=(
         variant<Ts...> const& lhs, U const& rhs)
@@ -2008,28 +2192,30 @@ namespace eggs { namespace variants
     //! template <class T, class ...Ts>
     //! constexpr bool operator>=(U const& lhs, variant<Ts...> const& rhs);
     //!
-    //! Let `T` be one of the types in `Ts...` for which `U const&` is
+    //! Let `T` be one of the types in `Ts...` for which `lhs` is
     //!  unambiguously convertible to by overload resolution rules.
     //!
-    //! \requires `lhs >= *rhs.target<T>()` is a valid expression returning a
-    //!  type that is convertible to `bool`.
+    //! \requires The expression `lhs >= *rhs.target<T>()` shall be
+    //!  convertible to `bool`.
     //!
     //! \returns If `!bool(rhs)`, `true`; otherwise, if `rhs` has an active
     //!  member of type `T`, `lhs >= *rhs.target<T>()`; otherwise,
     //!  `I > rhs.which()` where `I` is the zero-based index of `T` in `Ts...`.
     //!
-    //! \remarks This operator shall not participate in overload resolution
-    //!  unless there is a type `T` in `Ts...` for which `U const&` is
-    //!  unambiguously convertible to by overload resolution rules. This
-    //!  function shall be a `constexpr` function unless `rhs` has an active
-    //!  member of type `T` and `lhs >= *rhs.target<T>()` is not a constant
-    //!  expression.
+    //! \remarks This function shall not participate in overload resolution
+    //!  unless there is a type `T` in `Ts...` for which `lhs` is
+    //!  unambiguously convertible to by overload resolution rules, and the
+    //!  expression `lhs >= *rhs.target<T>()' is well-formed. This function
+    //!  shall be a `constexpr` function unless `rhs` has an active member of
+    //!  type `T` and `lhs >= *rhs.target<T>()` is not a constant expression.
     template <
         typename U, typename ...Ts
       , std::size_t I = detail::index_of_best_match<
             U const&, detail::pack<Ts...>>::value
       , typename T = typename detail::at_index<
             I, detail::pack<Ts...>>::type
+      , typename Enable = typename std::enable_if<
+            detail::has_greater_equal<T const&, U const&>::value>::type
     >
     EGGS_CXX11_CONSTEXPR bool operator>=(
         U const& lhs, variant<Ts...> const& rhs)

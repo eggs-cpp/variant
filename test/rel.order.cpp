@@ -26,7 +26,7 @@ struct _void
     using type = void;
 };
 
-template <typename T, typename U, typename Enable = void>
+template <typename T, typename U = T, typename Enable = void>
 struct has_less
   : std::false_type
 {};
@@ -39,20 +39,7 @@ struct has_less<
 > : std::true_type
 {};
 
-template <typename T, typename U, typename Enable = void>
-struct has_less_equal
-  : std::false_type
-{};
-
-template <typename T, typename U>
-struct has_less_equal<
-    T, U, typename _void<
-        decltype(std::declval<T>() <= std::declval<U>())
-    >::type
-> : std::true_type
-{};
-
-template <typename T, typename U, typename Enable = void>
+template <typename T, typename U = T, typename Enable = void>
 struct has_greater
   : std::false_type
 {};
@@ -65,7 +52,20 @@ struct has_greater<
 > : std::true_type
 {};
 
-template <typename T, typename U, typename Enable = void>
+template <typename T, typename U = T, typename Enable = void>
+struct has_less_equal
+  : std::false_type
+{};
+
+template <typename T, typename U>
+struct has_less_equal<
+    T, U, typename _void<
+        decltype(std::declval<T>() <= std::declval<U>())
+    >::type
+> : std::true_type
+{};
+
+template <typename T, typename U = T, typename Enable = void>
 struct has_greater_equal
   : std::false_type
 {};
@@ -77,6 +77,12 @@ struct has_greater_equal<
     >::type
 > : std::true_type
 {};
+
+template <typename T>
+struct NonComparable
+{
+    NonComparable(T const&) {}
+};
 #endif
 
 TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.rel]")
@@ -181,6 +187,28 @@ TEST_CASE("operator<(variant<Ts...> const&, variant<Ts...> const&)", "[variant.r
         }
 #endif
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_less<
+                eggs::variant<NonComparable<int>>
+            >::value));
+        CHECK((
+            !has_greater<
+                eggs::variant<NonComparable<int>>
+            >::value));
+        CHECK((
+            !has_less_equal<
+                eggs::variant<NonComparable<int>>
+            >::value));
+        CHECK((
+            !has_greater_equal<
+                eggs::variant<NonComparable<int>>
+            >::value));
+    }
+#endif
 }
 
 TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
@@ -289,16 +317,33 @@ TEST_CASE("operator<(variant<Ts...> const&, T const&)", "[variant.rel]")
                 eggs::variant<int>, std::string
             >::value));
         CHECK((
-            !has_less_equal<
+            !has_greater<
                 eggs::variant<int>, std::string
             >::value));
         CHECK((
-            !has_greater<
+            !has_less_equal<
                 eggs::variant<int>, std::string
             >::value));
         CHECK((
             !has_greater_equal<
                 eggs::variant<int>, std::string
+            >::value));
+
+        CHECK((
+            !has_less<
+                eggs::variant<NonComparable<int>>, int
+            >::value));
+        CHECK((
+            !has_greater<
+                eggs::variant<NonComparable<int>>, int
+            >::value));
+        CHECK((
+            !has_less_equal<
+                eggs::variant<NonComparable<int>>, int
+            >::value));
+        CHECK((
+            !has_greater_equal<
+                eggs::variant<NonComparable<int>>, int
             >::value));
     }
 #endif
@@ -410,16 +455,33 @@ TEST_CASE("operator<(T const&, variant<Ts...> const&)", "[variant.rel]")
                 std::string, eggs::variant<int>
             >::value));
         CHECK((
-            !has_less_equal<
+            !has_greater<
                 std::string, eggs::variant<int>
             >::value));
         CHECK((
-            !has_greater<
+            !has_less_equal<
                 std::string, eggs::variant<int>
             >::value));
         CHECK((
             !has_greater_equal<
                 std::string, eggs::variant<int>
+            >::value));
+
+        CHECK((
+            !has_less<
+                int, eggs::variant<NonComparable<int>>
+            >::value));
+        CHECK((
+            !has_greater<
+                int, eggs::variant<NonComparable<int>>
+            >::value));
+        CHECK((
+            !has_less_equal<
+                int, eggs::variant<NonComparable<int>>
+            >::value));
+        CHECK((
+            !has_greater_equal<
+                int, eggs::variant<NonComparable<int>>
             >::value));
     }
 #endif
