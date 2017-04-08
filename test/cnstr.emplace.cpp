@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 #include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
@@ -51,6 +52,20 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
 #  endif
     }
 #endif
+
+    // sfinae
+    {
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int>,
+                eggs::variants::in_place_index_t<0>, std::string
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int>,
+                eggs::variants::in_place_index_t<1>
+            >::value));
+    }
 }
 
 TEST_CASE("variant<T, T>::variant(in_place<I>, Args&&...)", "[variant.cnstr]")
@@ -103,6 +118,20 @@ TEST_CASE("variant<Ts...>::variant(in_place<I>, std::initializer_list<U>, Args&&
 #  endif
     }
 #endif
+
+    // sfinae
+    {
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<std::string>,
+                eggs::variants::in_place_index_t<0>, std::initializer_list<int>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<std::string>,
+                eggs::variants::in_place_index_t<1>, std::initializer_list<int>
+            >::value));
+    }
 }
 
 TEST_CASE("variant<T, T>::variant(in_place<I>, std::initializer_list<U>, Args&&...)", "[variant.cnstr]")
@@ -155,6 +184,25 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, Args&&...)", "[variant.cnstr]")
 #  endif
     }
 #endif
+
+    // sfinae
+    {
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int>,
+                eggs::variants::in_place_type_t<int>, std::string
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int, int>,
+                eggs::variants::in_place_type_t<int>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int, int const>,
+                eggs::variants::in_place_type_t<int>
+            >::value));
+    }
 }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -194,5 +242,24 @@ TEST_CASE("variant<Ts...>::variant(in_place<T>, std::initializer_list<U>, Args&&
 #  endif
     }
 #endif
+
+    // sfinae
+    {
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<std::string>,
+                eggs::variants::in_place_type_t<std::string>, std::initializer_list<int>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<std::string, std::string>,
+                eggs::variants::in_place_type_t<std::string>, std::initializer_list<int>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<std::string, std::string const>,
+                eggs::variants::in_place_type_t<std::string>, std::initializer_list<int>
+            >::value));
+    }
 }
 #endif

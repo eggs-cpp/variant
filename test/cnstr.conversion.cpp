@@ -18,6 +18,14 @@
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct WeirdConstructor
+{
+    WeirdConstructor(int) {}
+    explicit WeirdConstructor(long) = delete;
+};
+#endif
+
 TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v(42);
@@ -83,5 +91,11 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
             !std::is_constructible<
                 eggs::variant<int, int const>, int
             >::value));
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<WeirdConstructor>, long
+            >::value));
+#endif
     }
 }

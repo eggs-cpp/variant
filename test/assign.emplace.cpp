@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 #include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
@@ -18,6 +19,50 @@
 #include "throw.hpp"
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+template <typename ...Ts>
+struct _void
+{
+    using type = void;
+};
+
+template <typename V, std::size_t I, typename Args, typename Enable = void>
+struct _has_emplace_index
+  : std::false_type
+{};
+
+template <typename V, std::size_t I, typename ...Args>
+struct _has_emplace_index<
+    V, I, void(Args...), typename _void<
+        decltype(std::declval<V>().template emplace<I>(std::declval<Args>()...))
+    >::type
+> : std::true_type
+{};
+
+template <typename V, std::size_t I, typename ...Args>
+struct has_emplace_index
+  : _has_emplace_index<V, I, void(Args&&...)>
+{};
+
+template <typename V, typename T, typename Args, typename Enable = void>
+struct _has_emplace_type
+  : std::false_type
+{};
+
+template <typename V, typename T, typename ...Args>
+struct _has_emplace_type<
+    V, T, void(Args...), typename _void<
+        decltype(std::declval<V>().template emplace<T>(std::declval<Args>()...))
+    >::type
+> : std::true_type
+{};
+
+template <typename V, typename T, typename ...Args>
+struct has_emplace_type
+  : _has_emplace_type<V, T, void(Args&&...)>
+{};
+#endif
 
 #if EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct NonAssignable
@@ -185,6 +230,17 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         }
 #endif
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_emplace_index<
+                eggs::variant<int>,
+                0, std::string
+            >::value));
+    }
+#endif
 }
 
 TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
@@ -355,6 +411,17 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         }
 #endif
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_emplace_index<
+                eggs::variant<std::string>,
+                0, std::initializer_list<int>
+            >::value));
+    }
+#endif
 }
 
 TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
@@ -524,6 +591,17 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         }
 #endif
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_emplace_type<
+                eggs::variant<int>,
+                int, std::string
+            >::value));
+    }
+#endif
 }
 
 #if EGGS_CXX11_HAS_DELETED_FUNCTIONS
@@ -675,6 +753,17 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         }
 #endif
     }
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+    // sfinae
+    {
+        CHECK((
+            !has_emplace_type<
+                eggs::variant<std::string>,
+                std::string, std::initializer_list<int>
+            >::value));
+    }
+#endif
 }
 #endif
 #endif

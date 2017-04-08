@@ -419,10 +419,8 @@ namespace eggs { namespace variants
         //! template <class U>
         //! constexpr variant(U&& v);
         //!
-        //! Let `T` be one of the types in `Ts...` for which `U&&` is
+        //! Let `T` be one of the types in `Ts...` for which `std::forward<U>(u)`
         //!  unambiguously convertible to by overload resolution rules.
-        //!
-        //! \requires `std::is_constructible_v<T, U&&>` is `true`.
         //!
         //! \effects Initializes the active member as if direct-non-list-
         //!  initializing an object of type `T` with the expression
@@ -434,24 +432,26 @@ namespace eggs { namespace variants
         //!
         //! \remarks This constructor shall not participate in overload
         //!  resolution unless `std::is_same_v<std::decay_t<U>, variant>` is
-        //!  `false`, and there is a type `T` in `Ts...` for which `U&&` is
-        //!  unambiguously convertible to by overload resolution rules. If
-        //!  `T`'s selected constructor is a `constexpr` constructor, this
-        //!  constructor shall be a `constexpr` constructor.
+        //!  `false`, there is a type `T` in `Ts...` for which `std::forward<U>(u)`
+        //!  is unambiguously convertible to by overload resolution rules, and
+        //!  `std::is_constructible_v<T, U>` is `true`. If `T`'s selected
+        //!  constructor is a `constexpr` constructor, this constructor shall
+        //!  be a `constexpr` constructor.
         template <
             typename U
-          , typename Enable = typename std::enable_if<!std::is_same<
-                typename std::decay<U>::type, variant
-            >::value>::type
+          , typename NoCopy = typename std::enable_if<!std::is_same<
+                typename std::decay<U>::type, variant>::value>::type
           , std::size_t I = detail::index_of_best_match<
                 U&&, detail::pack<Ts...>>::value
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
+          , typename Enable = typename std::enable_if<
+                std::is_constructible<T, U>::value>::type
         >
         EGGS_CXX11_CONSTEXPR variant(U&& v)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_constructible<T, U&&>::value)
+                std::is_nothrow_constructible<T, U>::value)
 #endif
           : _storage{detail::index<I + 1>{}, detail::forward<U>(v)}
         {}
@@ -462,9 +462,6 @@ namespace eggs { namespace variants
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
         //!
-        //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
-        //!  Args&&...>` is `true`.
-        //!
         //! \effects Initializes the active member as if direct-non-list-
         //!  initializing an object of type `T` with the arguments
         //!  `std::forward<Args>(args)...`.
@@ -473,18 +470,23 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \remarks If `T`'s selected constructor is a `constexpr`
-        //!  constructor, this constructor shall be a `constexpr` constructor.
+        //! \remarks This constructor shall not participate in overload
+        //!  resolution unless `I < sizeof...(Ts)`, and
+        //!  `std::is_constructible_v<T, Args...>` is `true`. If `T`'s
+        //!  selected constructor is a `constexpr` constructor, this
+        //!  constructor shall be a `constexpr` constructor.
         template <
             std::size_t I, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
+          , typename Enable = typename std::enable_if<
+                std::is_constructible<T, Args...>::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_index_t<I>, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+                std::is_nothrow_constructible<T, Args...>::value)
 #endif
           : _storage{detail::index<I + 1>{}, detail::forward<Args>(args)...}
         {}
@@ -496,9 +498,6 @@ namespace eggs { namespace variants
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
         //!
-        //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
-        //!  initializer_list<U>&, Args&&...>` is `true`.
-        //!
         //! \effects Initializes the active member as if direct-non-list-
         //!  initializing an object of type `T` with the arguments `il,
         //!  std::forward<Args>(args)...`.
@@ -508,24 +507,22 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks This constructor shall not participate in overload
-        //!  resolution unless `std::is_constructible_v<T, std::initializer_list<U>&,
-        //!  Args&&...>` is `true`. If `T`'s selected constructor is a
-        //!  `constexpr` constructor, this constructor shall be a `constexpr`
-        //!  constructor.
+        //!  resolution unless `I < sizeof...(Ts)`, and
+        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args...>`
+        //!  is `true`. If `T`'s selected constructor is a `constexpr`
+        //!  constructor, this constructor shall be a `constexpr` constructor.
         template <
             std::size_t I, typename U, typename ...Args
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
           , typename Enable = typename std::enable_if<std::is_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value>::type
+                T, std::initializer_list<U>&, Args...>::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_index_t<I>, std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value)
+                T, std::initializer_list<U>&, Args...>::value)
 #endif
           : _storage{detail::index<I + 1>{}, il, detail::forward<Args>(args)...}
         {}
@@ -534,57 +531,59 @@ namespace eggs { namespace variants
         //! template <class T, class ...Args>
         //! constexpr explicit variant(in_place_type_t<T>, Args&&... args);
         //!
-        //! \requires `T` shall occur exactly once in `Ts...`.
-        //!
         //! \effects Equivalent to `variant(in_place<I>,
         //!  std::forward<Args>(args)...)` where `I` is the zero-based index
         //!  of `T` in `Ts...`.
         //!
-        //! \remarks If `T`'s selected constructor is a `constexpr`
-        //!  constructor, this constructor shall be a `constexpr` constructor.
-        template <typename T, typename ...Args>
+        //! \remarks This constructor shall not participate in overload
+        //!  resolution unless there is exactly one occurrence of `T` in
+        //!  `Ts...`, and `std::is_constructible_v<T, Args...>` is `true`. If
+        //!  `T`'s selected constructor is a `constexpr` constructor, this
+        //!  constructor shall be a `constexpr` constructor.
+        template <
+            typename T, typename ...Args
+          , std::size_t I = detail::index_of<
+                T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+          , typename Enable = typename std::enable_if<std::is_constructible<
+                T, Args...>::value>::type
+        >
         EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_type_t<T>, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+                std::is_nothrow_constructible<T, Args...>::value)
 #endif
-          : _storage{detail::index_of<T, detail::pack<
-                    detail::empty, typename std::remove_cv<Ts>::type...
-                >>{}, detail::forward<Args>(args)...}
+          : _storage{detail::index<I + 1>{}, detail::forward<Args>(args)...}
         {}
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
         //! template <class T, class U, class ...Args>
         //! constexpr explicit variant(in_place_type_t<T>, std::initializer_list<U> il, Args&&... args);
         //!
-        //! \requires `T` shall occur exactly once in `Ts...`.
-        //!
         //! \effects Equivalent to `variant(in_place<I>, il,
         //!  std::forward<Args>(args)...)` where `I` is the zero-based index
         //!  of `T` in `Ts...`.
         //!
         //! \remarks This constructor shall not participate in overload
-        //!  resolution unless `std::is_constructible_v<T, std::initializer_list<U>&,
+        //!  resolution unless there is exactly one occurrence of `T` in
+        //!  `Ts...`, and `std::is_constructible_v<T, std::initializer_list<U>&,
         //!  Args&&...>` is `true`. If `T`'s selected constructor is a
         //!  `constexpr` constructor, this constructor shall be a `constexpr`
         //!  constructor.
         template <
             typename T, typename U, typename ...Args
+          , std::size_t I = detail::index_of<
+                T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
           , typename Enable = typename std::enable_if<std::is_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value>::type
+                T, std::initializer_list<U>&, Args...>::value>::type
         >
         EGGS_CXX11_CONSTEXPR explicit variant(
             in_place_type_t<T>, std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value)
+                T, std::initializer_list<U>&, Args...>::value)
 #endif
-          : _storage{detail::index_of<T, detail::pack<
-                    detail::empty, typename std::remove_cv<Ts>::type...
-                >>{}, il, detail::forward<Args>(args)...}
+          : _storage{detail::index<I + 1>{}, il, detail::forward<Args>(args)...}
         {}
 #endif
 
@@ -672,11 +671,8 @@ namespace eggs { namespace variants
         //! template <class U>
         //! constexpr variant& operator=(U&& v);
         //!
-        //! Let `T` be one of the types in `Ts...` for which `U&&` is
-        //!  unambiguously convertible to by overload resolution rules.
-        //!
-        //! \requires `std::is_constructible_v<T, U&&>` and
-        //!  `std::is_assignable_v<T, U&&>` are `true`.
+        //! Let `T` be one of the types in `Ts...` for which `std::forward<U>(u)`
+        //!  is unambiguously convertible to by overload resolution rules.
         //!
         //! \effects
         //!  - If `*this` has an active member of type `T`, assigns to the
@@ -692,30 +688,36 @@ namespace eggs { namespace variants
         //!
         //! \remarks If an exception is thrown during the call to `T`'s
         //!  assignment, the state of the active member is as defined by the
-        //!  exception safety guarantee of `T`'s copy assignment. If an
-        //!  exception is thrown during the call to `T`'s constructor, `*this`
-        //!  has no active member, and the previous active member (if any) has
-        //!  been destroyed. This operator shall not participate in overload
+        //!  exception safety guarantee of `T`'s assignment. If an exception
+        //!  is thrown during the call to `T`'s constructor, `*this` has no
+        //!  active member, and the previous active member (if any) has been
+        //!  destroyed. This function shall not participate in overload
         //!  resolution unless `std::is_same_v<std::decay_t<U>, variant>` is
-        //!  `false`, and there is a type `T` in `Ts...` for which `U&&`
-        //!  is unambiguously convertible to by overload resolution rules. If
-        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+        //!  `false`, there is a type `T` in `Ts...` for which `std::forward<U>(u)`
+        //!  is unambiguously convertible to by overload resolution rules, and
+        //!  `std::is_constructible_v<T, U>` is `true`. This function shall be
+        //!  defined as deleted unless `std::is_assignable_v<T&, U>` is `true`.
+        //!  If `std::is_trivially_copyable_v<T>` is `true` for all `T` in
         //!  `Ts...` and `T`'s selected constructor is a `constexpr`
         //!  constructor, then this function shall be a `constexpr` function.
         template <
             typename U
-          , typename Enable = typename std::enable_if<!std::is_same<
+          , typename NoCopy = typename std::enable_if<!std::is_same<
                 typename std::decay<U>::type, variant
             >::value>::type
           , std::size_t I = detail::index_of_best_match<
                 U&&, detail::pack<Ts...>>::value
           , typename T = typename detail::at_index<
                 I, detail::pack<Ts...>>::type
+          , typename std::enable_if<
+                std::is_assignable<T&, U>::value
+             && std::is_constructible<T, U>::value, bool>::type = true
         >
         EGGS_CXX14_CONSTEXPR variant& operator=(U&& v)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
-            EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_assignable<T, U&&>::value
-                  && std::is_nothrow_constructible<T, U&&>::value)
+            EGGS_CXX11_NOEXCEPT_IF(
+                std::is_nothrow_assignable<T&, U>::value
+             && std::is_nothrow_constructible<T, U>::value)
 #endif
         {
             if (_storage.which() == I + 1)
@@ -727,14 +729,32 @@ namespace eggs { namespace variants
             return *this;
         }
 
+        template <
+            typename U
+          , typename NoCopy = typename std::enable_if<!std::is_same<
+                typename std::decay<U>::type, variant
+            >::value>::type
+          , std::size_t I = detail::index_of_best_match<
+                U&&, detail::pack<Ts...>>::value
+          , typename T = typename detail::at_index<
+                I, detail::pack<Ts...>>::type
+          , typename std::enable_if<
+                !std::is_assignable<T&, U>::value, bool>::type = false
+        >
+        EGGS_CXX14_CONSTEXPR variant& operator=(U&& v)
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        = delete;
+#else
+        ;
+#endif
+
         //! template <std::size_t I, class ...Args>
         //! constexpr T& emplace(Args&&... args);
         //!
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
         //!
-        //! \requires `I < sizeof...(Ts)` and `std::is_constructible_v<T,
-        //!  Args&&...>` is `true`.
+        //! \requires `I < sizeof...(Ts)`.
         //!
         //! \effects Calls `*this = {}`. Then, initializes the active member
         //!  as if direct-non-list-initializing  an object of type `T` with
@@ -748,26 +768,28 @@ namespace eggs { namespace variants
         //!
         //! \remarks If an exception is thrown during the call to `T`'s
         //!  constructor, `*this` has no active member, and the previous
-        //!  active member (if any) has been destroyed. If
+        //!  active member (if any) has been destroyed. This function shall
+        //!  not participate in overload resolution unless
+        //!  `std::is_constructible_v<T, Args...>` is `true`.  If
         //!  `std::is_trivially_copyable_v<T> && std::is_copy_assignable_v<T>`
         //!  is `true` for all `T` in `Ts...` and `T`'s selected constructor
         //!  is a `constexpr` constructor, then this function shall be a
         //!  `constexpr` function.
         template <
             std::size_t I, typename ...Args
-          , typename T = typename detail::at_index<
+          , typename T = typename detail::checked_at_index<
                 I, detail::pack<Ts...>>::type
+          , typename Enable = typename std::enable_if<
+                std::is_constructible<T, Args...>::value>::type
         >
         EGGS_CXX14_CONSTEXPR T& emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+                std::is_nothrow_constructible<T, Args...>::value)
 #endif
         {
-            using t_which = detail::index<I + 1>;
-
             return _storage.emplace(
-                t_which{}, detail::forward<Args>(args)...);
+                detail::index<I + 1>{}, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -777,8 +799,7 @@ namespace eggs { namespace variants
         //! Let `T` be the `I`th element in `Ts...`, where indexing is
         //! zero-based.
         //!
-        //! \requires `I < sizeof...(Ts)` and  `std::is_constructible_v<T,
-        //!  initializer_list<U>&, Args&&...>` is `true`.
+        //! \requires `I < sizeof...(Ts)`.
         //!
         //! \effects Calls `*this = {}`. Then, initializes the active member
         //!  as if direct-non-list-initializing an object of type `T` with
@@ -794,30 +815,26 @@ namespace eggs { namespace variants
         //!  constructor, `*this` has no active member, and the previous
         //!  active member (if any) has been destroyed. This function shall
         //!  not participate in overload resolution unless
-        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args&&...>`
+        //!  `std::is_constructible_v<T, std::initializer_list<U>&, Args...>`
         //!  is `true`. If `std::is_trivially_copyable_v<T> &&
         //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`
         //!  and `T`'s selected constructor is a `constexpr` constructor, then
         //!  this function shall be a `constexpr` function.
         template <
             std::size_t I, typename U, typename ...Args
-          , typename T = typename detail::at_index<
+          , typename T = typename detail::checked_at_index<
                 I, detail::pack<Ts...>>::type
           , typename Enable = typename std::enable_if<std::is_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value>::type
+                T, std::initializer_list<U>&, Args...>::value>::type
         >
         EGGS_CXX14_CONSTEXPR T& emplace(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value)
+                T, std::initializer_list<U>&, Args...>::value)
 #endif
         {
-            using t_which = detail::index<I + 1>;
-
             return _storage.emplace(
-                t_which{}, il, detail::forward<Args>(args)...);
+                detail::index<I + 1>{}, il, detail::forward<Args>(args)...);
         }
 #endif
 
@@ -830,22 +847,27 @@ namespace eggs { namespace variants
         //! \effects Equivalent to `emplace<I>(std::forward<Args>(args)...)`
         //!  where `I` is the zero-based index of `T` in `Ts...`.
         //!
-        //! \remarks If `std::is_trivially_copyable_v<T> &&
-        //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`
-        //!  and `T`'s selected constructor is a `constexpr` constructor, then
-        //!  this function shall be a `constexpr` function.
-        template <typename T, typename ...Args>
+        //! \remarks This function shall not participate in overload resolution
+        //!  unless `std::is_constructible_v<T, Args...>` is `true`. If
+        //!  `std::is_trivially_copyable_v<T> && std::is_copy_assignable_v<T>`
+        //!  is `true` for all `T` in `Ts...` and `T`'s selected constructor
+        //!  is a `constexpr` constructor, then this function shall be a
+        //!  `constexpr` function.
+        template <
+            typename T, typename ...Args
+          , std::size_t I = detail::checked_index_of<
+                T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
+          , typename Enable = typename std::enable_if<
+                std::is_constructible<T, Args...>::value>::type
+        >
         EGGS_CXX14_CONSTEXPR T& emplace(Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_constructible<T, Args&&...>::value)
+                std::is_nothrow_constructible<T, Args...>::value)
 #endif
         {
-            using t_which = detail::index_of<T, detail::pack<
-                detail::empty, Ts...>>;
-
             return _storage.emplace(
-                t_which{}, detail::forward<Args>(args)...);
+                detail::index<I + 1>{}, detail::forward<Args>(args)...);
         }
 
 #if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
@@ -859,28 +881,25 @@ namespace eggs { namespace variants
         //!
         //! \remarks This function shall not participate in overload resolution
         //!  unless `std::is_constructible_v<T, std::initializer_list<U>&,
-        //!  Args&&...>` is `true`. If `std::is_trivially_copyable_v<T> &&
+        //!  Args...>` is `true`. If `std::is_trivially_copyable_v<T> &&
         //!  std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...` and
         //!  `T`'s selected constructor is a `constexpr` constructor, then this
         //!  function shall be a `constexpr` function.
         template <
             typename T, typename U, typename ...Args
+          , std::size_t I = detail::checked_index_of<
+                T, detail::pack<typename std::remove_cv<Ts>::type...>>::value
           , typename Enable = typename std::enable_if<std::is_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value>::type
+                T, std::initializer_list<U>&, Args...>::value>::type
         >
         EGGS_CXX14_CONSTEXPR T& emplace(std::initializer_list<U> il, Args&&... args)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(std::is_nothrow_constructible<
-                T, std::initializer_list<U>&, Args&&...
-            >::value)
+                T, std::initializer_list<U>&, Args...>::value)
 #endif
         {
-            using t_which = detail::index_of<T, detail::pack<
-                detail::empty, Ts...>>;
-
             return _storage.emplace(
-                t_which{}, il, detail::forward<Args>(args)...);
+                detail::index<I + 1>{}, il, detail::forward<Args>(args)...);
         }
 #endif
 #endif
@@ -2089,7 +2108,8 @@ namespace eggs { namespace variants
     >
     EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
-        return apply<R>(detail::forward<F>(f), detail::forward<Vs>(vs)...);
+        return variants::apply<R>(
+            detail::forward<F>(f), detail::forward<Vs>(vs)...);
     }
 
     template <
@@ -2098,7 +2118,7 @@ namespace eggs { namespace variants
     >
     EGGS_CXX11_CONSTEXPR R apply(F&& f)
     {
-        return apply<R>(detail::forward<F>(f));
+        return variants::apply<R>(detail::forward<F>(f));
     }
 
     ///////////////////////////////////////////////////////////////////////////

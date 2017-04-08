@@ -20,6 +20,22 @@
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct WeirdAssignment
+{
+    WeirdAssignment(long) {}
+
+    WeirdAssignment& operator=(WeirdAssignment const&) = default;
+    WeirdAssignment& operator=(long) = delete;
+};
+
+struct WeirdConstructor
+{
+    WeirdConstructor(int) {}
+    explicit WeirdConstructor(long) = delete;
+};
+#endif
+
 TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 {
     // empty target
@@ -200,5 +216,17 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
             !std::is_assignable<
                 eggs::variant<int, int const>&, int
             >::value));
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#  if !defined(_MSC_FULL_VER) || _MSC_FULL_VER >= 191025206
+        CHECK((
+            !std::is_assignable<
+                eggs::variant<WeirdAssignment>&, long
+            >::value));
+#  endif
+        CHECK((
+            !std::is_assignable<
+                eggs::variant<WeirdConstructor>&, long
+            >::value));
+#endif
     }
 }
