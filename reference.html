@@ -313,50 +313,45 @@
                 <a name="eggs-variant-cnstr-4"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">U</span>&amp;&amp; v);</pre>
                 <ul>
-                    <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules.</li>
-                    <li><em>Requires:</em> <code>std::is_constructible_v&lt;<em>T</em>, U&amp;&amp;&gt;</code> is <code>true</code>.</li>
+                    <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>std::forward&lt;U&gt;(u)</code> is unambiguously convertible to by overload resolution rules.</li>
                     <li><em>Effects:</em> Initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the expression <code>std::forward&lt;U&gt;(v)</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>std::is_same_v&lt;std::decay_t&lt;U&gt;, variant&gt;</code> is <code>false</code>, and there is a type <code>T</code> in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>std::is_same_v&lt;std::decay_t&lt;U&gt;, variant&gt;</code> is <code>false</code>, there is a type <code>T</code> in <code>Ts...</code> for which <code>std::forward&lt;U&gt;(u)</code> is unambiguously convertible to by overload resolution rules, and <code>std::is_constructible_v&lt;T, U&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
-                    <li><em><em>Requires:</em></em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
                     <li><em>Effects:</em> Initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>I &lt; sizeof...(Ts)</code>, and <code>std::is_constructible_v&lt;T, Args...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-6"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_index_t</span>&lt;<span style="color:#2b91af;">I</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
                     <li><em>Effects:</em> Initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>I &lt; sizeof...(Ts)</code>, and <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>variant(in_place&lt;I&gt;, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless there is exactly one occurrence of <code>T</code> in <code>Ts...</code>, and <code>std::is_constructible_v&lt;T, Args...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-8"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:blue;">explicit</span> variant(<span style="color:#2b91af;">in_place_type_t</span>&lt;<span style="color:#2b91af;">T</span>&gt;</span>, std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>variant(in_place&lt;I&gt;, il, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall not participate in overload resolution unless there is exactly one occurrence of <code>T</code> in <code>Ts...</code>, and <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args...&gt;</code> is <code>true</code>. If <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, this constructor shall be a <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-dtor" href="#eggs-variant-dtor"><h2>Destructor</h2></a>
@@ -406,8 +401,7 @@
                 <a name="eggs-variant-assign-3"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> U&gt;<br /><span style="color:blue;">constexpr</span> variant&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">U</span>&amp;&amp; v);</pre>
                 <ul>
-                    <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules.</li>
-                    <li><em>Requires:</em> <code>std::is_constructible_v&lt;T, U&amp;&amp;&gt;</code> and <code>std::is_assignable_v&lt;<em>T</em>, U&amp;&amp;&gt;</code> are <code>true</code>.</li>
+                    <li>Let <em><code>T</code></em> be one of the types in <code>Ts...</code> for which <code>std::forward&lt;U&gt;(u)</code> is unambiguously convertible to by overload resolution rules.</li>
                     <li>
                         <em>Effects:</em>
                         <ul>
@@ -417,31 +411,31 @@
                     </li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s assignment, the state of the active member is as defined by the exception safety guarantee of <em><code>T</code></em>'s copy assignment. If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This operator shall not participate in overload resolution unless <code>std::is_same_v&lt;std::decay_t&lt;U&gt;, variant&gt;</code> is <code>false</code>, and there is a type <code>T</code> in <code>Ts...</code> for which <code>U&&</code> is unambiguously convertible to by overload resolution rules. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s assignment, the state of the active member is as defined by the exception safety guarantee of <em><code>T</code></em>'s assignment. If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_same_v&lt;std::decay_t&lt;U&gt;, variant&gt;</code> is <code>false</code>, there is a type <code>T</code> in <code>Ts...</code> for which <code>std::forward&lt;U&gt;(u)</code> is unambiguously convertible to by overload resolution rules, and <code>std::is_constructible_v&lt;T, U&gt;</code> is <code>true</code>. This function shall be defined as deleted unless <code>std::is_assignable_v&lt;T&, U&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-4"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;"><em>T</em></span>&amp; emplace(<span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
                     <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Returns:</em> A reference to the new contained value.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, Args...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-5"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> U, <span style="color:blue;">class</span> ...Args&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;"><em>T</em></span>&amp; emplace(std::<span style="color:#2b91af;">initializer_list</span>&lt;<span style="color:#2b91af;">U</span>&gt; il, <span style="color:#2b91af;">Args</span>&amp;&amp;... args);</pre>
                 <ul>
                     <li>Let <em><code>T</code></em> be the <code>I</code>th element in <code>Ts...</code>, where indexing is zero-based.</li>
-                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code> and <code>std::is_constructible_v&lt;<em>T</em>, initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>.</li>
+                    <li><em>Requires:</em> <code>I &lt; sizeof...(Ts)</code>.</li>
                     <li><em>Effects:</em> Calls <code>*this = {}</code>. Then, initializes the active member as if direct-non-list-initializing an object of type <em><code>T</code></em> with the arguments <code>il, std::forward&lt;Args&gt;(args)...</code>.</li>
                     <li><em>Postconditions:</em> <code>*this</code> has an active member of type <em><code>T</code></em>.</li>
                     <li><em>Returns:</em> A reference to the new contained value.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <em><code>T</code></em>.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;<em>T</em>, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <em><code>T</code></em>'s constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-6"></a>
@@ -449,7 +443,7 @@
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>emplace&lt;I&gt;(std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, Args...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-7"></a>
@@ -457,7 +451,7 @@
                 <ul>
                     <li><em>Requires:</em> <code>T</code> shall occur exactly once in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code>emplace&lt;I&gt;(il, std::forward&lt;Args&gt;(args)...)</code> where <code>I</code> is the zero-based index of <code>T</code> in <code>Ts...</code>.</li>
-                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args&amp;&amp;...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall not participate in overload resolution unless <code>std::is_constructible_v&lt;T, std::initializer_list&lt;U&gt;&amp;, Args...&gt;</code> is <code>true</code>. If <code>std::is_trivially_copyable_v&lt;T&gt; &amp;&amp; std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code> and <code>T</code>'s selected constructor is a <code>constexpr</code> constructor, then this function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-swap" href="#eggs-variant-swap"><h2>Swap</h2></a>
