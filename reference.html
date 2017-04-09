@@ -293,21 +293,19 @@
                 <a name="eggs-variant-cnstr-2"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>std::is_copy_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> If <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>*rhs.target&lt;T&gt;()</code>; otherwise, no member is initialized.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <code>T</code>.</li>
-                    <li><em>Remarks:</em> If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy constructor shall be a trivial <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> This constructor shall be defined as deleted unless <code>std::is_copy_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy constructor shall be a trivial <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-3"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> variant(<span style="color:#2b91af;">variant</span>&amp;&amp; rhs) <span style="color:blue;">noexcept</span>(<em>see below</em>);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>std::is_move_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
                     <li><em>Effects:</em> If <code>rhs</code> has an active member of type <code>T</code>, initializes the active member as if direct-non-list-initializing an object of type <code>T</code> with the expression <code>std::move(*rhs.target&lt;T&gt;())</code>; otherwise, no member is initialized. <code>bool(rhs)</code> is unchanged.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
                     <li><em>Throws:</em> Any exception thrown by the selected constructor of <code>T</code>.</li>
-                    <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>.  If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move constructor shall be a trivial <code>constexpr</code> constructor.</li>
+                    <li><em>Remarks:</em> The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. This constructor shall not participate in overload resolution unless <code>std::is_move_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move constructor shall be a trivial <code>constexpr</code> constructor.</li>
                 </ul>
 
                 <a name="eggs-variant-cnstr-4"></a>
@@ -368,7 +366,6 @@
                 <a name="eggs-variant-assign-1"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">variant</span> <span style="color:blue;">const</span>&amp; rhs);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>std::is_copy_constructible_v&lt;T&gt;</code> and <code>std::is_copy_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
                     <li>
                         <em>Effects:</em>
                         <ul>
@@ -378,13 +375,12 @@
                     </li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <code>T</code>'s copy assignment, the state of the active member is as defined by the exception safety guarantee of <code>T</code>'s copy assignment. If an exception is thrown during the call to <code>T</code>'s copy constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <code>T</code>'s copy assignment, the state of the active member is as defined by the exception safety guarantee of <code>T</code>'s copy assignment. If an exception is thrown during the call to <code>T</code>'s copy constructor, <code>*this</code> has no active member, and the previous active member (if any) has been destroyed. This function shall be defined as deleted unless <code>std::is_copy_assignable_v&lt;T&gt; &amp;&amp; std::is_copy_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this copy assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-2"></a>
                 <pre class="code"><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">variant</span>&amp; <span style="color:blue;">operator</span>=(<span style="color:#2b91af;">variant</span>&amp;&amp; rhs) <span style="color:blue;">noexcept</span>(<em>see below</em>);</pre>
                 <ul>
-                    <li><em>Requires:</em> <code>std::is_move_constructible_v&lt;T&gt;</code> and <code>std::is_move_assignable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>.</li>
                     <li>
                         <em>Effects:</em>
                         <ul>
@@ -395,7 +391,7 @@
                     <li><code>bool(rhs)</code> is unchanged.</li>
                     <li><em>Returns:</em> <code>*this</code>.</li>
                     <li><em>Postconditions:</em> <code>rhs.which() == this-&gt;which()</code>.</li>
-                    <li><em>Remarks:</em> If an exception is thrown during the call to <code>T</code>'s move assignment, the state of both active members is determined by the exception safety guarantee of <code>T</code>'s move assignment. If an exception is thrown during the call to <code>T</code>'s move constructor, <code>*this</code> has no active member, the previous active member (if any) has been destroyed, and the state of the active member of <code>rhs</code> is determined by the exception safety guarantee of <code>T</code>'s move constructor. The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_assignable_v&lt;Ts&gt;...</code> and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
+                    <li><em>Remarks:</em> If an exception is thrown during the call to <code>T</code>'s move assignment, the state of both active members is determined by the exception safety guarantee of <code>T</code>'s move assignment. If an exception is thrown during the call to <code>T</code>'s move constructor, <code>*this</code> has no active member, the previous active member (if any) has been destroyed, and the state of the active member of <code>rhs</code> is determined by the exception safety guarantee of <code>T</code>'s move constructor. The expression inside <code>noexcept</code> is equivalent to the logical <em>AND</em> of <code>std::is_nothrow_move_assignable_v&lt;Ts&gt;...</code> and <code>std::is_nothrow_move_constructible_v&lt;Ts&gt;...</code>. This function shall not participate in overload resolution unless <code>std::is_move_assignable_v&lt;T&gt; &amp;&amp; std::is_move_constructible_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>. If <code>std::is_trivially_copyable_v&lt;T&gt;</code> is <code>true</code> for all <code>T</code> in <code>Ts...</code>, then this move assignment operator shall be a trivial <code>constexpr</code> assignment operator.</li>
                 </ul>
 
                 <a name="eggs-variant-assign-3"></a>
