@@ -500,9 +500,6 @@ namespace eggs { namespace variants
 
         //! constexpr variant(variant const& rhs);
         //!
-        //! \requires `std::is_copy_constructible_v<T>` is `true` for all `T`
-        //!  in `Ts...`.
-        //!
         //! \effects If `rhs` has an active member of type `T`, initializes
         //!  the active member as if direct-non-list-initializing an object of
         //!  type `T` with the expression `*rhs.target<T>()`; otherwise, no
@@ -512,7 +509,9 @@ namespace eggs { namespace variants
         //!
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
-        //! \remarks If `std::is_trivially_copyable_v<T>` is `true` for all
+        //! \remarks This constructor shall be defined as deleted unless
+        //!  `std::is_copy_constructible_v<T>` is `true` for all `T` in
+        //!  `Ts...`. If `std::is_trivially_copyable_v<T>` is `true` for all
         //!  `T` in `Ts...`, then this copy constructor shall be a trivial
         //!  `constexpr` constructor.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
@@ -520,9 +519,6 @@ namespace eggs { namespace variants
 #endif
 
         //! constexpr variant(variant&& rhs) noexcept(see below);
-        //!
-        //! \requires `std::is_move_constructible_v<T>` is `true` for all `T`
-        //!  in `Ts...`.
         //!
         //! \effects If `rhs` has an active member of type `T`, initializes
         //!  the active member as if direct-non-list-initializing an object of
@@ -534,9 +530,11 @@ namespace eggs { namespace variants
         //! \throws Any exception thrown by the selected constructor of `T`.
         //!
         //! \remarks The expression inside `noexcept` is equivalent to the
-        //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`. If
-        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-        //!  `Ts...`, then this move constructor shall be a trivial
+        //!  logical AND of `std::is_nothrow_move_constructible_v<Ts>...`.
+        //!  This constructor shall not participate in overload resolution
+        //!  unless `std::is_move_constructible_v<T>` is `true` for all `T` in
+        //!  `Ts...`. If `std::is_trivially_copyable_v<T>` is `true` for all
+        //!  `T` in `Ts...`, then this move constructor shall be a trivial
         //!  `constexpr` constructor.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant(variant&& rhs) = default;
@@ -726,9 +724,6 @@ namespace eggs { namespace variants
 
         //! constexpr variant& operator=(variant const& rhs);
         //!
-        //! \requires `std::is_copy_constructible_v<T>` and
-        //!  `std::is_copy_assignable_v<T>` is `true` for all `T` in `Ts...`.
-        //!
         //! \effects
         //!  - If both `*this` and `rhs` have an active member of type `T`,
         //!    assigns to the active member the expression `*rhs.target<T>()`;
@@ -748,17 +743,17 @@ namespace eggs { namespace variants
         //!  exception safety guarantee of `T`'s copy assignment. If an
         //!  exception is thrown during the call to `T`'s copy constructor,
         //!  `*this` has no active member, and the previous active member (if
-        //!  any) has been destroyed. If `std::is_trivially_copyable_v<T>` is
-        //!  `true` for all `T` in `Ts...`, then this copy assignment operator
-        //!  shall be a trivial `constexpr` assignment operator.
+        //!  any) has been destroyed. This function shall be defined as
+        //!  deleted unless `std::is_copy_assignable_v<T> &&
+        //!  std::is_copy_constructible_v<T>` is `true` for all `T` in `Ts...`.
+        //!  If `std::is_trivially_copyable_v<T>` is `true` for all `T` in
+        //!  `Ts...`, then this copy assignment operator shall be a trivial
+        //!  `constexpr` assignment operator.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant const& rhs) = default;
 #endif
 
         //! constexpr variant& operator=(variant&& rhs) noexcept(see below);
-        //!
-        //! \requires `std::is_move_constructible_v<T>` and
-        //!  `std::is_move_assignable_v<T>` is `true` for all `T` in `Ts...`.
         //!
         //! \effects
         //!  - If both `*this` and `rhs` have an active member of type `T`,
@@ -786,10 +781,12 @@ namespace eggs { namespace variants
         //!  is determined by the exception safety guarantee of `T`'s move
         //!  constructor. The expression inside `noexcept` is equivalent to
         //!  the logical AND of `std::is_nothrow_move_assignable_v<Ts>...` and
-        //!  `std::is_nothrow_move_constructible_v<Ts>...`. If
-        //!  `std::is_trivially_copyable_v<T>` is `true` for all `T` in
-        //!  `Ts...`, then this move assignment operator shall be a trivial
-        //!  `constexpr` assignment operator.
+        //!  `std::is_nothrow_move_constructible_v<Ts>...`. This function
+        //!  shall not participate in overload resolution unless
+        //!  `std::is_move_assignable_v<T> && std::is_move_constructible_v<T>`
+        //!  is `true` for all `T` in `Ts...`. If `std::is_trivially_copyable_v<T>`
+        //!  is `true` for all `T` in `Ts...`, then this move assignment
+        //!  operator shall be a trivial `constexpr` assignment operator.
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         variant& operator=(variant&& rhs) = default;
 #endif

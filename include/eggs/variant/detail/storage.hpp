@@ -337,6 +337,21 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
+    struct not_a_type
+    {
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        not_a_type() = delete;
+        not_a_type(not_a_type const&) = delete;
+        not_a_type& operator=(not_a_type const&) = delete;
+#endif
+    };
+
+    template <bool C, typename T>
+    struct special_member_if
+      : std::conditional<C, T, not_a_type>
+    {};
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Ts, bool TriviallyCopyable, bool TriviallyDestructible>
     struct _storage;
 
@@ -435,7 +450,7 @@ namespace eggs { namespace variants { namespace detail
                   , target(), rhs.target()
                 );
             } else {
-                _storage tmp(std::move(*this));
+                _storage tmp(detail::move(*this));
                 _move(rhs);
                 rhs._move(tmp);
             }
@@ -474,7 +489,12 @@ namespace eggs { namespace variants { namespace detail
         {}
 #endif
 
-        _storage(_storage const& rhs)
+        _storage(typename special_member_if<
+                all_of<pack<
+                    std::is_copy_constructible<Ts>...
+                >>::value,
+                _storage
+            >::type const& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                 std::is_nothrow_copy_constructible<Ts>...
@@ -489,7 +509,24 @@ namespace eggs { namespace variants { namespace detail
             _which = rhs._which;
         }
 
-        _storage(_storage&& rhs)
+        _storage(typename special_member_if<
+                !all_of<pack<
+                    std::is_copy_constructible<Ts>...
+                >>::value,
+                _storage
+            >::type const& rhs)
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+            = delete;
+#else
+            ;
+#endif
+
+        _storage(typename special_member_if<
+                all_of<pack<
+                    std::is_move_constructible<Ts>...
+                >>::value,
+                _storage
+            >::type&& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                 std::is_nothrow_move_constructible<Ts>...
@@ -541,7 +578,13 @@ namespace eggs { namespace variants { namespace detail
             return get(which);
         }
 
-        _storage& operator=(_storage const& rhs)
+        _storage& operator=(typename special_member_if<
+                all_of<pack<
+                    std::is_copy_assignable<Ts>...
+                  , std::is_copy_constructible<Ts>...
+                >>::value,
+                _storage
+            >::type const& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                 std::is_nothrow_copy_assignable<Ts>...
@@ -561,7 +604,26 @@ namespace eggs { namespace variants { namespace detail
             return *this;
         }
 
-        _storage& operator=(_storage&& rhs)
+        _storage& operator=(typename special_member_if<
+                !all_of<pack<
+                    std::is_copy_assignable<Ts>...
+                  , std::is_copy_constructible<Ts>...
+                >>::value,
+                _storage
+            >::type const& rhs)
+#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+            = delete;
+#else
+            ;
+#endif
+
+        _storage& operator=(typename special_member_if<
+                all_of<pack<
+                    std::is_move_assignable<Ts>...
+                  , std::is_move_constructible<Ts>...
+                >>::value,
+                _storage
+            >::type&& rhs)
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
             EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
                 std::is_nothrow_move_assignable<Ts>...
@@ -596,7 +658,7 @@ namespace eggs { namespace variants { namespace detail
                 rhs._move(*this);
                 _destroy();
             } else {
-                _storage tmp(std::move(*this));
+                _storage tmp(detail::move(*this));
                 _move(rhs);
                 rhs._move(tmp);
                 tmp._destroy();
@@ -639,30 +701,15 @@ namespace eggs { namespace variants { namespace detail
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         _storage() = default;
-        _storage(_storage const& rhs) = default;
-        _storage(_storage&& rhs) = default;
 #else
         EGGS_CXX11_CONSTEXPR _storage() EGGS_CXX11_NOEXCEPT
           : base_type{}
         {}
-
-        _storage(_storage const& rhs)
-#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
-            EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_copy_constructible<base_type>::value
-            )
 #endif
-          : base_type{static_cast<base_type const&>(rhs)}
-        {}
 
-        _storage(_storage&& rhs)
-#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
-            EGGS_CXX11_NOEXCEPT_IF(
-                std::is_nothrow_move_constructible<base_type>::value
-            )
-#endif
-          : base_type{static_cast<base_type&&>(rhs)}
-        {}
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        _storage(_storage const& rhs) = default;
+        _storage(_storage&& rhs) = default;
 #endif
 
         template <std::size_t I, typename ...Args>
@@ -680,30 +727,6 @@ namespace eggs { namespace variants { namespace detail
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         _storage& operator=(_storage const& rhs) = default;
         _storage& operator=(_storage&& rhs) = default;
-#else
-        _storage& operator=(_storage const& rhs)
-#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
-            EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
-                std::is_nothrow_copy_assignable<Ts>...
-              , std::is_nothrow_copy_constructible<Ts>...
-            >>::value)
-#endif
-        {
-            base_type::operator=(rhs);
-            return *this;
-        }
-
-        _storage& operator=(_storage&& rhs)
-#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
-            EGGS_CXX11_NOEXCEPT_IF(all_of<pack<
-                std::is_nothrow_move_assignable<Ts>...
-              , std::is_nothrow_move_constructible<Ts>...
-            >>::value)
-#endif
-        {
-            base_type::operator=(detail::move(rhs));
-            return *this;
-        }
 #endif
 
         using base_type::swap;

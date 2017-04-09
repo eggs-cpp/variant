@@ -30,6 +30,33 @@ struct Maleficent
     ~Maleficent() {} // not trivially copyable
 };
 
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+struct MovableOnly
+{
+    MovableOnly() {};
+    MovableOnly(MovableOnly&&) {};
+    MovableOnly& operator=(MovableOnly&&) { return *this; }
+};
+
+#  if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct NonCopyConstructible
+{
+    NonCopyConstructible() {}
+    NonCopyConstructible(NonCopyConstructible const&) = delete;
+    NonCopyConstructible& operator=(NonCopyConstructible const&) { return *this; }; // not trivially copyable
+};
+
+#    if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+struct NonCopyConstructibleTrivial
+{
+    NonCopyConstructibleTrivial() {}
+    NonCopyConstructibleTrivial(NonCopyConstructibleTrivial const&) = delete;
+    NonCopyConstructibleTrivial& operator=(NonCopyConstructibleTrivial const&) = default;
+};
+#    endif
+#  endif
+#endif
+
 TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> const v1(42);
@@ -103,6 +130,25 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
         CHECK(v1.target<Maleficent>()->x == 42);
         REQUIRE(v3.target<Maleficent>() != nullptr);
         CHECK(v3.target<Maleficent>()->x == 42);
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+        CHECK((
+            !std::is_copy_constructible<
+                eggs::variant<MovableOnly>
+            >::value));
+#  if EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        CHECK((
+            !std::is_copy_constructible<
+                eggs::variant<NonCopyConstructible>
+            >::value));
+#    if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        CHECK((
+            !std::is_copy_constructible<
+                eggs::variant<NonCopyConstructibleTrivial>
+            >::value));
+#    endif
+#  endif
+#endif
     }
 }
 

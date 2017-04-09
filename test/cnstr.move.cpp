@@ -21,15 +21,43 @@ using eggs::variants::detail::move;
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
+struct MovableOnly
+{
+    std::string x;
+
+    MovableOnly() : x() {}
+    MovableOnly(std::string const& s) : x(s) {}
+    MovableOnly(MovableOnly&& rhs) : x(::move(rhs.x)) {};
+    MovableOnly& operator=(MovableOnly&& rhs) { x = ::move(rhs.x); return *this; };
+};
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct NonCopyConstructible
+{
+    NonCopyConstructible() {}
+    NonCopyConstructible(NonCopyConstructible const&) = delete;
+    NonCopyConstructible& operator=(NonCopyConstructible const&) { return *this; }; // not trivially copyable
+};
+
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+struct NonCopyConstructibleTrivial
+{
+    NonCopyConstructibleTrivial() {}
+    NonCopyConstructibleTrivial(NonCopyConstructibleTrivial const&) = delete;
+    NonCopyConstructibleTrivial& operator=(NonCopyConstructibleTrivial const&) = default;
+};
+#  endif
+#endif
+
 TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
 {
-    eggs::variant<int, std::string> v1(42);
+    eggs::variant<int, MovableOnly> v1(42);
 
     REQUIRE(bool(v1) == true);
     REQUIRE(v1.which() == 0u);
     REQUIRE(*v1.target<int>() == 42);
 
-    eggs::variant<int, std::string> v2(::move(v1));
+    eggs::variant<int, MovableOnly> v2(::move(v1));
 
     CHECK(bool(v1) == true);
     CHECK(bool(v2) == true);
@@ -85,6 +113,22 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         constexpr int c = test::call();
     }
 #endif
+
+    // sfinae
+    {
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        CHECK((
+            !std::is_move_constructible<
+                eggs::variant<NonCopyConstructible>
+            >::value));
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        CHECK((
+            !std::is_move_constructible<
+                eggs::variant<NonCopyConstructibleTrivial>
+            >::value));
+#  endif
+#endif
+    }
 }
 
 TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")

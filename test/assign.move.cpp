@@ -23,16 +23,51 @@ using eggs::variants::detail::move;
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
+struct MovableOnly
+{
+    std::string x;
+
+    MovableOnly() : x() {}
+    MovableOnly(std::string const& s) : x(s) {}
+    MovableOnly(MovableOnly&& rhs) : x(::move(rhs.x)) {};
+    MovableOnly& operator=(MovableOnly&& rhs) { x = ::move(rhs.x); return *this; };
+};
+
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct NonCopyAssignable
+{
+    NonCopyAssignable() {}
+    NonCopyAssignable(NonCopyAssignable const&) {}; // not trivially copyable
+    NonCopyAssignable& operator=(NonCopyAssignable const&) = delete;
+};
+
+struct NonCopyConstructible
+{
+    NonCopyConstructible() {}
+    NonCopyConstructible(NonCopyConstructible const&) = delete;
+    NonCopyConstructible& operator=(NonCopyConstructible const&) { return *this; }; // not trivially copyable
+};
+
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+struct NonCopyAssignableTrivial
+{
+    NonCopyAssignableTrivial() {}
+    NonCopyAssignableTrivial(NonCopyAssignableTrivial const&) = default;
+    NonCopyAssignableTrivial& operator=(NonCopyAssignableTrivial const&) = delete;
+};
+#  endif
+#endif
+
 TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 {
     // empty source
     {
-        eggs::variant<int, std::string> v1;
+        eggs::variant<int, MovableOnly> v1;
 
         REQUIRE(bool(v1) == false);
         REQUIRE(v1.which() == npos);
 
-        eggs::variant<int, std::string> v2(42);
+        eggs::variant<int, MovableOnly> v2(42);
 
         REQUIRE(bool(v2) == true);
         REQUIRE(v2.which() == 0u);
@@ -77,13 +112,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
     // empty target
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, MovableOnly> v1(42);
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        eggs::variant<int, std::string> v2;
+        eggs::variant<int, MovableOnly> v2;
 
         REQUIRE(bool(v2) == false);
         REQUIRE(v2.which() == npos);
@@ -113,13 +148,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
     // same target
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, MovableOnly> v1(42);
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        eggs::variant<int, std::string> v2(43);
+        eggs::variant<int, MovableOnly> v2(43);
 
         REQUIRE(bool(v2) == true);
         REQUIRE(v2.which() == v1.which());
@@ -166,17 +201,17 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
     // different target
     {
-        eggs::variant<int, std::string> v1(42);
+        eggs::variant<int, MovableOnly> v1(42);
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        eggs::variant<int, std::string> v2(std::string(""));
+        eggs::variant<int, MovableOnly> v2(MovableOnly(""));
 
         REQUIRE(bool(v2) == true);
         REQUIRE(v2.which() == 1u);
-        REQUIRE(*v2.target<std::string>() == "");
+        REQUIRE(v2.target<MovableOnly>()->x == "");
 
         v2 = ::move(v1);
 
@@ -290,6 +325,26 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         CHECK(*v2.target<int>() == 42);
     }
 #endif
+
+    // sfinae
+    {
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        CHECK((
+            !std::is_move_assignable<
+                eggs::variant<NonCopyAssignable>
+            >::value));
+        CHECK((
+            !std::is_move_assignable<
+                eggs::variant<NonCopyConstructible>
+            >::value));
+#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
+        CHECK((
+            !std::is_move_assignable<
+                eggs::variant<NonCopyAssignableTrivial>
+            >::value));
+#  endif
+#endif
+    }
 }
 
 TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
