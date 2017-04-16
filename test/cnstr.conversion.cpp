@@ -8,15 +8,12 @@
 #include <eggs/variant.hpp>
 #include <string>
 #include <type_traits>
-#include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "constexpr.hpp"
-
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct WeirdConstructor
@@ -43,13 +40,6 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
     // constexpr
     {
         constexpr eggs::variant<int, Constexpr> v(Constexpr(42));
-        constexpr bool vb = bool(v);
-        constexpr std::size_t vw = v.which();
-        constexpr bool vttb = v.target<Constexpr>()->x == 42;
-
-#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
-        constexpr std::type_info const& vtt = v.target_type();
-#  endif
 
 #  if EGGS_CXX14_HAS_CONSTEXPR
         struct test { static constexpr int call()

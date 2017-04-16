@@ -1200,6 +1200,10 @@ namespace eggs { namespace variants
 #endif
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
         EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
+        template <typename T>
+        EGGS_CXX14_CONSTEXPR T* target() EGGS_CXX11_NOEXCEPT { return nullptr; }
+        template <typename T>
+        EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
     };
 
     ///////////////////////////////////////////////////////////////////////////

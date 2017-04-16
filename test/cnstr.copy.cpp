@@ -83,7 +83,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        CHECK(std::is_trivially_copyable<decltype(v1)>::value == true);
+        REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
 
         eggs::variant<int, float> v2(v1);
 

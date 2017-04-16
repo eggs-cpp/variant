@@ -21,7 +21,10 @@ set(_tests
   elem.get_if
   hash
   helper
+  obs.bool
   obs.target
+  obs.target_type
+  obs.which
   rel.equality
   rel.order
   swap)

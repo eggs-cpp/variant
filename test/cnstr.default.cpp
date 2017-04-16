@@ -7,7 +7,6 @@
 
 #include <eggs/variant.hpp>
 #include <string>
-#include <typeinfo>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -33,13 +32,6 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
     // constexpr
     {
         constexpr eggs::variant<Constexpr> v;
-        constexpr bool vb = bool(v);
-        constexpr std::size_t vw = v.which();
-        constexpr void const* vt = v.target();
-
-#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
-        constexpr std::type_info const& vtt = v.target_type();
-#  endif
     }
 #endif
 }
@@ -60,13 +52,6 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
     // constexpr
     {
         constexpr eggs::variant<> v;
-        constexpr bool vb = bool(v);
-        constexpr std::size_t vw = v.which();
-        constexpr void const* vt = v.target();
-
-#  if EGGS_CXX11_HAS_CONSTEXPR_RTTI
-        constexpr std::type_info const& vtt = v.target_type();
-#  endif
     }
 #endif
 }
