@@ -89,6 +89,8 @@ namespace eggs { namespace variants
         ///////////////////////////////////////////////////////////////////////
         namespace _best_match
         {
+            struct _fallback {};
+
             template <typename Ts, std::size_t I = 0>
             struct overloads
             {};
@@ -102,23 +104,21 @@ namespace eggs { namespace variants
             };
 
             template <typename F, typename T>
-            auto _invoke(F&&, T&&)
+            static auto _invoke(int)
              -> decltype(std::declval<F>()(std::declval<T>()));
 
-            struct _fallback {};
-
-            _fallback _invoke(...);
+            template <typename F, typename T>
+            static _fallback _invoke(...);
 
             template <
-                typename T, typename U
-              , typename R = decltype(_best_match::_invoke(
-                    std::declval<T>(), std::declval<U>()))
+                typename F, typename T
+              , typename R = decltype(_best_match::_invoke<F, T>(0))
             >
             struct result_of : R
             {};
 
-            template <typename T, typename U>
-            struct result_of<T, U, _fallback>
+            template <typename F, typename T>
+            struct result_of<F, T, _fallback>
             {};
         }
 
@@ -133,124 +133,136 @@ namespace eggs { namespace variants
             struct _fallback {};
 
             template <typename T, typename U>
-            static _fallback operator==(T const&, U const&);
+            static auto check_has_equal_to(int)
+             -> decltype(std::declval<T>() == std::declval<U>());
 
             template <typename T, typename U>
-            struct has_equal_to
-            {
-                using R = decltype(std::declval<T>() == std::declval<U>());
+            static _fallback check_has_equal_to(...);
 
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    !std::is_same<R, _fallback>::value;
-            };
-
-            template <typename T, typename U>
-            static _fallback operator!=(T const&, U const&);
+            template <
+                typename T, typename U
+              , typename R = decltype(_relops::check_has_equal_to<T, U>(0))
+            >
+            struct has_equal_to : std::true_type
+            {};
 
             template <typename T, typename U>
-            struct has_not_equal_to
-            {
-                using R = decltype(std::declval<T>() != std::declval<U>());
-
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    !std::is_same<R, _fallback>::value;
-            };
+            struct has_equal_to<T, U, _fallback> : std::false_type
+            {};
 
             template <typename T, typename U>
-            static _fallback operator<(T const&, U const&);
+            static auto check_has_not_equal_to(int)
+             -> decltype(std::declval<T>() != std::declval<U>());
 
             template <typename T, typename U>
-            struct has_less
-            {
-                using R = decltype(std::declval<T>() < std::declval<U>());
+            static _fallback check_has_not_equal_to(...);
 
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    !std::is_same<R, _fallback>::value;
-            };
-
-            template <typename T, typename U>
-            static _fallback operator>(T const&, U const&);
+            template <
+                typename T, typename U
+              , typename R = decltype(_relops::check_has_not_equal_to<T, U>(0))
+            >
+            struct has_not_equal_to : std::true_type
+            {};
 
             template <typename T, typename U>
-            struct has_greater
-            {
-                using R = decltype(std::declval<T>() > std::declval<U>());
-
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    !std::is_same<R, _fallback>::value;
-            };
+            struct has_not_equal_to<T, U, _fallback> : std::false_type
+            {};
 
             template <typename T, typename U>
-            static _fallback operator<=(T const&, U const&);
+            static auto check_has_less(int)
+             -> decltype(std::declval<T>() < std::declval<U>());
 
             template <typename T, typename U>
-            struct has_less_equal
-            {
-                using R = decltype(std::declval<T>() <= std::declval<U>());
+            static _fallback check_has_less(...);
 
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    !std::is_same<R, _fallback>::value;
-            };
-
-            template <typename T, typename U>
-            static _fallback operator>=(T const&, U const&);
+            template <
+                typename T, typename U
+              , typename R = decltype(_relops::check_has_less<T, U>(0))
+            >
+            struct has_less : std::true_type
+            {};
 
             template <typename T, typename U>
-            struct has_greater_equal
-            {
-                using R = decltype(std::declval<T>() >= std::declval<U>());
+            struct has_less<T, U, _fallback> : std::false_type
+            {};
 
-                EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                    !std::is_same<R, _fallback>::value;
-            };
+            template <typename T, typename U>
+            static auto check_has_greater(int)
+             -> decltype(std::declval<T>() > std::declval<U>());
+
+            template <typename T, typename U>
+            static _fallback check_has_greater(...);
+
+            template <
+                typename T, typename U
+              , typename R = decltype(_relops::check_has_greater<T, U>(0))
+            >
+            struct has_greater : std::true_type
+            {};
+
+            template <typename T, typename U>
+            struct has_greater<T, U, _fallback> : std::false_type
+            {};
+
+            template <typename T, typename U>
+            static auto check_has_less_equal(int)
+             -> decltype(std::declval<T>() <= std::declval<U>());
+
+            template <typename T, typename U>
+            static _fallback check_has_less_equal(...);
+
+            template <
+                typename T, typename U
+              , typename R = decltype(_relops::check_has_less_equal<T, U>(0))
+            >
+            struct has_less_equal : std::true_type
+            {};
+
+            template <typename T, typename U>
+            struct has_less_equal<T, U, _fallback> : std::false_type
+            {};
+
+            template <typename T, typename U>
+            static auto check_has_greater_equal(int)
+             -> decltype(std::declval<T>() >= std::declval<U>());
+
+            template <typename T, typename U>
+            static _fallback check_has_greater_equal(...);
+
+            template <
+                typename T, typename U
+              , typename R = decltype(check_has_greater_equal<T, U>(0))
+            >
+            struct has_greater_equal : std::true_type
+            {};
+
+            template <typename T, typename U>
+            struct has_greater_equal<T, U, _fallback> : std::false_type
+            {};
         }
 
         template <typename T, typename U = T>
-        struct has_equal_to
-          : std::integral_constant<
-                bool
-              , _relops::has_equal_to<T, U>::value
-            >
+        struct has_equal_to : _relops::has_equal_to<T, U>
         {};
 
         template <typename T, typename U = T>
-        struct has_not_equal_to
-          : std::integral_constant<
-                bool
-              , _relops::has_not_equal_to<T, U>::value
-            >
+        struct has_not_equal_to : _relops::has_not_equal_to<T, U>
         {};
 
         template <typename T, typename U = T>
-        struct has_less
-          : std::integral_constant<
-                bool
-              , _relops::has_less<T, U>::value
-            >
+        struct has_less : _relops::has_less<T, U>
         {};
 
         template <typename T, typename U = T>
-        struct has_greater
-          : std::integral_constant<
-                bool
-              , _relops::has_greater<T, U>::value
-            >
+        struct has_greater : _relops::has_greater<T, U>
         {};
 
         template <typename T, typename U = T>
-        struct has_less_equal
-          : std::integral_constant<
-                bool
-              , _relops::has_less_equal<T, U>::value
-            >
+        struct has_less_equal : _relops::has_less_equal<T, U>
         {};
 
         template <typename T, typename U = T>
-        struct has_greater_equal
-          : std::integral_constant<
-                bool
-              , _relops::has_greater_equal<T, U>::value
-            >
+        struct has_greater_equal : _relops::has_greater_equal<T, U>
         {};
 
         ///////////////////////////////////////////////////////////////////////
@@ -260,8 +272,10 @@ namespace eggs { namespace variants
 #else
         namespace _swap
         {
+            struct _fallback {};
+
             template <typename T>
-            typename std::enable_if<
+            static typename std::enable_if<
                 std::is_move_constructible<T>::value
              && std::is_move_assignable<T>::value
             >::type swap(T&, T&)
@@ -272,14 +286,16 @@ namespace eggs { namespace variants
 #  endif
                 ;
 
-            struct _fallback {};
+            template <typename T>
+            static auto check_swap(int)
+             -> decltype(swap(std::declval<T&>(), std::declval<T&>()));
 
-            _fallback swap(...);
+            template <typename T>
+            static _fallback check_swap(...);
 
             template <
                 typename T
-              , typename R = decltype(swap(
-                    std::declval<T>(), std::declval<T>()))
+              , typename R = decltype(_swap::check_swap<T>(0))
             >
             struct is_swappable : std::true_type
             {};
@@ -304,11 +320,7 @@ namespace eggs { namespace variants
         }
 
         template <typename T>
-        struct is_swappable
-          : std::integral_constant<
-                bool
-              , _swap::is_swappable<T>::value
-            >
+        struct is_swappable : _swap::is_swappable<T>
         {};
 
         template <typename T>
@@ -386,17 +398,18 @@ namespace eggs { namespace variants
         ///////////////////////////////////////////////////////////////////////
         namespace _hash
         {
-            template <typename T>
-            auto hash(T const&)
-             -> decltype(std::hash<T>{}(std::declval<T const&>()));
-
             struct _fallback {};
 
-            _fallback hash(...);
+            template <typename T>
+            static auto check_hash(int)
+             -> decltype(std::hash<T>{}(std::declval<T const&>()));
+
+            template <typename T>
+            static _fallback check_hash(...);
 
             template <
                 typename T
-              , typename R = decltype(hash(std::declval<T>()))
+              , typename R = decltype(_hash::check_hash<T>(0))
             >
             struct is_hashable : std::true_type
             {};
@@ -407,11 +420,7 @@ namespace eggs { namespace variants
         }
 
         template <typename T>
-        struct is_hashable
-          : std::integral_constant<
-                bool
-              , _hash::is_hashable<T>::value
-            >
+        struct is_hashable : _hash::is_hashable<T>
         {};
 
         template <typename Ts, bool Enable>

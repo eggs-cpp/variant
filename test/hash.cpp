@@ -9,6 +9,7 @@
 #include <functional>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
