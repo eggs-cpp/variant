@@ -23,6 +23,10 @@ TEST_CASE("get_if<I>(variant<Ts...>*)", "[variant.elem]")
         int* ptr = eggs::variants::get_if<0>(v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<0>(v)) == true));
+#endif
     }
 
     // same source
@@ -36,6 +40,10 @@ TEST_CASE("get_if<I>(variant<Ts...>*)", "[variant.elem]")
 
         REQUIRE(ptr != nullptr);
         CHECK(*ptr == 42);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<0>(&v)) == true));
+#endif
     }
 
     // different source
@@ -48,6 +56,10 @@ TEST_CASE("get_if<I>(variant<Ts...>*)", "[variant.elem]")
         std::string* ptr = eggs::variants::get_if<1>(&v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<1>(&v)) == true));
+#endif
     }
 
 #if EGGS_CXX14_HAS_CONSTEXPR
@@ -86,6 +98,10 @@ TEST_CASE("get_if<I>(variant<Ts...> const*)", "[variant.elem]")
         int const* ptr = eggs::variants::get_if<0>(v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<0>(v)) == true));
+#endif
     }
 
     // same source
@@ -99,6 +115,10 @@ TEST_CASE("get_if<I>(variant<Ts...> const*)", "[variant.elem]")
 
         REQUIRE(ptr != nullptr);
         CHECK(*ptr == 42);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<0>(&v)) == true));
+#endif
     }
 
     // different source
@@ -111,6 +131,10 @@ TEST_CASE("get_if<I>(variant<Ts...> const*)", "[variant.elem]")
         std::string const* ptr = eggs::variants::get_if<1>(&v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<1>(&v)) == true));
+#endif
     }
 
 #if EGGS_CXX11_HAS_CONSTEXPR
@@ -144,6 +168,10 @@ TEST_CASE("get_if<T>(variant<Ts...>*)", "[variant.elem]")
         int* ptr = eggs::variants::get_if<int>(v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<int>(v)) == true));
+#endif
     }
 
     // same source
@@ -154,6 +182,10 @@ TEST_CASE("get_if<T>(variant<Ts...>*)", "[variant.elem]")
 
         REQUIRE(ptr != nullptr);
         CHECK(*ptr == 42);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<int>(&v)) == true));
+#endif
     }
 
     // different source
@@ -163,6 +195,10 @@ TEST_CASE("get_if<T>(variant<Ts...>*)", "[variant.elem]")
         std::string* ptr = eggs::variants::get_if<std::string>(&v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<std::string>(&v)) == true));
+#endif
     }
 
 #if EGGS_CXX14_HAS_CONSTEXPR
@@ -188,6 +224,10 @@ TEST_CASE("get_if<T>(variant<Ts...> const*)", "[variant.elem]")
         int const* ptr = eggs::variants::get_if<int>(v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<int>(v)) == true));
+#endif
     }
 
     // same source
@@ -198,6 +238,10 @@ TEST_CASE("get_if<T>(variant<Ts...> const*)", "[variant.elem]")
 
         REQUIRE(ptr != nullptr);
         CHECK(*ptr == 42);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<int>(&v)) == true));
+#endif
     }
 
     // different source
@@ -207,6 +251,10 @@ TEST_CASE("get_if<T>(variant<Ts...> const*)", "[variant.elem]")
         std::string const* ptr = eggs::variants::get_if<std::string>(&v);
 
         CHECK(ptr == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(eggs::variants::get_if<std::string>(&v)) == true));
+#endif
     }
 
 #if EGGS_CXX11_HAS_CONSTEXPR

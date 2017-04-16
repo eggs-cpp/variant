@@ -14,6 +14,7 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX98_HAS_RTTI`                          | `1`                     | `0`
 `EGGS_CXX11_HAS_CONSTEXPR_RTTI`                | `1`                     | `0`
 `EGGS_CXX98_HAS_EXCEPTIONS`                    | `1`                     | `0`
+`EGGS_CXX11_HAS_NOEXCEPT`                      | `1`                     | `0`
 `EGGS_CXX11_NOEXCEPT`                          | `noexcept`              | ``
 `EGGS_CXX11_NOEXCEPT_IF(...)`                  | `noexcept(__VA_ARGS__)` | ``
 `EGGS_CXX11_NOEXCEPT_EXPR(...)`                | `noexcept(__VA_ARGS__)` | `false`

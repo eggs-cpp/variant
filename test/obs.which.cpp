@@ -25,6 +25,10 @@ TEST_CASE("variant<Ts...>::which()", "[variant.obs]")
 
         CHECK(v.which() == 0);
 
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(v.which()) == true));
+#endif
+
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
         {
@@ -39,6 +43,10 @@ TEST_CASE("variant<Ts...>::which()", "[variant.obs]")
         eggs::variant<int, std::string> const v;
 
         CHECK(v.which() == npos);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(v.which()) == true));
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -55,6 +63,10 @@ TEST_CASE("variant<>::which()", "[variant.obs]")
     eggs::variant<> const v;
 
     CHECK(v.which() == npos);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+    CHECK((noexcept(v.which()) == true));
+#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr

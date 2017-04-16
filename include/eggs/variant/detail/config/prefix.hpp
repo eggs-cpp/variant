@@ -135,8 +135,17 @@
 #endif
 
 /// noexcept support
-#ifndef EGGS_CXX11_NOEXCEPT
+#ifndef EGGS_CXX11_HAS_NOEXCEPT
 #  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#    define EGGS_CXX11_HAS_NOEXCEPT 0
+#  else
+#    define EGGS_CXX11_HAS_NOEXCEPT 1
+#  endif
+#  define EGGS_CXX11_HAS_NOEXCEPT_DEFINED
+#endif
+
+#ifndef EGGS_CXX11_NOEXCEPT
+#  if EGGS_CXX11_HAS_NOEXCEPT == 0
 #    define EGGS_CXX11_NOEXCEPT
 #  else
 #    define EGGS_CXX11_NOEXCEPT noexcept
@@ -145,7 +154,7 @@
 #endif
 
 #ifndef EGGS_CXX11_NOEXCEPT_IF
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if EGGS_CXX11_HAS_NOEXCEPT == 0
 #    define EGGS_CXX11_NOEXCEPT_IF(...)
 #  else
 #    define EGGS_CXX11_NOEXCEPT_IF(...) noexcept(__VA_ARGS__)
@@ -154,7 +163,7 @@
 #endif
 
 #ifndef EGGS_CXX11_NOEXCEPT_EXPR
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if EGGS_CXX11_HAS_NOEXCEPT == 0
 #    define EGGS_CXX11_NOEXCEPT_EXPR(...) false
 #  else
 #    define EGGS_CXX11_NOEXCEPT_EXPR(...) noexcept(__VA_ARGS__)
