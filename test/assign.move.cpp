@@ -32,6 +32,24 @@ struct MovableOnly
     MovableOnly& operator=(MovableOnly&& rhs) { x = ::move(rhs.x); return *this; };
 };
 
+#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+template <bool NoThrow>
+struct NoThrowMoveAssignable
+{
+    NoThrowMoveAssignable() {}
+    NoThrowMoveAssignable(NoThrowMoveAssignable&&) noexcept {}
+    NoThrowMoveAssignable& operator=(NoThrowMoveAssignable&&) noexcept(NoThrow) { return *this; };
+};
+
+template <bool NoThrow>
+struct NoThrowMoveConstructible
+{
+    NoThrowMoveConstructible() {}
+    NoThrowMoveConstructible(NoThrowMoveConstructible&&) noexcept(NoThrow) {}
+    NoThrowMoveConstructible& operator=(NoThrowMoveConstructible&&) noexcept { return *this; };
+};
+#endif
+
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct NonCopyAssignable
 {
@@ -325,6 +343,47 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
     }
 #endif
 
+#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+    // noexcept
+    {
+        REQUIRE((
+            std::is_move_assignable<
+                eggs::variant<int, NoThrowMoveAssignable<true>>
+            >::value));
+        CHECK((
+            std::is_nothrow_move_assignable<
+                eggs::variant<int, NoThrowMoveAssignable<true>>
+            >::value));
+
+        REQUIRE((
+            std::is_move_assignable<
+                eggs::variant<int, NoThrowMoveAssignable<false>>
+            >::value));
+        CHECK((
+            !std::is_nothrow_move_assignable<
+                eggs::variant<int, NoThrowMoveAssignable<false>>
+            >::value));
+
+        REQUIRE((
+            std::is_move_assignable<
+                eggs::variant<int, NoThrowMoveConstructible<true>>
+            >::value));
+        CHECK((
+            std::is_nothrow_move_assignable<
+                eggs::variant<int, NoThrowMoveConstructible<true>>
+            >::value));
+
+        REQUIRE((
+            std::is_move_assignable<
+                eggs::variant<int, NoThrowMoveConstructible<false>>
+            >::value));
+        CHECK((
+            !std::is_nothrow_move_assignable<
+                eggs::variant<int, NoThrowMoveConstructible<false>>
+            >::value));
+    }
+#endif
+
     // sfinae
     {
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
@@ -363,6 +422,10 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
     CHECK(bool(v1) == false);
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+    CHECK((noexcept(v2 = ::move(v1)) == true));
+#endif
 
     // list-initialization
     {

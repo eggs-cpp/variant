@@ -30,6 +30,15 @@ struct MovableOnly
     MovableOnly& operator=(MovableOnly&& rhs) { x = ::move(rhs.x); return *this; };
 };
 
+#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+template <bool NoThrow>
+struct NoThrowMoveConstructible
+{
+    NoThrowMoveConstructible() {}
+    NoThrowMoveConstructible(NoThrowMoveConstructible&&) noexcept(NoThrow) {}
+};
+#endif
+
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct NonCopyConstructible
 {
@@ -113,6 +122,29 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
     }
 #endif
 
+#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+    // noexcept
+    {
+        REQUIRE((
+            std::is_move_constructible<
+                eggs::variant<int, NoThrowMoveConstructible<true>>
+            >::value));
+        CHECK((
+            std::is_nothrow_move_constructible<
+                eggs::variant<int, NoThrowMoveConstructible<true>>
+            >::value));
+
+        REQUIRE((
+            std::is_move_constructible<
+                eggs::variant<int, NoThrowMoveConstructible<false>>
+            >::value));
+        CHECK((
+            !std::is_nothrow_move_constructible<
+                eggs::variant<int, NoThrowMoveConstructible<false>>
+            >::value));
+    }
+#endif
+
     // sfinae
     {
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
@@ -142,6 +174,10 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
     CHECK(bool(v1) == false);
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+    CHECK((noexcept(eggs::variant<>(::move(v1))) == true));
+#endif
 
     // list-initialization
     {

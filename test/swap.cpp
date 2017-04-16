@@ -40,6 +40,40 @@ struct has_swap<
 {};
 #endif
 
+#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+template <bool NoThrow>
+struct NoThrowMoveConstructible
+{
+    NoThrowMoveConstructible() {}
+    NoThrowMoveConstructible(NoThrowMoveConstructible&&) noexcept(NoThrow) {}
+    NoThrowMoveConstructible& operator=(NoThrowMoveConstructible&&) noexcept { return *this; };
+};
+template <bool NoThrow>
+void swap(NoThrowMoveConstructible<NoThrow>&, NoThrowMoveConstructible<NoThrow>&) noexcept {}
+
+template <bool NoThrow>
+struct NoThrowMoveSwappable
+{
+    NoThrowMoveSwappable() {}
+    NoThrowMoveSwappable(NoThrowMoveSwappable&&) noexcept {}
+    NoThrowMoveSwappable& operator=(NoThrowMoveSwappable&&) noexcept { return *this; };
+};
+template <bool NoThrow>
+void swap(NoThrowMoveSwappable<NoThrow>&, NoThrowMoveSwappable<NoThrow>&) noexcept(NoThrow) {}
+
+#  if !EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
+namespace std
+{
+    namespace swappable_traits
+    {
+        using ::eggs::variants::detail::is_swappable;
+        using ::eggs::variants::detail::is_nothrow_swappable;
+    }
+    using namespace swappable_traits;
+}
+#  endif
+#endif
+
 #if EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct NonAssignable
 {
@@ -278,6 +312,47 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 #endif
     }
 
+#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+    // noexcept
+    {
+        REQUIRE((
+            std::is_swappable<
+                eggs::variant<int, NoThrowMoveConstructible<true>>
+            >::value));
+        CHECK((
+            std::is_nothrow_swappable<
+                eggs::variant<int, NoThrowMoveConstructible<true>>
+            >::value));
+
+        REQUIRE((
+            std::is_swappable<
+                eggs::variant<int, NoThrowMoveConstructible<false>>
+            >::value));
+        CHECK((
+            !std::is_nothrow_swappable<
+                eggs::variant<int, NoThrowMoveConstructible<false>>
+            >::value));
+
+        REQUIRE((
+            std::is_swappable<
+                eggs::variant<int, NoThrowMoveSwappable<true>>
+            >::value));
+        CHECK((
+            std::is_nothrow_swappable<
+                eggs::variant<int, NoThrowMoveSwappable<true>>
+            >::value));
+
+        REQUIRE((
+            std::is_swappable<
+                eggs::variant<int, NoThrowMoveSwappable<false>>
+            >::value));
+        CHECK((
+            !std::is_nothrow_swappable<
+                eggs::variant<int, NoThrowMoveSwappable<false>>
+            >::value));
+    }
+#endif
+
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
@@ -339,6 +414,10 @@ TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
 
     CHECK(v1.which() == npos);
     CHECK(v2.which() == npos);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+    CHECK((noexcept(v2.swap(v1)) == true));
+#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     // constexpr
