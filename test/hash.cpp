@@ -35,6 +35,45 @@ struct has_hash<
     >::type
 > : std::true_type
 {};
+
+#  if EGGS_CXX11_HAS_NOEXCEPT
+template <bool NoThrow>
+struct NoThrowHashDefaultConstructible {};
+namespace std
+{
+    template <bool NoThrow>
+    struct hash<NoThrowHashDefaultConstructible<NoThrow>>
+    {
+        hash() noexcept(NoThrow) {}
+        std::size_t operator()(NoThrowHashDefaultConstructible<NoThrow> const&) const noexcept { return 0; }
+    };
+}
+
+template <bool NoThrow>
+struct NoThrowHashable {};
+namespace std
+{
+    template <bool NoThrow>
+    struct hash<NoThrowHashable<NoThrow>>
+    {
+        hash() noexcept {}
+        std::size_t operator()(NoThrowHashable<NoThrow> const&) const noexcept(NoThrow) { return 0; }
+    };
+}
+
+template <typename T, bool HasHash = has_hash<T>::value>
+struct has_nothrow_hash
+{
+    EGGS_CXX11_STATIC_CONSTEXPR bool value =
+        noexcept(std::hash<T>{}(std::declval<T const&>()));
+};
+
+template <typename T>
+struct has_nothrow_hash<T, false>
+{
+    EGGS_CXX11_STATIC_CONSTEXPR bool value = false;
+};
+#  endif
 #endif
 
 struct NonHashable {};
@@ -57,6 +96,47 @@ TEST_CASE("std::hash<variant<Ts...>>", "[variant.hash]")
     CHECK(variant_hasher(v) == int_hasher(42));
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
+#  if EGGS_CXX11_HAS_NOEXCEPT
+    // noexcept
+    {
+        REQUIRE((
+            has_hash<
+                eggs::variant<NoThrowHashDefaultConstructible<true>>
+            >::value));
+        CHECK((
+            has_nothrow_hash<
+                eggs::variant<NoThrowHashDefaultConstructible<true>>
+            >::value));
+
+        REQUIRE((
+            has_hash<
+                eggs::variant<NoThrowHashDefaultConstructible<false>>
+            >::value));
+        CHECK((
+            !has_nothrow_hash<
+                eggs::variant<NoThrowHashDefaultConstructible<false>>
+            >::value));
+
+        REQUIRE((
+            has_hash<
+                eggs::variant<NoThrowHashable<true>>
+            >::value));
+        CHECK((
+            has_nothrow_hash<
+                eggs::variant<NoThrowHashable<true>>
+            >::value));
+
+        REQUIRE((
+            has_hash<
+                eggs::variant<NoThrowHashable<false>>
+            >::value));
+        CHECK((
+            !has_nothrow_hash<
+                eggs::variant<NoThrowHashable<false>>
+            >::value));
+    }
+#  endif
+
     // sfinae
     {
         CHECK((

@@ -400,9 +400,9 @@ namespace eggs { namespace variants
         {
             struct _fallback {};
 
-            template <typename T>
+            template <typename T, typename Hash = std::hash<T>>
             static auto check_hash(int)
-             -> decltype(std::hash<T>{}(std::declval<T const&>()));
+             -> decltype(Hash(), std::declval<Hash const&>()(std::declval<T const&>()));
 
             template <typename T>
             static _fallback check_hash(...);
@@ -417,10 +417,34 @@ namespace eggs { namespace variants
             template <typename T>
             struct is_hashable<T, _fallback> : std::false_type
             {};
+
+            template <typename T, bool Hashable = is_hashable<T>::value>
+            struct is_nothrow_hashable
+            {
+                using Hash = std::hash<T>;
+
+                EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                    EGGS_CXX11_NOEXCEPT_EXPR(
+                        Hash(), std::declval<Hash const&>()(std::declval<T const&>()));
+            };
+
+            template <typename T>
+            struct is_nothrow_hashable<T, false>
+            {
+                EGGS_CXX11_STATIC_CONSTEXPR bool value = false;
+            };
         }
 
         template <typename T>
         struct is_hashable : _hash::is_hashable<T>
+        {};
+
+        template <typename T>
+        struct is_nothrow_hashable
+          : std::integral_constant<
+                bool
+              , _hash::is_nothrow_hashable<T>::value
+            >
         {};
 
         template <typename Ts, bool Enable>
@@ -445,6 +469,11 @@ namespace eggs { namespace variants
         struct _std_hash<pack<Ts...>, true>
         {
             std::size_t operator()(variant<Ts...> const& v) const
+#if EGGS_CXX11_HAS_NOEXCEPT
+                EGGS_CXX11_NOEXCEPT_IF(detail::all_of<detail::pack<
+                    detail::is_nothrow_hashable<Ts>...
+                >>::value)
+#endif
             {
                 return bool(v)
                   ? detail::hash{}(
@@ -457,8 +486,9 @@ namespace eggs { namespace variants
 
         template <typename ...Ts>
         using std_hash = _std_hash<
-            pack<Ts...>,
-            all_of<pack<is_hashable<Ts>...>>::value
+            pack<typename std::remove_const<Ts>::type...>,
+            all_of<pack<
+                is_hashable<typename std::remove_const<Ts>::type>...>>::value
         >;
     }
 
@@ -2367,7 +2397,10 @@ namespace std
     //!  enabled. When enabled, for an object `v` of type `variant<Ts...>`, if
     //!  `v` has an active member of type `T`, `std::hash<variant<Ts...>>()(v)`
     //!  shall evaluate to the same value as `std::hash<T>()(*v.target<T>())`;
-    //!  otherwise it evaluates to an unspecified value.
+    //!  otherwise it evaluates to an unspecified value. The member functions
+    //!  are guaranteed to be `noexcept` if the member functions of every
+    //!  specialization in `std::hash<std::remove_const_t<Ts>>...` are
+    //!  `noexcept`.
     template <typename ...Ts>
     struct hash< ::eggs::variants::variant<Ts...>>
       : ::eggs::variants::detail::std_hash<Ts...>
