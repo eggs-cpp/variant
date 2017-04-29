@@ -195,7 +195,7 @@
 
 /// overloading on std::initializer_list support
 #ifndef EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
 #    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 0
 #  else
 #    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 1
@@ -205,7 +205,7 @@
 
 /// overloading on template arguments support
 #ifndef EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
 #    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 0
 #  else
 #    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 1
@@ -227,7 +227,7 @@
 
 /// unrestricted unions support
 #ifndef EGGS_CXX11_HAS_UNRESTRICTED_UNIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190022512
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
 #    define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS 0
 #  else
 #    define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS 1
@@ -238,7 +238,7 @@
 /// variable templates support
 #ifndef EGGS_CXX14_HAS_VARIABLE_TEMPLATES
 #  if defined(_MSC_FULL_VER)
-#    if _MSC_FULL_VER < 190024210
+#    if _MSC_FULL_VER < 190000000
 #      define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
 #    else
 #      define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 1

@@ -7,10 +7,39 @@
 
 platform: x64
 
-image:
-  - Visual Studio 2013
-  - Visual Studio 2015
-  - Visual Studio 2017
+environment:
+  matrix:
+    # MSVC 12.0
+    - GENERATOR: Visual Studio 12 2013 Win64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
+
+    # MSVC 14.0
+    - GENERATOR: Visual Studio 14 2015 Win64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    # MSVC 14.1
+    - GENERATOR: Visual Studio 15 2017 Win64
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    # Clang/C2
+    - GENERATOR: Visual Studio 14 2015 Win64
+      TOOLSET: v140_clang_c2
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - GENERATOR: Visual Studio 15 2017 Win64
+      TOOLSET: v141_clang_c2
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    # LLVM
+    - GENERATOR: Visual Studio 14 2015 Win64
+      TOOLSET: LLVM-vs2014
+      CXXFLAGS: /EHsc
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    # MinGW-w64
+    - GENERATOR: MinGW Makefiles
+      CXXFLAGS: -std=c++11
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 configuration:
   - Debug
@@ -22,20 +51,23 @@ branches:
     - develop
 
 init:
-  - ps: >-
-      if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2013") {
-        $env:GENERATOR="Visual Studio 12 2013"
-      } elseif ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2015") {
-        $env:GENERATOR="Visual Studio 14 2015"
-      } elseif ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2017") {
-        $env:GENERATOR="Visual Studio 15 2017"
+  - ps: |
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        $env:Path = 'C:\mingw-w64\x86_64-6.3.0-posix-seh-rt_v5-rev1\mingw64\bin;' + $env:Path
+        # Workaround for CMake not wanting sh.exe on PATH for MinGW Makefiles
+        $env:Path = $env:Path -replace 'C:\\Program Files\\Git\\usr\\bin;',$null
       }
 
 build_script:
   - mkdir build
   - cd build
-  - echo cmake -G "%GENERATOR%" -A x64
-  - cmake -G "%GENERATOR%" -A x64 ..
+  - echo cmake -G "%GENERATOR%" -T "%TOOLSET%"
+  - ps: |
+      if (Test-Path env:TOOLSET) {
+        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" ..
+      } else {
+        cmake -G "$env:GENERATOR" ..
+      }
   - echo cmake --build . --config %CONFIGURATION%
   - cmake --build . --config %CONFIGURATION%
   - echo ctest -V --build-config %CONFIGURATION%
