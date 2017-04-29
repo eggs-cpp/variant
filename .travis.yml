@@ -11,7 +11,7 @@ sudo: false
 matrix:
   include:
     # clang-3.7
-    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &clang37
         apt:
@@ -24,20 +24,28 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.7
 
-    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *clang37
 
-    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *clang37
 
-    - env: CLANG_VERSION=3.7 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *clang37
+
+    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang37
+
+    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *clang37
 
     # clang-3.8
-    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &clang38
         apt:
@@ -50,20 +58,28 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.8
 
-    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *clang38
 
-    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *clang38
 
-    - env: CLANG_VERSION=3.8 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *clang38
+
+    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang38
+
+    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *clang38
 
     # clang-3.9
-    - env: CLANG_VERSION=3.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &clang39
         apt:
@@ -76,20 +92,28 @@ matrix:
             - ubuntu-toolchain-r-test
             - llvm-toolchain-precise-3.9
 
-    - env: CLANG_VERSION=3.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *clang39
 
-    - env: CLANG_VERSION=3.9 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *clang39
 
-    - env: CLANG_VERSION=3.9 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *clang39
+
+    - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang39
+
+    - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *clang39
 
     # gcc-4.9
-    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &gcc49
         apt:
@@ -101,20 +125,20 @@ matrix:
             - george-edison55-precise-backports
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *gcc49
 
-    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++1y" BUILD_TYPE=Debug
+    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++1y" BUILD_TYPE=Debug
       os: linux
       addons: *gcc49
 
-    - env: GCC_VERSION=4.9 CXX_FLAGS="-std=c++1y" BUILD_TYPE=Release
+    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++1y" BUILD_TYPE=Release
       os: linux
       addons: *gcc49
 
     # gcc-5
-    - env: GCC_VERSION=5 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: GCC_VERSION=5 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &gcc5
         apt:
@@ -126,20 +150,28 @@ matrix:
             - george-edison55-precise-backports
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=5 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: GCC_VERSION=5 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *gcc5
 
-    - env: GCC_VERSION=5 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: GCC_VERSION=5 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *gcc5
 
-    - env: GCC_VERSION=5 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: GCC_VERSION=5 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc5
+
+    - env: GCC_VERSION=5 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *gcc5
+
+    - env: GCC_VERSION=5 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *gcc5
 
     # gcc-6
-    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: GCC_VERSION=6 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
       addons: &gcc6
         apt:
@@ -151,56 +183,84 @@ matrix:
             - george-edison55-precise-backports
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: GCC_VERSION=6 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
       addons: *gcc6
 
-    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: GCC_VERSION=6 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
       addons: *gcc6
 
-    - env: GCC_VERSION=6 CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: GCC_VERSION=6 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc6
+
+    - env: GCC_VERSION=6 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *gcc6
+
+    - env: GCC_VERSION=6 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *gcc6
 
     # Xcode 7.3
-    - env: CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: osx
       osx_image: xcode7.3
       addons: &xcode73
 
-    - env: CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: osx
       osx_image: xcode7.3
       addons: *xcode73
 
-    - env: CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: osx
       osx_image: xcode7.3
       addons: *xcode73
 
-    - env: CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: osx
+      osx_image: xcode7.3
+      addons: *xcode73
+
+    - env: CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: osx
+      osx_image: xcode7.3
+      addons: *xcode73
+
+    - env: CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: osx
       osx_image: xcode7.3
       addons: *xcode73
 
     # Xcode 8.3
-    - env: CXX_FLAGS="-std=c++11" BUILD_TYPE=Debug
+    - env: CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: osx
       osx_image: xcode8.3
       addons: &xcode83
 
-    - env: CXX_FLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: osx
       osx_image: xcode8.3
       addons: *xcode83
 
-    - env: CXX_FLAGS="-std=c++14" BUILD_TYPE=Debug
+    - env: CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: osx
       osx_image: xcode8.3
       addons: *xcode83
 
-    - env: CXX_FLAGS="-std=c++14" BUILD_TYPE=Release
+    - env: CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: osx
+      osx_image: xcode8.3
+      addons: *xcode83
+
+    - env: CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: osx
+      osx_image: xcode8.3
+      addons: *xcode83
+
+    - env: CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: osx
       osx_image: xcode8.3
       addons: *xcode83
@@ -217,7 +277,7 @@ before_install:
 install:
   - mkdir build
   - cd build
-  - export CXXFLAGS="${CXX_FLAGS} -Wall -Wextra -Werror"
+  - export CXXFLAGS="${CXXFLAGS} -Wall -Wextra -Werror"
   - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE ..
 
 script:

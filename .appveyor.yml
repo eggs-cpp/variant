@@ -19,6 +19,11 @@ environment:
 
     # MSVC 14.1
     - GENERATOR: Visual Studio 15 2017 Win64
+      CXXFLAGS: /std:c++14 /permissive-
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+
+    - GENERATOR: Visual Studio 15 2017 Win64
+      CXXFLAGS: /std:c++latest /permissive-
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
     # Clang/C2
@@ -39,6 +44,14 @@ environment:
     # MinGW-w64
     - GENERATOR: MinGW Makefiles
       CXXFLAGS: -std=c++11
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - GENERATOR: MinGW Makefiles
+      CXXFLAGS: -std=c++14
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - GENERATOR: MinGW Makefiles
+      CXXFLAGS: -std=c++1z
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
 configuration:
