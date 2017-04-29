@@ -18,7 +18,7 @@ The library is continuously tested with the following configurations:
 
  - _Clang_ 3.7, 3.8, 3.9
  - _GCC_ 4.9, 5, 6
- - _Apple LLVM_ 7.3
+ - _Apple LLVM_ 7.3, 8.3
  - _MSVC_ 2013, 2015, 2017
 
 _[Note:_ Older versions of _Clang_ (3.0+) and _GCC_ (4.6+) are no longer tested,
