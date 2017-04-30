@@ -10,40 +10,6 @@ sudo: false
 
 matrix:
   include:
-    # clang-3.7
-    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
-      os: linux
-      addons: &clang37
-        apt:
-          packages:
-            - cmake
-            - cmake-data
-            - clang-3.7
-          sources:
-            - george-edison55-precise-backports
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.7
-
-    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
-      os: linux
-      addons: *clang37
-
-    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
-      os: linux
-      addons: *clang37
-
-    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
-      os: linux
-      addons: *clang37
-
-    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
-      os: linux
-      addons: *clang37
-
-    - env: CLANG_VERSION=3.7 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
-      os: linux
-      addons: *clang37
-
     # clang-3.8
     - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
@@ -111,6 +77,40 @@ matrix:
     - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *clang39
+
+    # clang-4
+    - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+      os: linux
+      addons: &clang4
+        apt:
+          packages:
+            - cmake
+            - cmake-data
+            - clang-4.0
+          sources:
+            - george-edison55-precise-backports
+            - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-4.0
+
+    - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+      os: linux
+      addons: *clang4
+
+    - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang4
+
+    - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *clang4
+
+    - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang4
+
+    - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
+      os: linux
+      addons: *clang4
 
     # gcc-4.9
     - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
