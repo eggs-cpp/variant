@@ -16,7 +16,7 @@
 
 struct Y
 {
-    Y() = default;
+    Y() {}
     Y(Y const&) {};
     ~Y() = default;
 };

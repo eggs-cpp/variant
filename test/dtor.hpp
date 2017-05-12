@@ -13,7 +13,7 @@
 struct Dtor
 {
     static std::size_t calls;
-    Dtor() = default;
+    Dtor() {}
     ~Dtor() { ++calls; }
 };
 

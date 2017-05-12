@@ -16,7 +16,7 @@
 
 /// constexpr support
 #ifndef EGGS_CXX11_HAS_CONSTEXPR
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 191000000
+#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
 #    define EGGS_CXX11_HAS_CONSTEXPR 0
 #  else
 #    define EGGS_CXX11_HAS_CONSTEXPR 1

@@ -15,14 +15,14 @@
 #if EGGS_CXX98_HAS_EXCEPTIONS
 struct Throw
 {
-    Throw() = default;
+    Throw() {}
     Throw(int) { throw 0; }
     Throw(std::initializer_list<int>) { throw 0; }
     Throw(Throw const&) { throw 0; }
     Throw(Throw&&) { throw 0; }
     Throw& operator=(Throw const&) { throw 0; }
     Throw& operator=(Throw&&) { throw 0; }
-    ~Throw() = default;
+    ~Throw() {}
 };
 #endif
 
