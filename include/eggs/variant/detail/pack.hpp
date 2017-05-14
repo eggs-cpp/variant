@@ -143,8 +143,15 @@ namespace eggs { namespace variants { namespace detail
     {};
 
     template <typename ...Ts>
+    static std::false_type _all_of(...);
+
+    template <typename ...Ts>
+    static auto _all_of(int) -> all_of<pack_c<bool,
+        typename std::enable_if<bool(Ts::value), bool>::type(true)...>>;
+
+    template <typename ...Ts>
     struct all_of<pack<Ts...>>
-      : all_of<pack_c<bool, (Ts::value)...>>
+      : decltype(detail::_all_of<Ts...>(0))
     {};
 
     template <typename ...Vs>
@@ -154,13 +161,23 @@ namespace eggs { namespace variants { namespace detail
     struct any_of<pack_c<bool, Vs...>>
       : std::integral_constant<
             bool
-          , !all_of<pack_c<bool, !Vs...>>::value
+          , !std::is_same<
+                pack_c<bool, Vs...>
+              , pack_c<bool, (Vs && false)...> // false...
+            >::value
         >
     {};
 
     template <typename ...Ts>
+    static std::true_type _any_of(...);
+
+    template <typename ...Ts>
+    static auto _any_of(int) -> any_of<pack_c<bool,
+        typename std::enable_if<!bool(Ts::value), bool>::type(false)...>>;
+
+    template <typename ...Ts>
     struct any_of<pack<Ts...>>
-      : any_of<pack_c<bool, (Ts::value)...>>
+      : decltype(detail::_any_of<Ts...>(0))
     {};
 
     ///////////////////////////////////////////////////////////////////////////
