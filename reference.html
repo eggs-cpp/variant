@@ -507,14 +507,14 @@
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span>* target() <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
                     <li><em>Returns:</em> If <code>*this</code> has an active member of type <code>T</code>, a pointer to the active member; otherwise a null pointer.</li>
-                    <li><em>Remarks:</em> Unless <code>T</code> is a user-defined type with overloaded unary <code>operator&amp;</code>, this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
 
                 <a name="eggs-variant-obs-7"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> T&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>* target() <span style="color:blue;">const</span> <span style="color:blue;">noexcept</span>;</pre>
                 <ul>
                     <li><em>Returns:</em> If <code>*this</code> has an active member of type <code>T</code>, a pointer to the active member; otherwise a null pointer.</li>
-                    <li><em>Remarks:</em> Unless <code>T</code> is a user-defined type with overloaded unary <code>operator&amp;</code>, this function shall be a <code>constexpr</code> function.</li>
+                    <li><em>Remarks:</em> This function shall be a <code>constexpr</code> function.</li>
                 </ul>
             </section>
 
