@@ -9,7 +9,9 @@
 #ifndef EGGS_VARIANT_DETAIL_UTILITY_HPP
 #define EGGS_VARIANT_DETAIL_UTILITY_HPP
 
+#include <memory>
 #include <type_traits>
+#include <utility>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -37,6 +39,44 @@ namespace eggs { namespace variants { namespace detail
         return static_cast<typename std::remove_reference<T>::type&&>(t);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+#if EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF
+    using std::addressof;
+#else
+    namespace _addressof
+    {
+        struct _fallback {};
+
+        template <typename T>
+        static _fallback operator&(T&&);
+
+        template <typename T>
+        struct has_addressof_operator
+        {
+            EGGS_CXX11_STATIC_CONSTEXPR bool value =
+                (std::is_class<T>::value || std::is_union<T>::value)
+             && !std::is_same<decltype(&std::declval<T&>()), _fallback>::value;
+        };
+    }
+
+    template <typename T>
+    EGGS_CXX11_CONSTEXPR typename std::enable_if<
+        !_addressof::has_addressof_operator<T>::value
+      , T*
+    >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
+    {
+        return &r;
+    }
+
+    template <typename T>
+    typename std::enable_if<
+        _addressof::has_addressof_operator<T>::value
+      , T*
+    >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
+    {
+        return std::addressof(r);
+    }
+#endif
 }}}
 
 #include <eggs/variant/detail/config/suffix.hpp>

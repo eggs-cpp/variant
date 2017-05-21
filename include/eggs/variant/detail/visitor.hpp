@@ -16,7 +16,7 @@
 #include <cstddef>
 #include <exception>
 #include <functional>
-#include <memory>
+#include <new>
 #include <type_traits>
 #include <typeinfo>
 #include <utility>
@@ -237,41 +237,6 @@ namespace eggs { namespace variants { namespace detail
             return h(*static_cast<T const*>(ptr));
         }
     };
-
-    ///////////////////////////////////////////////////////////////////////////
-    namespace _addressof
-    {
-        struct _fallback {};
-
-        template <typename T>
-        _fallback operator&(T&&);
-
-        template <typename T>
-        struct has_addressof_operator
-        {
-            EGGS_CXX11_STATIC_CONSTEXPR bool value =
-                (std::is_class<T>::value || std::is_union<T>::value)
-             && !std::is_same<decltype(&std::declval<T&>()), _fallback>::value;
-        };
-    }
-
-    template <typename T>
-    EGGS_CXX11_CONSTEXPR typename std::enable_if<
-        !_addressof::has_addressof_operator<T>::value
-      , T*
-    >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
-    {
-        return &r;
-    }
-
-    template <typename T>
-    typename std::enable_if<
-        _addressof::has_addressof_operator<T>::value
-      , T*
-    >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
-    {
-        return std::addressof(r);
-    }
 
     template <typename T, typename Union>
     struct target

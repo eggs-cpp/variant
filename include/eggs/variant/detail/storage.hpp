@@ -50,12 +50,12 @@ namespace eggs { namespace variants { namespace detail
 
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
         {
-            return &_target;
+            return detail::addressof(_tail);
         }
 
         EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
         {
-            return &_target;
+            return detail::addressof(_tail);
         }
 
         EGGS_CXX14_CONSTEXPR T& get(index<0>) EGGS_CXX11_NOEXCEPT
@@ -89,7 +89,6 @@ namespace eggs { namespace variants { namespace detail
     private:
         union
         {
-            char _target;
             T _head;
             _union<pack<Ts...>, true> _tail;
         };
@@ -114,12 +113,12 @@ namespace eggs { namespace variants { namespace detail
 
         EGGS_CXX14_CONSTEXPR void* target() EGGS_CXX11_NOEXCEPT
         {
-            return &_target;
+            return detail::addressof(_tail);
         }
 
         EGGS_CXX11_CONSTEXPR void const* target() const EGGS_CXX11_NOEXCEPT
         {
-            return &_target;
+            return detail::addressof(_tail);
         }
 
         EGGS_CXX14_CONSTEXPR T& get(index<0>) EGGS_CXX11_NOEXCEPT
@@ -153,7 +152,6 @@ namespace eggs { namespace variants { namespace detail
     private:
         union
         {
-            char _target;
             T _head;
             _union<pack<Ts...>, false> _tail;
         };

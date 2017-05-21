@@ -1166,8 +1166,7 @@ namespace eggs { namespace variants
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         //!
-        //! \remarks Unless `T` is a user-defined type with overloaded unary
-        //!  `operator&`, this function shall be a `constexpr` function.
+        //! \remarks This function shall be a `constexpr` function.
         template <typename T>
         EGGS_CXX14_CONSTEXPR T* target() EGGS_CXX11_NOEXCEPT
         {
@@ -1185,8 +1184,7 @@ namespace eggs { namespace variants
         //! \returns If `*this` has an active member of type `T`, a pointer to
         //!  the active member; otherwise a null pointer.
         //!
-        //! \remarks Unless `T` is a user-defined type with overloaded unary
-        //!  `operator&`, this function shall be a `constexpr` function.
+        //! \remarks This function shall be a `constexpr` function.
         template <typename T>
         EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT
         {

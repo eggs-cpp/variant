@@ -16,10 +16,25 @@
 
 struct HasMemberAddressofOperator
 {
+    int x;
+
+    HasMemberAddressofOperator() : x(0) {}
+#if EGGS_CXX11_HAS_CONSTEXPR
+    constexpr HasMemberAddressofOperator(int i) : x(i) {}
+#endif
+
     void operator&() const {}
 };
 
-struct HasFreeAddressofOperator {};
+struct HasFreeAddressofOperator
+{
+    int x;
+
+    HasFreeAddressofOperator() : x(0) {}
+#if EGGS_CXX11_HAS_CONSTEXPR
+    constexpr HasFreeAddressofOperator(int i) : x(i) {}
+#endif
+};
 
 void operator&(HasFreeAddressofOperator const&) {}
 
@@ -211,6 +226,24 @@ TEST_CASE("variant<Ts..., HasMemberAddressofOperator>::target<HasMemberAddressof
     REQUIRE(v.which() == 1u);
 
     CHECK(v.target<HasMemberAddressofOperator>() == v.target());
+
+#if EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF && EGGS_CXX11_HAS_CONSTEXPR
+    // constexpr
+    {
+        static constexpr eggs::variant<int, HasMemberAddressofOperator> v(HasMemberAddressofOperator(42));
+        constexpr bool vttb = v.target<HasMemberAddressofOperator>()->x == 42;
+
+#  if EGGS_CXX14_HAS_CONSTEXPR
+        struct test { static constexpr int call()
+        {
+            eggs::variant<int, HasMemberAddressofOperator> v(HasMemberAddressofOperator(42));
+            v.target<HasMemberAddressofOperator>()->x = 43;
+            return 0;
+        }};
+        constexpr int c = test::call();
+#  endif
+    }
+#endif
 }
 
 TEST_CASE("variant<Ts..., HasFreeAddressofOperator>::target<HasFreeAddressofOperator>()", "[variant.obs]")
@@ -220,6 +253,24 @@ TEST_CASE("variant<Ts..., HasFreeAddressofOperator>::target<HasFreeAddressofOper
     REQUIRE(v.which() == 1u);
 
     CHECK(v.target<HasFreeAddressofOperator>() == v.target());
+
+#if EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF && EGGS_CXX11_HAS_CONSTEXPR
+    // constexpr
+    {
+        static constexpr eggs::variant<int, HasFreeAddressofOperator> v(HasFreeAddressofOperator(42));
+        constexpr bool vttb = v.target<HasFreeAddressofOperator>()->x == 42;
+
+#  if EGGS_CXX14_HAS_CONSTEXPR
+        struct test { static constexpr int call()
+        {
+            eggs::variant<int, HasFreeAddressofOperator> v(HasFreeAddressofOperator(42));
+            v.target<HasFreeAddressofOperator>()->x = 43;
+            return 0;
+        }};
+        constexpr int c = test::call();
+#  endif
+    }
+#endif
 }
 
 TEST_CASE("variant<>::target<T>()", "[variant.obs]")

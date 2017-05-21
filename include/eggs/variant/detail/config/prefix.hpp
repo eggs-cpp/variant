@@ -265,6 +265,16 @@
 #  define EGGS_CXX11_STD_HAS_ALIGNED_UNION_DEFINED
 #endif
 
+/// constexpr std::addressof support
+#ifndef EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF
+#  if __cpp_lib_addressof_constexpr > 0
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#  else
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#  endif
+#  define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF_DEFINED
+#endif
+
 /// std::is_nothrow_* support
 #ifndef EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
 #  if defined(__GLIBCXX__) && !defined(_GLIBCXX_NOEXCEPT)
