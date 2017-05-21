@@ -27,15 +27,6 @@ _[Note:_ Older versions of _Clang_ (3.0+) and _GCC_ (4.6+) are no longer tested,
 but should still work; please report any issues if you are using them. Older
 versions of _MSVC_ are not supported._]_
 
-## Future Work ##
-
-The following is an incomplete list of pending functionality to be implemented:
-
- - Explicit control over the type of the discriminator, introduced via a
-   `basic_variant` class template.
-
- - Layout optimization. Requires even more flavors of special storage.
-
 ---
 
 > Copyright _Agustín Bergé_, _Fusion Fenix_ 2014-2017

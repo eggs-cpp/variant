@@ -13,6 +13,7 @@
 #include <eggs/variant/detail/utility.hpp>
 #include <eggs/variant/detail/visitor.hpp>
 
+#include <climits>
 #include <cstddef>
 #include <new>
 #include <type_traits>
@@ -337,6 +338,42 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
+    template <
+        std::size_t N
+      , bool UChar = (N < UCHAR_MAX)
+      , bool UShort = (N < USHRT_MAX)
+      , bool UInt = (N < UINT_MAX)
+    >
+    struct smallest_index;
+
+#if !defined(__GNUC__)
+    // triggers https://gcc.gnu.org/bugzilla/show_bug.cgi?id=77945
+    template <std::size_t N, bool UShort, bool UInt>
+    struct smallest_index<N, true, UShort, UInt>
+    {
+        using type = unsigned char;
+    };
+
+    template <std::size_t N, bool UInt>
+    struct smallest_index<N, false, true, UInt>
+    {
+        using type = unsigned short;
+    };
+
+    template <std::size_t N>
+    struct smallest_index<N, false, false, true>
+    {
+        using type = unsigned int;
+    };
+#else
+    template <std::size_t N, bool UChar, bool UShort, bool UInt>
+    struct smallest_index
+    {
+        using type = unsigned int;
+    };
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////
     struct not_a_type
     {
 #if EGGS_CXX11_HAS_DELETED_FUNCTIONS
@@ -472,7 +509,7 @@ namespace eggs { namespace variants { namespace detail
         using base_type::get;
 
     protected:
-        std::size_t _which;
+        typename smallest_index<sizeof...(Ts)>::type _which;
     };
 
     template <typename ...Ts>
