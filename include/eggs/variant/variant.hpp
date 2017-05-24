@@ -56,6 +56,24 @@ namespace eggs { namespace variants
         {};
 
         ///////////////////////////////////////////////////////////////////////
+        template <typename T>
+        struct checked_is_object
+          : std::is_object<T>
+        {
+            static_assert(
+                !std::is_function<T>::value
+              , "variant alternative has function type");
+
+            static_assert(
+                !std::is_reference<T>::value
+              , "variant alternative has reference type");
+
+            static_assert(
+                !std::is_void<T>::value
+              , "variant alternative has void type");
+        };
+
+        ///////////////////////////////////////////////////////////////////////
         template <
             std::size_t I, typename Ts,
             bool Empty = std::is_base_of<empty, at_index<I, Ts>>::value
@@ -508,19 +526,9 @@ namespace eggs { namespace variants
     class variant
     {
         static_assert(
-            !detail::any_of<detail::pack<
-                std::is_function<Ts>...>>::value
-          , "variant member has function type");
-
-        static_assert(
-            !detail::any_of<detail::pack<
-                std::is_reference<Ts>...>>::value
-          , "variant member has reference type");
-
-        static_assert(
-            !detail::any_of<detail::pack<
-                std::is_void<Ts>...>>::value
-          , "variant member has void type");
+            detail::all_of<detail::pack_c<bool,
+                detail::checked_is_object<Ts>::value...>>::value
+          , "variant alternatives shall be object types");
 
     public:
         //! static constexpr std::size_t npos = std::size_t(-1);
