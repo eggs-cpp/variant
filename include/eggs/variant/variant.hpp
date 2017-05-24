@@ -35,14 +35,14 @@ namespace eggs { namespace variants
     namespace detail
     {
         ///////////////////////////////////////////////////////////////////////
-        std::false_type _is_variant(...);
+        std::false_type _is_variant(void const*);
 
         template <typename ...Ts>
         std::true_type _is_variant(variant<Ts...> const*);
 
         template <typename T>
         struct is_variant
-          : decltype(_is_variant(static_cast<T*>(nullptr)))
+          : decltype(detail::_is_variant(static_cast<T*>(nullptr)))
         {};
 
         template <typename ...Ts>
@@ -231,7 +231,7 @@ namespace eggs { namespace variants
 
             template <
                 typename T, typename U
-              , typename R = decltype(check_has_greater_equal<T, U>(0))
+              , typename R = decltype(_relops::check_has_greater_equal<T, U>(0))
             >
             struct has_greater_equal : std::true_type
             {};

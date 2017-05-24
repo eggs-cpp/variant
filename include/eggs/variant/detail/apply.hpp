@@ -75,7 +75,7 @@ namespace eggs { namespace variants { namespace detail
         template <typename ...Ts>
         EGGS_CXX11_CONSTEXPR R operator()(Ts&&... vs) const
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-                _invoke(detail::forward<Ts>(vs)...)))
+                detail::_invoke(detail::forward<Ts>(vs)...)))
         {
             return detail::_invoke(detail::forward<Ts>(vs)...);
         }
@@ -87,7 +87,7 @@ namespace eggs { namespace variants { namespace detail
         template <typename ...Ts>
         EGGS_CXX14_CONSTEXPR void operator()(Ts&&... vs) const
             EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-                _invoke(detail::forward<Ts>(vs)...)))
+                detail::_invoke(detail::forward<Ts>(vs)...)))
         {
             detail::_invoke(detail::forward<Ts>(vs)...);
         }
@@ -185,7 +185,7 @@ namespace eggs { namespace variants { namespace detail
                   , detail::forward<Ms>(ms)..., _apply_get<V0, I>{}(v0)
                   , detail::forward<V1>(v1), detail::forward<Vs>(vs)...
                 )
-              : throw_bad_variant_access<R>();
+              : detail::throw_bad_variant_access<R>();
         }
     };
 
@@ -204,7 +204,7 @@ namespace eggs { namespace variants { namespace detail
               , detail::forward<F>(f)
               , detail::forward<V>(v), detail::forward<Vs>(vs)...
             )
-          : throw_bad_variant_access<R>();
+          : detail::throw_bad_variant_access<R>();
     }
 
     ///////////////////////////////////////////////////////////////////////////
