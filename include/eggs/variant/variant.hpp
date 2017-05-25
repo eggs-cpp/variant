@@ -414,6 +414,13 @@ namespace eggs { namespace variants
         };
 
         ///////////////////////////////////////////////////////////////////////
+        template <typename V>
+        EGGS_CXX11_CONSTEXPR int throw_if_empty(V const& v)
+        {
+            return bool(v) ? 0 : detail::throw_bad_variant_access<int>();
+        }
+
+        ///////////////////////////////////////////////////////////////////////
         namespace _hash
         {
             struct _fallback {};
@@ -2304,8 +2311,9 @@ namespace eggs { namespace variants
     >
     EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {
-        return detail::apply<R>(detail::forward<F>(f),
-            detail::access::storage(detail::forward<Vs>(vs))...);
+        return (void)detail::swallow_pack(detail::throw_if_empty(vs)...),
+            detail::apply<R>(detail::forward<F>(f),
+                detail::access::storage(detail::forward<Vs>(vs))...);
     }
 
     template <typename R, typename F>

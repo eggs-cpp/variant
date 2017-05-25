@@ -14,8 +14,6 @@
 #include <eggs/variant/detail/utility.hpp>
 #include <eggs/variant/detail/visitor.hpp>
 
-#include <eggs/variant/bad_variant_access.hpp>
-
 #include <cstddef>
 #include <type_traits>
 #include <utility>
@@ -178,14 +176,11 @@ namespace eggs { namespace variants { namespace detail
             V1&& v1, Vs&&... vs)
         {
             using T = typename _apply_get<V0, I>::type;
-            return v0.which() != 0
-              ? _apply<R, F, pack<Ms..., T>, pack<V1, Vs...>>{}(
+            return _apply<R, F, pack<Ms..., T>, pack<V1, Vs...>>{}(
                     _apply_pack<typename std::decay<V1>::type>{}, v1.which() - 1
                   , detail::forward<F>(f)
                   , detail::forward<Ms>(ms)..., _apply_get<V0, I>{}(v0)
-                  , detail::forward<V1>(v1), detail::forward<Vs>(vs)...
-                )
-              : detail::throw_bad_variant_access<R>();
+                  , detail::forward<V1>(v1), detail::forward<Vs>(vs)...);
         }
     };
 
@@ -198,13 +193,10 @@ namespace eggs { namespace variants { namespace detail
     template <typename R, typename F, typename V, typename ...Vs>
     EGGS_CXX11_CONSTEXPR R apply(F&& f, V&& v, Vs&&... vs)
     {
-        return v.which() != 0
-          ? _apply<R, F, pack<>, pack<V&&, Vs&&...>>{}(
+        return _apply<R, F, pack<>, pack<V&&, Vs&&...>>{}(
                 _apply_pack<typename std::decay<V>::type>{}, v.which() - 1
               , detail::forward<F>(f)
-              , detail::forward<V>(v), detail::forward<Vs>(vs)...
-            )
-          : detail::throw_bad_variant_access<R>();
+              , detail::forward<V>(v), detail::forward<Vs>(vs)...);
     }
 
     ///////////////////////////////////////////////////////////////////////////

@@ -54,6 +54,12 @@ namespace eggs { namespace variants { namespace detail
         EGGS_CXX11_STATIC_CONSTEXPR std::size_t size = sizeof...(Vs);
     };
 
+    template <typename ...Ts>
+    static EGGS_CXX11_CONSTEXPR int swallow_pack(Ts const&...) EGGS_CXX11_NOEXCEPT
+    {
+        return 0;
+    }
+
     ///////////////////////////////////////////////////////////////////////////
     template <typename Is, bool Odd>
     struct _make_index_pack_twice;
