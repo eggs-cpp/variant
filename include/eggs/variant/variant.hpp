@@ -1178,8 +1178,9 @@ namespace eggs { namespace variants
         //! template <class T>
         //! constexpr T* target() noexcept;
         //!
-        //! \returns If `*this` has an active member of type `T`, a pointer to
-        //!  the active member; otherwise a null pointer.
+        //! \returns If `*this` has an active member of type `T` or of a type
+        //!  of which `T` is an unambiguous and accessible base class, a
+        //!  pointer to the active member; otherwise a null pointer.
         //!
         //! \remarks This function shall be a `constexpr` function.
         template <typename T>
@@ -1196,15 +1197,16 @@ namespace eggs { namespace variants
         //! template <class T>
         //! constexpr T const* target() const noexcept;
         //!
-        //! \returns If `*this` has an active member of type `T`, a pointer to
-        //!  the active member; otherwise a null pointer.
+        //! \returns If `*this` has an active member of type `T` or of a type
+        //!  of which `T` is an unambiguous and accessible base class, a
+        //!  pointer to the active member; otherwise a null pointer.
         //!
         //! \remarks This function shall be a `constexpr` function.
         template <typename T>
         EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT
         {
             return _storage.which() != 0
-              ? detail::target<T, detail::storage<Ts...> const>{}(
+              ? detail::target<T const, detail::storage<Ts...> const>{}(
                     detail::typed_index_pack<detail::pack<detail::empty, Ts...>>{}
                   , _storage.which(), _storage
                 )

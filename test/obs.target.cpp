@@ -14,6 +14,9 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
+struct Base {};
+struct Derived : Base {};
+
 struct HasMemberAddressofOperator
 {
     int x;
@@ -135,6 +138,20 @@ TEST_CASE("variant<Ts...>::target<T>()", "[variant.obs]")
         eggs::variant<int, std::string> const v(42);
 
         CHECK(v.target<int>() == v.target());
+        CHECK(v.target<float>() == nullptr);
+        CHECK(v.target<std::string>() == nullptr);
+
+#if EGGS_CXX11_HAS_NOEXCEPT
+        CHECK((noexcept(v.target<int>()) == true));
+#endif
+    }
+
+    // non-empty, base
+    {
+        eggs::variant<Derived, std::string> const v(Derived{});
+
+        CHECK(v.target<Base>() == v.target());
+        CHECK(v.target<Derived>() == v.target());
         CHECK(v.target<float>() == nullptr);
         CHECK(v.target<std::string>() == nullptr);
 
