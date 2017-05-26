@@ -2365,7 +2365,7 @@ namespace eggs { namespace variants
 
     ///////////////////////////////////////////////////////////////////////////
     //! template <class ...Ts>
-    //! void swap(variant<Ts...>& x, variant<Ts...>& y)
+    //! constexpr void swap(variant<Ts...>& x, variant<Ts...>& y)
     //!   noexcept(noexcept(x.swap(y))
     //!
     //! \effects Calls `x.swap(y)`.
