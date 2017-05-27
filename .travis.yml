@@ -81,6 +81,7 @@ matrix:
     # clang-4
     - env: CLANG_VERSION=4.0 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
+      dist: trusty
       addons: &clang4
         apt:
           packages:
