@@ -9,14 +9,16 @@
 /// no header guards
 
 #if __cplusplus < 201103L
-#  if !defined(_MSC_FULL_VER) || _MSC_FULL_VER < 180000000
+#  if !defined(_MSC_VER) || _MSC_VER < 1800
 #    error Eggs.Variant requires compiler and library support for the ISO C++ 2011 standard.
 #  endif
 #endif
 
 /// constexpr support
 #ifndef EGGS_CXX11_HAS_CONSTEXPR
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if __cpp_constexpr >= 200704L
+#    define EGGS_CXX11_HAS_CONSTEXPR 1
+#  elif defined(_MSC_VER) && _MSC_VER < 1900
 #    define EGGS_CXX11_HAS_CONSTEXPR 0
 #  else
 #    define EGGS_CXX11_HAS_CONSTEXPR 1
@@ -45,20 +47,16 @@
 #ifndef EGGS_CXX14_HAS_CONSTEXPR
 #  if EGGS_CXX11_HAS_CONSTEXPR == 0
 #    define EGGS_CXX14_HAS_CONSTEXPR 0
-#  elif defined(_MSC_FULL_VER)
-#    if _MSC_FULL_VER < 191000000
+#  elif __cpp_constexpr >= 201304L
+#    define EGGS_CXX14_HAS_CONSTEXPR 1
+#  elif defined(_MSC_VER)
+#    if _MSC_VER < 1910
 #      define EGGS_CXX14_HAS_CONSTEXPR 0
 #    else
 #      define EGGS_CXX14_HAS_CONSTEXPR 1
 #    endif
 #  elif __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_CONSTEXPR 0
-#  elif defined(__GNUC__) && !defined(__clang__)
-#    if __GNUC__ < 5
-#      define EGGS_CXX14_HAS_CONSTEXPR 0
-#    else
-#      define EGGS_CXX14_HAS_CONSTEXPR 1
-#    endif
 #  else
 #    define EGGS_CXX14_HAS_CONSTEXPR 1
 #  endif
@@ -76,7 +74,7 @@
 
 /// defaulted functions support
 #ifndef EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if defined(_MSC_VER) && _MSC_VER < 1900
 #    define EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS 0
 #  else
 #    define EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS 1
@@ -86,7 +84,7 @@
 
 /// deleted functions support
 #ifndef EGGS_CXX11_HAS_DELETED_FUNCTIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 180000000
+#  if defined(_MSC_VER) && _MSC_VER < 1800
 #    define EGGS_CXX11_HAS_DELETED_FUNCTIONS 0
 #  else
 #    define EGGS_CXX11_HAS_DELETED_FUNCTIONS 1
@@ -96,12 +94,14 @@
 
 /// RTTI support
 #ifndef EGGS_CXX98_HAS_RTTI
-#  if defined(_MSC_FULL_VER) && !defined(_CPPRTTI)
-#    define EGGS_CXX98_HAS_RTTI 0
-#  elif defined(__GNUC__) && !defined(__GXX_RTTI) && !defined(__clang__)
-#    define EGGS_CXX98_HAS_RTTI 0
+#  if __cpp_rtti >= 199711L
+#    define EGGS_CXX98_HAS_RTTI 1
 #  elif defined(__clang__)
 #    define EGGS_CXX98_HAS_RTTI __has_feature(cxx_rtti)
+#  elif defined(__GNUC__) && !defined(__GXX_RTTI)
+#    define EGGS_CXX98_HAS_RTTI 0
+#  elif defined(_MSC_VER) && !defined(_CPPRTTI)
+#    define EGGS_CXX98_HAS_RTTI 0
 #  else
 #    define EGGS_CXX98_HAS_RTTI 1
 #  endif
@@ -112,7 +112,7 @@
 #ifndef EGGS_CXX11_HAS_CONSTEXPR_RTTI
 #  if EGGS_CXX98_HAS_RTTI == 0 || EGGS_CXX11_HAS_CONSTEXPR == 0
 #    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 0
-#  elif defined(_MSC_FULL_VER)
+#  elif defined(_MSC_VER)
 #    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 0
 #  else
 #    define EGGS_CXX11_HAS_CONSTEXPR_RTTI 1
@@ -122,12 +122,14 @@
 
 /// exception support
 #ifndef EGGS_CXX98_HAS_EXCEPTIONS
-#  if defined(_MSC_FULL_VER) && !defined(_CPPUNWIND)
-#    define EGGS_CXX98_HAS_EXCEPTIONS 0
-#  elif defined(__GNUC__) && !defined(__EXCEPTIONS) && !defined(__clang__)
-#    define EGGS_CXX98_HAS_EXCEPTIONS 0
+#  if __cpp_exceptions >= 199711L
+#    define EGGS_CXX98_HAS_EXCEPTIONS 1
 #  elif defined(__clang__)
 #    define EGGS_CXX98_HAS_EXCEPTIONS __has_feature(cxx_exceptions)
+#  elif defined(__GNUC__) && !defined(__EXCEPTIONS)
+#    define EGGS_CXX98_HAS_EXCEPTIONS 0
+#  elif defined(_MSC_VER) && !defined(_CPPUNWIND)
+#    define EGGS_CXX98_HAS_EXCEPTIONS 0
 #  else
 #    define EGGS_CXX98_HAS_EXCEPTIONS 1
 #  endif
@@ -136,7 +138,7 @@
 
 /// noexcept support
 #ifndef EGGS_CXX11_HAS_NOEXCEPT
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if defined(_MSC_VER) && _MSC_VER < 1900
 #    define EGGS_CXX11_HAS_NOEXCEPT 0
 #  else
 #    define EGGS_CXX11_HAS_NOEXCEPT 1
@@ -173,20 +175,16 @@
 
 /// noreturn support
 #ifndef EGGS_CXX11_NORETURN
-#  if defined(_MSC_FULL_VER)
+#  if defined(__has_cpp_attribute)
+#    if __has_cpp_attribute(noreturn)
+#      define EGGS_CXX11_NORETURN [[noreturn]]
+#    else
+#      define EGGS_CXX11_NORETURN
+#    endif
+#  elif defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)) && !defined(__clang__)
+#    define EGGS_CXX11_NORETURN __attribute__ ((__noreturn__))
+#  elif defined(_MSC_VER)  && _MSC_VER < 1900
 #    define EGGS_CXX11_NORETURN __declspec(noreturn)
-#  elif defined(__GNUC__) && !defined(__clang__)
-#    if __GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 8)
-#      define EGGS_CXX11_NORETURN __attribute__ ((__noreturn__))
-#    else
-#      define EGGS_CXX11_NORETURN [[noreturn]]
-#    endif
-#  elif defined(__clang__)
-#    if !__has_feature(cxx_attributes)
-#      define EGGS_CXX11_NORETURN __attribute__ ((__noreturn__))
-#    else
-#      define EGGS_CXX11_NORETURN [[noreturn]]
-#    endif
 #  else
 #    define EGGS_CXX11_NORETURN [[noreturn]]
 #  endif
@@ -195,7 +193,7 @@
 
 /// overloading on std::initializer_list support
 #ifndef EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if defined(_MSC_VER) && _MSC_VER < 1900
 #    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 0
 #  else
 #    define EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING 1
@@ -205,7 +203,7 @@
 
 /// overloading on template arguments support
 #ifndef EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if defined(_MSC_VER) && _MSC_VER < 1900
 #    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 0
 #  else
 #    define EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING 1
@@ -215,7 +213,7 @@
 
 /// sfinae for expressions support
 #ifndef EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 191000000
+#  if defined(_MSC_VER) && _MSC_VER < 1910
 #    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
 #  elif defined(__GNUC__) && (__GNUC__ < 4 || (__GNUC__ == 4 && __GNUC_MINOR__ < 9)) && !defined(__clang__)
 #    define EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS 0
@@ -227,7 +225,7 @@
 
 /// unrestricted unions support
 #ifndef EGGS_CXX11_HAS_UNRESTRICTED_UNIONS
-#  if defined(_MSC_FULL_VER) && _MSC_FULL_VER < 190000000
+#  if defined(_MSC_VER) && _MSC_VER < 1900
 #    define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS 0
 #  else
 #    define EGGS_CXX11_HAS_UNRESTRICTED_UNIONS 1
@@ -237,18 +235,18 @@
 
 /// variable templates support
 #ifndef EGGS_CXX14_HAS_VARIABLE_TEMPLATES
-#  if defined(_MSC_FULL_VER)
-#    if _MSC_FULL_VER < 190000000
+#  if __cpp_variable_templates >= 201304L
+#    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 1
+#  elif defined(_MSC_VER)
+#    if _MSC_VER < 1900
 #      define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
 #    else
 #      define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 1
 #    endif
 #  elif __cplusplus < 201402L
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
-#  elif defined(__GNUC__) && !defined(__clang__)
+#  elif defined(__GNUC__) && __GNUC__ < 5 && !defined(__clang__)
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 0
-#  elif defined(__clang__)
-#    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES __has_feature(cxx_variable_templates)
 #  else
 #    define EGGS_CXX14_HAS_VARIABLE_TEMPLATES 1
 #  endif
@@ -267,10 +265,20 @@
 
 /// constexpr std::addressof support
 #ifndef EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF
-#  if __cpp_lib_addressof_constexpr > 0
-#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
-#  else
+#  if EGGS_CXX11_HAS_CONSTEXPR == 0
 #    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#  elif __cpp_lib_addressof_constexpr >= 201603L
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#  elif defined(_MSC_VER)
+#    if _MSC_VER < 1910
+#      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#    else
+#      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#    endif
+#  elif __cplusplus < 201703L
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#  else
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
 #  endif
 #  define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF_DEFINED
 #endif
@@ -287,10 +295,18 @@
 
 /// std::is_[nothrow_]swappable support
 #ifndef EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
-#  if __cpp_lib_is_swappable > 0
+#  if __cpp_lib_is_swappable >= 201603L
 #    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
-#  else
+#  elif defined(_MSC_VER)
+#    if _MSC_VER < 1910 || !_HAS_CXX17
+#      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
+#    else
+#      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
+#    endif
+#  elif __cplusplus < 201703L
 #    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
+#  else
+#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
 #  endif
 #  define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS_DEFINED
 #endif
@@ -299,7 +315,7 @@
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
 #  if defined(__GLIBCXX__)
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
-#  elif defined(_CPPLIB_VER) && _CPPLIB_VER < 650
+#  elif defined(_MSC_VER) && _MSC_VER < 1910
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
 #  else
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 1
@@ -317,7 +333,7 @@
 #  define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE_DEFINED
 #endif
 
-#if defined(_MSC_FULL_VER)
+#if defined(_MSC_VER)
 #  pragma warning(push)
 /// destructor was implicitly defined as deleted because a base class
 /// destructor is inaccessible or deleted
