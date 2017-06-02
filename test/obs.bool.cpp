@@ -14,7 +14,6 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-#if EGGS_CXX98_HAS_RTTI
 TEST_CASE("variant<Ts...>::operator bool()", "[variant.obs]")
 {
     // non-empty
@@ -74,4 +73,3 @@ TEST_CASE("variant<>::operator bool()", "[variant.obs]")
     }
 #endif
 }
-#endif

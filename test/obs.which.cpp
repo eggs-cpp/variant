@@ -16,7 +16,6 @@
 
 EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
 
-#if EGGS_CXX98_HAS_RTTI
 TEST_CASE("variant<Ts...>::which()", "[variant.obs]")
 {
     // non-empty
@@ -76,4 +75,3 @@ TEST_CASE("variant<>::which()", "[variant.obs]")
     }
 #endif
 }
-#endif
