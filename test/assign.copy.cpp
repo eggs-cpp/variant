@@ -62,6 +62,14 @@ struct NonCopyAssignableTrivial
     NonCopyAssignableTrivial(NonCopyAssignableTrivial const&) = default;
     NonCopyAssignableTrivial& operator=(NonCopyAssignableTrivial const&) = delete;
 };
+
+#      if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+namespace eggs { namespace variants { namespace detail
+{
+    template <> struct is_trivially_copyable<NonCopyAssignableTrivial> : std::true_type {};
+    template <> struct is_trivially_destructible<NonCopyAssignableTrivial> : std::true_type {};
+}}}
+#      endif
 #    endif
 #  endif
 #endif
@@ -288,12 +296,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
 #endif
     }
 
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     // trivially_copyable
     {
         eggs::variant<int, float> const v1(42);
 
-        REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+        CHECK(std::is_trivially_copyable<decltype(v1)>::value == true);
+#endif
 
         REQUIRE(bool(v1) == true);
         REQUIRE(v1.which() == 0u);
@@ -314,7 +323,6 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
     }
-#endif
 
     // sfinae
     {

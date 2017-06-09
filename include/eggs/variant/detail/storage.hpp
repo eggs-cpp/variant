@@ -317,23 +317,33 @@ namespace eggs { namespace variants { namespace detail
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-    using std::is_trivially_copyable;
-#else
     template <typename T>
     struct is_trivially_copyable
-      : std::is_pod<T>
-    {};
-#endif
-
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-    using std::is_trivially_destructible;
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+      : std::is_trivially_copyable<T>
 #else
+      : std::is_pod<T>
+#endif
+    {};
+
+    template <>
+    struct is_trivially_copyable<empty>
+      : std::true_type
+    {};
+
     template <typename T>
     struct is_trivially_destructible
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+      : std::is_trivially_destructible<T>
+#else
       : std::is_pod<T>
-    {};
 #endif
+    {};
+
+    template <>
+    struct is_trivially_destructible<empty>
+      : std::true_type
+    {};
 
     ///////////////////////////////////////////////////////////////////////////
     template <

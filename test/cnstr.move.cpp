@@ -54,6 +54,14 @@ struct NonCopyConstructibleTrivial
     NonCopyConstructibleTrivial(NonCopyConstructibleTrivial const&) = delete;
     NonCopyConstructibleTrivial& operator=(NonCopyConstructibleTrivial const&) = default;
 };
+
+#    if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+namespace eggs { namespace variants { namespace detail
+{
+    template <> struct is_trivially_copyable<NonCopyConstructibleTrivial> : std::true_type {};
+    template <> struct is_trivially_destructible<NonCopyConstructibleTrivial> : std::true_type {};
+}}}
+#    endif
 #  endif
 #endif
 
@@ -86,7 +94,6 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
 #endif
     }
 
-#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
     // trivially_copyable
     {
         eggs::variant<int, float> v1(42);
@@ -95,7 +102,9 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         REQUIRE(v1.which() == 0u);
         REQUIRE(*v1.target<int>() == 42);
 
-        REQUIRE(std::is_trivially_copyable<decltype(v1)>::value == true);
+#if EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+        CHECK(std::is_trivially_copyable<decltype(v1)>::value == true);
+#endif
 
         eggs::variant<int, float> v2(::move(v1));
 
@@ -107,7 +116,6 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
     }
-#endif
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     // constexpr

@@ -60,20 +60,7 @@ struct NoThrowMoveSwappable
 };
 template <bool NoThrow>
 void swap(NoThrowMoveSwappable<NoThrow>&, NoThrowMoveSwappable<NoThrow>&) noexcept(NoThrow) {}
-
-#  if !EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
-namespace std
-{
-    namespace swappable_traits
-    {
-        using ::eggs::variants::detail::is_swappable;
-        using ::eggs::variants::detail::is_nothrow_swappable;
-    }
-    using namespace swappable_traits;
-}
-#  endif
 #endif
-
 #if EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct NonAssignable
 {
@@ -90,9 +77,16 @@ struct NonAssignableTrivial
     NonAssignableTrivial() {}
     NonAssignableTrivial(NonAssignableTrivial&&) = default;
     NonAssignableTrivial& operator=(NonAssignableTrivial const&) = delete;
-    ~NonAssignableTrivial() = default;
 };
 void swap(NonAssignableTrivial&, NonAssignableTrivial&) {}
+
+#    if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+namespace eggs { namespace variants { namespace detail
+{
+    template <> struct is_trivially_copyable<NonAssignableTrivial> : std::true_type {};
+    template <> struct is_trivially_destructible<NonAssignableTrivial> : std::true_type {};
+}}}
+#    endif
 #  endif
 
 struct NonSwappable
@@ -102,6 +96,18 @@ struct NonSwappable
     NonSwappable& operator=(NonSwappable const&) { return *this; };
 };
 void swap(NonSwappable&, NonSwappable&) = delete;
+#endif
+
+#if !EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
+namespace std
+{
+    namespace swappable_traits
+    {
+        using ::eggs::variants::detail::is_swappable;
+        using ::eggs::variants::detail::is_nothrow_swappable;
+    }
+    using namespace swappable_traits;
+}
 #endif
 
 TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
@@ -380,7 +386,7 @@ TEST_CASE("variant<NonAssignable>::swap(variant<...>&)", "[variant.swap]")
     CHECK(v1.which() == 1u);
     CHECK(v2.which() == 0u);
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
     // trivially_copyable
     {
         eggs::variant<int, NonAssignableTrivial> v1(42);

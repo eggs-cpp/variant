@@ -314,7 +314,11 @@
 /// std::is_trivially_copyable support
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
 #  if defined(__GLIBCXX__)
-#    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
+#    if defined(__has_include)
+#      define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE __has_include(<codecvt>) // 5.0+
+#    else
+#      define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
+#    endif
 #  elif defined(_MSC_VER) && _MSC_VER < 1910
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE 0
 #  else
@@ -325,8 +329,12 @@
 
 /// std::is_trivially_destructible support
 #ifndef EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
-#  if defined(__GLIBCXX__) && __GLIBCXX__ < 20130531
-#    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE 0
+#  if defined(__GLIBCXX__)
+#    if defined(__has_include)
+#      define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE __has_include(<ext/cmath>) // 4.8+
+#    else
+#      define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE 0
+#    endif
 #  else
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE 1
 #  endif

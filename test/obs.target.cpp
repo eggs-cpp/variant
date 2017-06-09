@@ -7,6 +7,7 @@
 
 #include <eggs/variant.hpp>
 #include <string>
+#include <type_traits>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
@@ -29,6 +30,13 @@ struct HasMemberAddressofOperator
     void operator&() const {}
 };
 
+#if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+namespace eggs { namespace variants { namespace detail
+{
+    template <> struct is_trivially_destructible<HasMemberAddressofOperator> : std::true_type {};
+}}}
+#endif
+
 struct HasFreeAddressofOperator
 {
     int x;
@@ -38,8 +46,14 @@ struct HasFreeAddressofOperator
     constexpr HasFreeAddressofOperator(int i) : x(i) {}
 #endif
 };
-
 void operator&(HasFreeAddressofOperator const&) {}
+
+#if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+namespace eggs { namespace variants { namespace detail
+{
+    template <> struct is_trivially_destructible<HasFreeAddressofOperator> : std::true_type {};
+}}}
+#endif
 
 TEST_CASE("variant<Ts...>::target()", "[variant.obs]")
 {

@@ -79,8 +79,15 @@ struct NonAssignableTrivial
     NonAssignableTrivial() {}
     NonAssignableTrivial(NonAssignableTrivial&&) = default;
     NonAssignableTrivial& operator=(NonAssignableTrivial const&) = delete;
-    ~NonAssignableTrivial() = default;
 };
+
+#    if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+namespace eggs { namespace variants { namespace detail
+{
+    template <> struct is_trivially_copyable<NonAssignableTrivial> : std::true_type {};
+    template <> struct is_trivially_destructible<NonAssignableTrivial> : std::true_type {};
+}}}
+#    endif
 #  endif
 #endif
 
@@ -275,7 +282,7 @@ TEST_CASE("variant<NonAssignable>::emplace<I>(Args&&...)", "[variant.assign]")
     CHECK(v.which() == 1u);
     CHECK(v.target<NonAssignable>() == &r);
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
     // trivially_copyable
     {
         eggs::variant<int, NonAssignableTrivial> v(42);
@@ -617,7 +624,7 @@ TEST_CASE("variant<NonAssignable>::emplace<T>(Args&&...)", "[variant.assign]")
     CHECK(v.which() == 1u);
     CHECK(v.target<NonAssignable>() == &r);
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS && EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE
+#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
     // trivially_copyable
     {
         eggs::variant<int, NonAssignableTrivial> v(42);
