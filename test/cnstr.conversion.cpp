@@ -8,12 +8,27 @@
 #include <eggs/variant.hpp>
 #include <string>
 #include <type_traits>
+#include <utility>
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "constexpr.hpp"
+
+template <typename T>
+struct Explicit
+{
+    T x;
+
+    template <
+        typename U
+      , typename Enable = typename std::enable_if<
+            std::is_constructible<T, U&&>::value
+        >::type
+    >
+    explicit Explicit(U&& x) : x(std::forward<U>(x)) {}
+};
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct WeirdConstructor
@@ -53,7 +68,7 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
     }
 #endif
 
-    // implicit conversion
+    // conversion
     {
         eggs::variant<int, std::string> v("42");
 
@@ -65,6 +80,34 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 #if EGGS_CXX98_HAS_RTTI
         CHECK(v.target_type() == typeid(std::string));
 #endif
+
+        // implicit conversion
+        {
+            eggs::variant<int, std::string> v = "42";
+
+            CHECK(bool(v) == true);
+            CHECK(v.which() == 1u);
+            REQUIRE(v.target<std::string>() != nullptr);
+            CHECK(*v.target<std::string>() == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+            CHECK(v.target_type() == typeid(std::string));
+#endif
+        }
+
+        // explicit conversion
+        {
+            eggs::variant<int, Explicit<std::string>> v("42");
+
+            CHECK(bool(v) == true);
+            CHECK(v.which() == 1u);
+            REQUIRE(v.target<Explicit<std::string>>() != nullptr);
+            CHECK(v.target<Explicit<std::string>>()->x == "42");
+
+#if EGGS_CXX98_HAS_RTTI
+            CHECK(v.target_type() == typeid(Explicit<std::string>));
+#endif
+        }
     }
 
     // sfinae
@@ -81,11 +124,32 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
             !std::is_constructible<
                 eggs::variant<int, int const>, int
             >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<Explicit<int>, Explicit<int>>, int
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<Explicit<int>, Explicit<int const>>, int
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int, int, Explicit<int>>, int
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<int, int, Explicit<long>>, long
+            >::value));
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
         CHECK((
             !std::is_constructible<
                 eggs::variant<WeirdConstructor>, long
             >::value));
 #endif
+
+        CHECK((
+            !std::is_convertible<
+                int, eggs::variant<Explicit<int>>
+            >::value));
     }
 }
