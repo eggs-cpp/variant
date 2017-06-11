@@ -437,24 +437,23 @@ namespace eggs { namespace variants { namespace detail
           , _which{I}
         {}
 
-        template <std::size_t I, typename ...Args>
-        EGGS_CXX14_CONSTEXPR void _emplace(
+        template <typename T, std::size_t I, typename ...Args>
+        EGGS_CXX14_CONSTEXPR T& _emplace(
             /*is_copy_assignable<Ts...>=*/std::true_type
           , index<I> which, Args&&... args)
         {
             *this = _storage(which, detail::forward<Args>(args)...);
+            return get(which);
         }
 
-        template <
-            std::size_t I, typename ...Args
-          , typename T = typename at_index<I, pack<Ts...>>::type
-        >
-        void _emplace(
+        template <typename T, std::size_t I, typename ...Args>
+        T& _emplace(
             /*is_copy_assignable<Ts...>=*/std::false_type
           , index<I> /*which*/, Args&&... args)
         {
-            ::new (target()) T(detail::forward<Args>(args)...);
+            T* ptr = ::new (target()) T(detail::forward<Args>(args)...);
             _which = I;
+            return *ptr;
         }
 
         template <
@@ -464,10 +463,9 @@ namespace eggs { namespace variants { namespace detail
         EGGS_CXX14_CONSTEXPR T& emplace(index<I> which, Args&&... args)
         {
             using is_copy_assignable = all_of<pack<std::is_copy_assignable<Ts>...>>;
-            _emplace(
+            return _emplace<T>(
                 is_copy_assignable{}
               , which, detail::forward<Args>(args)...);
-            return get(which);
         }
 
 #if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
@@ -615,12 +613,12 @@ namespace eggs { namespace variants { namespace detail
             std::size_t I, typename ...Args
           , typename T = typename at_index<I, pack<Ts...>>::type
         >
-        T& emplace(index<I> which, Args&&... args)
+        T& emplace(index<I> /*which*/, Args&&... args)
         {
             _destroy();
-            ::new (target()) T(detail::forward<Args>(args)...);
+            T* ptr = ::new (target()) T(detail::forward<Args>(args)...);
             _which = I;
-            return get(which);
+            return *ptr;
         }
 
         _storage& operator=(typename special_member_if<
