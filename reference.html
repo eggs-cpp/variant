@@ -42,15 +42,14 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> ...<span style="color:#2b91af;">Ts</span>&gt; <span style="color:blue;">class</span> <a href="#eggs-variant"><span style="color:#2b91af;">variant</span></a>;
 
 &nbsp;&nbsp;<span style="color:green;">// In-place construction</span>
-&nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_tag</span></a> {};
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
-&nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
+&nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:blue;">void</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_type_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>);
+&nbsp;&nbsp;<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_type_t</span></a> = <span style="color:blue;">void</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
-&nbsp;&nbsp;<span style="color:#2b91af;">in_place_tag</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
+&nbsp;&nbsp;<span style="color:blue;">void</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-&nbsp;&nbsp;<span style="color:#2b91af;">in_place_tag</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
+&nbsp;&nbsp;<span style="color:blue;">void</span> <a href="#eggs-inplace"><span style="color:magenta;">in_place</span></a>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
 
 &nbsp;&nbsp;<span style="color:green;">// Class bad_variant_access</span>
 &nbsp;&nbsp;<span style="color:blue;">class</span> <a href="#eggs-bad-variant-access"><span style="color:#2b91af;">bad_variant_access</span></a>;
@@ -535,17 +534,16 @@
             <section>
                 <a name="eggs-inplace" href="#eggs-inplace"><h1>In-place construction</h1></a>
 <pre class="code">
-<span style="color:blue;">struct</span> <span style="color:#2b91af;">in_place_tag</span> {};
 <span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
-<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
+<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_index_t</span></a> = <span style="color:blue;">void</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">I</span>&gt;</em>);
 <span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_type_t</span></a> = <span style="color:#2b91af;">in_place_tag</span>(&amp;)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>);
+<span style="color:blue;">using</span> <a href="#eggs-inplace"><span style="color:#2b91af;">in_place_type_t</span></a> = <span style="color:blue;">void</span>(*)(<em>unspecified&lt;<span style="color:#2b91af;">T</span>&gt;</em>);
 <span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I&gt;
-<span style="color:#2b91af;">in_place_tag</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
+<span style="color:blue;">void</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">I&gt;</span></em>);
 <span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-<span style="color:#2b91af;">in_place_tag</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
+<span style="color:blue;">void</span> <span style="color:magenta;">in_place</span>(<em>unspecified&lt;<span style="color:#2b91af;">T&gt;</span></em>);
 </pre>
-                <p>The struct <code>in_place_tag</code> is used as a unique type to disambiguate constructor and function overloading. Specifically, <code>variant&lt;Ts...&gt;</code> has a constructor with <code>in_place_type_t&lt;T&gt;</code> as the first parameter, followed by a parameter pack; this indicates that <code>T</code> should be constructed in-place (as if by a call to a placement new expression) with the forwarded pack expansion as arguments for the initialization of <code>T</code>.</p>
+                <p>The template aliases <code>in_place_index_t</code> and <code>in_place_type_t</code> are used as unique types to disambiguate constructor and function overloading. Specifically, <code>variant&lt;Ts...&gt;</code> has a constructor with <code>in_place_type_t&lt;T&gt;</code> as the first parameter, followed by a parameter pack; this indicates that <code>T</code> should be constructed in-place (as if by a call to a placement new expression) with the forwarded pack expansion as arguments for the initialization of <code>T</code>.</p>
             </section>
 
             <section>
