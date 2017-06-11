@@ -31,6 +31,17 @@ struct Explicit
 };
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+struct AnyConstructible
+{
+    template <typename T>
+    AnyConstructible(T&&){}
+};
+
+struct NoneConstructible
+{
+    NoneConstructible() = delete;
+};
+
 struct WeirdConstructor
 {
     WeirdConstructor(int) {}
@@ -141,6 +152,26 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
                 eggs::variant<int, int, Explicit<long>>, long
             >::value));
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<NoneConstructible, AnyConstructible>,
+                eggs::variants::in_place_index_t<0>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<NoneConstructible, AnyConstructible>,
+                eggs::variants::in_place_type_t<NoneConstructible>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<NoneConstructible, Explicit<AnyConstructible>>,
+                eggs::variants::in_place_index_t<0>
+            >::value));
+        CHECK((
+            !std::is_constructible<
+                eggs::variant<NoneConstructible, Explicit<AnyConstructible>>,
+                eggs::variants::in_place_type_t<NoneConstructible>
+            >::value));
         CHECK((
             !std::is_constructible<
                 eggs::variant<WeirdConstructor>, long

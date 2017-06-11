@@ -664,6 +664,8 @@ namespace eggs { namespace variants
             typename U
           , typename NoCopy = typename std::enable_if<!std::is_same<
                 typename std::decay<U>::type, variant>::value>::type
+          , typename NoTag = typename std::enable_if<!detail::is_inplace_tag<
+                typename std::decay<U>::type>::value>::type
           , std::size_t I = detail::index_of_best_match<
                 U&&, detail::pack<Ts...>>::value
           , typename T = typename detail::at_index<
@@ -707,6 +709,8 @@ namespace eggs { namespace variants
           , typename NoCopy = typename std::enable_if<!std::is_same<
                 typename std::decay<U>::type, variant
             >::value>::type
+          , typename NoTag = typename std::enable_if<!detail::is_inplace_tag<
+                typename std::decay<U>::type>::value>::type
           , std::size_t I = detail::index_of_explicit_match<
                 U&&, detail::pack<Ts...>>::value
           , typename T = typename detail::at_index<

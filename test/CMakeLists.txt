@@ -21,6 +21,7 @@ set(_tests
   elem.get_if
   hash
   helper
+  in_place
   obs.bool
   obs.target
   obs.target_type
