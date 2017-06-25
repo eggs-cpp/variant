@@ -17,8 +17,6 @@
 #include "dtor.hpp"
 #include "throw.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct WeirdAssignment
 {
@@ -42,7 +40,7 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         v = 42;
 
@@ -162,7 +160,7 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
             CHECK_THROWS(v = Throw{});
 
             CHECK(bool(v) == false);
-            CHECK(v.which() == npos);
+            CHECK(v.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -187,7 +185,7 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         v = "42";
 

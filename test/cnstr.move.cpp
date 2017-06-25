@@ -18,8 +18,6 @@ using eggs::variants::detail::move;
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 struct MovableOnly
 {
     std::string x;
@@ -86,7 +84,7 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
         eggs::variant<int, std::string> v = {};
 
         CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
+        CHECK(v.which() == eggs::variant_npos);
         CHECK(v.target() == nullptr);
 
 #if EGGS_CXX98_HAS_RTTI
@@ -175,7 +173,7 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
     eggs::variant<> v1;
 
     REQUIRE(bool(v1) == false);
-    REQUIRE(v1.which() == npos);
+    REQUIRE(v1.which() == eggs::variant_npos);
 
     eggs::variant<> v2(::move(v1));
 
@@ -192,7 +190,7 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
         eggs::variant<> v = {};
 
         CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
+        CHECK(v.which() == eggs::variant_npos);
         CHECK(v.target() == nullptr);
 
 #if EGGS_CXX98_HAS_RTTI

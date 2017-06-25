@@ -1345,6 +1345,9 @@ namespace eggs { namespace variants
         EGGS_CXX11_CONSTEXPR T const* target() const EGGS_CXX11_NOEXCEPT { return nullptr; }
     };
 
+    template <typename ...Ts>
+    std::size_t const variant<Ts...>::npos;
+
     ///////////////////////////////////////////////////////////////////////////
     //! template <class T>
     //! struct variant_size;
@@ -2380,14 +2383,15 @@ namespace eggs { namespace variants
     //! template <class R, class F, class ...Vs>
     //! constexpr R apply(F&& f, Vs&&... vs);
     //!
-    //! Let `Vi` be the `i`-th type in `Vs...`, `Ui` be `std::decay_t<Vi>`,
-    //! where all indexing is zero-based.
+    //! Let `Vi` be the `i`-th type in `Vs...`, where all indexing is
+    //!  zero-based.
     //!
-    //! \requires For all `i`, `Ui` shall be the type `variant<Tsi...>` where
-    //!  `Tsi` is the parameter pack representing the element types in `Ui`.
+    //! \requires For all `i`, `Vi` shall be either a specialization of
+    //!  `variant` or publicly and unambiguously derived, directly or
+    //!  indirectly, from one. Let `Ui` be the `i`-th `variant` specialization.
     //!  `INVOKE(std::forward<F>(f), get<Is>(std::forward<Vs>(vs))..., R)`
     //!  shall be a valid expression for all `Is...` in the range `[0u,
-    //!  sizeof...(Tsi))...`.
+    //!  variant_size_v<Ui>)...`.
     //!
     //! \effects Equivalent to `INVOKE(std::forward<F>(f), get<Is>(
     //!  std::forward<Vs>(vs))...), R)` where `Is...` are the zero-based
@@ -2434,13 +2438,13 @@ namespace eggs { namespace variants
     //!  expression, then this function shall be a `constexpr` function.
     template <
         int DeductionGuard = 0, typename F, typename ...Vs
-      , typename R = typename detail::apply_result<F, detail::pack<
-            decltype(detail::access::storage(std::declval<Vs>()))...>>::type
       , typename Enable = typename std::enable_if<
             detail::all_of<detail::pack<
                 detail::is_variant<typename std::remove_reference<Vs>::type>...
             >>::value
         >::type
+      , typename R = typename detail::apply_result<F, detail::pack<
+            decltype(detail::access::storage(std::declval<Vs>()))...>>::type
     >
     EGGS_CXX11_CONSTEXPR R apply(F&& f, Vs&&... vs)
     {

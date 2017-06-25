@@ -18,8 +18,6 @@
 #include "dtor.hpp"
 #include "throw.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 template <typename ...Ts>
 struct _void
@@ -98,7 +96,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         int& r = v.emplace<0>(42);
 
@@ -218,7 +216,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
             CHECK_THROWS(v.emplace<1>(0));
 
             CHECK(bool(v) == false);
-            CHECK(v.which() == npos);
+            CHECK(v.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -255,7 +253,7 @@ TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
     eggs::variant<int, int> v;
 
     REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
+    REQUIRE(v.which() == eggs::variant_npos);
 
     int& r = v.emplace<0>(42);
 
@@ -307,7 +305,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         std::string& r = v.emplace<1>({'4', '2'});
 
@@ -399,7 +397,7 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
             CHECK_THROWS(v.emplace<1>({0}));
 
             CHECK(bool(v) == false);
-            CHECK(v.which() == npos);
+            CHECK(v.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -436,7 +434,7 @@ TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[va
     eggs::variant<std::string, std::string> v;
 
     REQUIRE(bool(v) == false);
-    REQUIRE(v.which() == npos);
+    REQUIRE(v.which() == eggs::variant_npos);
 
     std::string& r = v.emplace<1>({'4', '2'});
 
@@ -459,7 +457,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         int& r = v.emplace<int>(42);
 
@@ -579,7 +577,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
             CHECK_THROWS(v.emplace<Throw>(0));
 
             CHECK(bool(v) == false);
-            CHECK(v.which() == npos);
+            CHECK(v.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -649,7 +647,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         std::string& r = v.emplace<std::string>({'4', '2'});
 
@@ -741,7 +739,7 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
             CHECK_THROWS(v.emplace<Throw>({0}));
 
             CHECK(bool(v) == false);
-            CHECK(v.which() == npos);
+            CHECK(v.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;

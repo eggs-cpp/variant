@@ -20,8 +20,6 @@ using eggs::variants::detail::move;
 #include "dtor.hpp"
 #include "throw.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 struct MovableOnly
 {
     std::string x;
@@ -90,7 +88,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, MovableOnly> v1;
 
         REQUIRE(bool(v1) == false);
-        REQUIRE(v1.which() == npos);
+        REQUIRE(v1.which() == eggs::variant_npos);
 
         eggs::variant<int, MovableOnly> v2(42);
 
@@ -109,13 +107,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             eggs::variant<int, Dtor> v1;
             eggs::variant<int, Dtor> v2(eggs::variants::in_place<Dtor>);
 
-            REQUIRE(v1.which() == npos);
+            REQUIRE(v1.which() == eggs::variant_npos);
             REQUIRE(v2.which() == 1u);
             REQUIRE(Dtor::calls == 0u);
 
             v2 = ::move(v1);
 
-            CHECK(v2.which() == npos);
+            CHECK(v2.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -146,7 +144,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, MovableOnly> v2;
 
         REQUIRE(bool(v2) == false);
-        REQUIRE(v2.which() == npos);
+        REQUIRE(v2.which() == eggs::variant_npos);
 
         v2 = ::move(v1);
 
@@ -283,7 +281,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             CHECK(bool(v1) == true);
             CHECK(bool(v2) == false);
             CHECK(v1.which() == 1u);
-            CHECK(v2.which() == npos);
+            CHECK(v2.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -309,12 +307,12 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         eggs::variant<int, std::string> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         v = {};
 
         CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
+        CHECK(v.which() == eggs::variant_npos);
         CHECK(v.target() == nullptr);
 
 #if EGGS_CXX98_HAS_RTTI
@@ -418,12 +416,12 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
     eggs::variant<> v1;
 
     REQUIRE(bool(v1) == false);
-    REQUIRE(v1.which() == npos);
+    REQUIRE(v1.which() == eggs::variant_npos);
 
     eggs::variant<> v2;
 
     REQUIRE(bool(v2) == false);
-    REQUIRE(v2.which() == npos);
+    REQUIRE(v2.which() == eggs::variant_npos);
 
     v2 = ::move(v1);
 
@@ -440,12 +438,12 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
         eggs::variant<> v;
 
         REQUIRE(bool(v) == false);
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         v = {};
 
         CHECK(bool(v) == false);
-        CHECK(v.which() == npos);
+        CHECK(v.which() == eggs::variant_npos);
         CHECK(v.target() == nullptr);
 
 #if EGGS_CXX98_HAS_RTTI

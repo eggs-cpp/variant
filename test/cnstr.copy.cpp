@@ -18,8 +18,6 @@ using eggs::variants::detail::move;
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 struct Maleficent
 {
     int x;
@@ -165,7 +163,7 @@ TEST_CASE("variant<>::variant(variant<> const&)", "[variant.cnstr]")
     eggs::variant<> const v1;
 
     REQUIRE(bool(v1) == false);
-    REQUIRE(v1.which() == npos);
+    REQUIRE(v1.which() == eggs::variant_npos);
 
     eggs::variant<> v2(v1);
 

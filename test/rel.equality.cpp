@@ -17,8 +17,6 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 template <typename ...Ts>
 struct _void
@@ -101,7 +99,7 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
     {
         eggs::variant<int, std::string> const v1;
 
-        REQUIRE(v1.which() == npos);
+        REQUIRE(v1.which() == eggs::variant_npos);
 
         eggs::variant<int, std::string> const v2(42);
 
@@ -199,7 +197,7 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v;
 
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         CHECK((v == 42) == false);
         CHECK((v != 42) == true);
@@ -305,7 +303,7 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
     {
         eggs::variant<int, std::string> const v;
 
-        REQUIRE(v.which() == npos);
+        REQUIRE(v.which() == eggs::variant_npos);
 
         CHECK((42 == v) == false);
         CHECK((42 != v) == true);
@@ -379,11 +377,11 @@ TEST_CASE("operator==(variant<> const&, variant<> const&)", "[variant.rel]")
 {
     eggs::variant<> const v1;
 
-    REQUIRE(v1.which() == npos);
+    REQUIRE(v1.which() == eggs::variant_npos);
 
     eggs::variant<> const v2;
 
-    REQUIRE(v2.which() == npos);
+    REQUIRE(v2.which() == eggs::variant_npos);
 
     CHECK((v1 == v2) == true);
     CHECK((v1 != v2) == false);

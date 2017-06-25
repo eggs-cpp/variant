@@ -14,14 +14,12 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
 {
     eggs::variant<int, std::string> v;
 
     CHECK(bool(v) == false);
-    CHECK(v.which() == npos);
+    CHECK(v.which() == eggs::variant_npos);
     CHECK(v.target() == nullptr);
 
 #if EGGS_CXX98_HAS_RTTI
@@ -45,7 +43,7 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
     eggs::variant<> v;
 
     CHECK(bool(v) == false);
-    CHECK(v.which() == npos);
+    CHECK(v.which() == eggs::variant_npos);
     CHECK(v.target() == nullptr);
 
 #if EGGS_CXX98_HAS_RTTI

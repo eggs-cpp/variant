@@ -18,8 +18,6 @@ using eggs::variants::detail::move;
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 struct fun
 {
     std::size_t nonconst_lvalue, const_lvalue, rvalue;
@@ -124,26 +122,6 @@ struct variant_like
     {}
 };
 
-namespace eggs { namespace variants
-{
-    template <>
-    struct variant_size<::variant_like>
-      : std::integral_constant<std::size_t, 2>
-    {};
-
-    template <>
-    struct variant_element<0, ::variant_like>
-    {
-        using type = int;
-    };
-
-    template <>
-    struct variant_element<1, ::variant_like>
-    {
-        using type = std::string;
-    };
-}}
-
 TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
 {
     eggs::variant<int, std::string> v(42);
@@ -162,7 +140,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&)", "[variant.apply]")
     {
         eggs::variant<int, std::string> empty;
 
-        REQUIRE(empty.which() == npos);
+        REQUIRE(empty.which() == eggs::variant_npos);
 
         CHECK_THROWS_AS(
             eggs::variants::apply<void>(fun{}, empty)
@@ -216,7 +194,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...> const&)", "[variant.apply]")
     {
         eggs::variant<int, std::string> const empty;
 
-        REQUIRE(empty.which() == npos);
+        REQUIRE(empty.which() == eggs::variant_npos);
 
         CHECK_THROWS_AS(
             eggs::variants::apply<void>(fun{}, empty)
@@ -265,7 +243,7 @@ TEST_CASE("apply<R>(F&&, variant<Ts...>&&)", "[variant.apply]")
     {
         eggs::variant<int, std::string> empty;
 
-        REQUIRE(empty.which() == npos);
+        REQUIRE(empty.which() == eggs::variant_npos);
 
         CHECK_THROWS_AS(
             eggs::variants::apply<void>(fun{}, ::move(empty))
@@ -306,7 +284,7 @@ TEST_CASE("apply<R>(F&&, variant<>&)", "[variant.apply]")
 {
     eggs::variant<> v;
 
-    REQUIRE(v.which() == npos);
+    REQUIRE(v.which() == eggs::variant_npos);
 
     CHECK_THROWS_AS(
         eggs::variants::apply<void>(fun{}, v)
@@ -317,7 +295,7 @@ TEST_CASE("apply<R>(F&&, variant<> const&)", "[variant.apply]")
 {
     eggs::variant<> const v;
 
-    REQUIRE(v.which() == npos);
+    REQUIRE(v.which() == eggs::variant_npos);
 
     CHECK_THROWS_AS(
         eggs::variants::apply<void>(fun{}, ::move(v))
@@ -328,7 +306,7 @@ TEST_CASE("apply<R>(F&&, variant<>&&)", "[variant.apply]")
 {
     eggs::variant<> v;
 
-    REQUIRE(v.which() == npos);
+    REQUIRE(v.which() == eggs::variant_npos);
 
     CHECK_THROWS_AS(
         eggs::variants::apply<void>(fun{}, ::move(v))

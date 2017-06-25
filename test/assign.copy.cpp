@@ -20,8 +20,6 @@ using eggs::variants::detail::move;
 #include "dtor.hpp"
 #include "throw.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 struct Maleficent
 {
     int x;
@@ -81,7 +79,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         eggs::variant<int, std::string> const v1;
 
         REQUIRE(bool(v1) == false);
-        REQUIRE(v1.which() == npos);
+        REQUIRE(v1.which() == eggs::variant_npos);
 
         eggs::variant<int, std::string> v2(42);
 
@@ -99,13 +97,13 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
             eggs::variant<int, Dtor> const v1;
             eggs::variant<int, Dtor> v2(eggs::variants::in_place<Dtor>);
 
-            REQUIRE(v1.which() == npos);
+            REQUIRE(v1.which() == eggs::variant_npos);
             REQUIRE(v2.which() == 1u);
             REQUIRE(Dtor::calls == 0u);
 
             v2 = v1;
 
-            CHECK(v2.which() == npos);
+            CHECK(v2.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -136,7 +134,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         eggs::variant<int, std::string> v2;
 
         REQUIRE(bool(v2) == false);
-        REQUIRE(v2.which() == npos);
+        REQUIRE(v2.which() == eggs::variant_npos);
 
         v2 = v1;
 
@@ -275,7 +273,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
             CHECK(bool(v1) == true);
             CHECK(bool(v2) == false);
             CHECK(v1.which() == 1u);
-            CHECK(v2.which() == npos);
+            CHECK(v2.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -335,7 +333,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         eggs::variant<Maleficent> v2;
 
         REQUIRE(bool(v2) == false);
-        REQUIRE(v2.which() == npos);
+        REQUIRE(v2.which() == eggs::variant_npos);
 
         v2 = v1;
 
@@ -350,7 +348,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         eggs::variant<Maleficent> v3;
 
         REQUIRE(bool(v3) == false);
-        REQUIRE(v3.which() == npos);
+        REQUIRE(v3.which() == eggs::variant_npos);
 
         v3 = ::move(vc1);
 
@@ -392,12 +390,12 @@ TEST_CASE("variant<>::operator=(variant<> const&)", "[variant.assign]")
     eggs::variant<> const v1;
 
     REQUIRE(bool(v1) == false);
-    REQUIRE(v1.which() == npos);
+    REQUIRE(v1.which() == eggs::variant_npos);
 
     eggs::variant<> v2;
 
     REQUIRE(bool(v2) == false);
-    REQUIRE(v2.which() == npos);
+    REQUIRE(v2.which() == eggs::variant_npos);
 
     v2 = v1;
 

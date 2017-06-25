@@ -14,8 +14,6 @@
 #include "catch.hpp"
 #include "constexpr.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 TEST_CASE("variant<Ts...>::which()", "[variant.obs]")
 {
     // non-empty
@@ -41,7 +39,7 @@ TEST_CASE("variant<Ts...>::which()", "[variant.obs]")
     {
         eggs::variant<int, std::string> const v;
 
-        CHECK(v.which() == npos);
+        CHECK(v.which() == eggs::variant_npos);
 
 #if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.which()) == true));
@@ -61,7 +59,7 @@ TEST_CASE("variant<>::which()", "[variant.obs]")
 {
     eggs::variant<> const v;
 
-    CHECK(v.which() == npos);
+    CHECK(v.which() == eggs::variant_npos);
 
 #if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v.which()) == true));

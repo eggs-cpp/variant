@@ -17,8 +17,6 @@
 #include "constexpr.hpp"
 #include "dtor.hpp"
 
-EGGS_CXX11_STATIC_CONSTEXPR std::size_t npos = eggs::variant<>::npos;
-
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 template <typename ...Ts>
 struct _void
@@ -116,7 +114,7 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
     {
         eggs::variant<int, std::string> v1;
 
-        REQUIRE(v1.which() == npos);
+        REQUIRE(v1.which() == eggs::variant_npos);
 
         eggs::variant<int, std::string> v2(42);
 
@@ -128,21 +126,21 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
         CHECK(v1.which() == 0u);
         REQUIRE(v1.target<int>() != nullptr);
         CHECK(*v1.target<int>() == 42);
-        CHECK(v2.which() == npos);
+        CHECK(v2.which() == eggs::variant_npos);
 
         // dtor
         {
             eggs::variant<int, Dtor> v1;
             eggs::variant<int, Dtor> v2(eggs::variants::in_place<Dtor>);
 
-            REQUIRE(v1.which() == npos);
+            REQUIRE(v1.which() == eggs::variant_npos);
             REQUIRE(v2.which() == 1u);
             REQUIRE(Dtor::calls == 0u);
 
             v1.swap(v2);
 
             CHECK(v1.which() == 1u);
-            CHECK(v2.which() == npos);
+            CHECK(v2.which() == eggs::variant_npos);
             CHECK(Dtor::calls == 1u);
         }
         Dtor::calls = 0u;
@@ -171,11 +169,11 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 
         eggs::variant<int, std::string> v2;
 
-        REQUIRE(v2.which() == npos);
+        REQUIRE(v2.which() == eggs::variant_npos);
 
         v2.swap(v1);
 
-        CHECK(v1.which() == npos);
+        CHECK(v1.which() == eggs::variant_npos);
         CHECK(v2.which() == 0u);
         REQUIRE(v2.target<int>() != nullptr);
         CHECK(*v2.target<int>() == 42);
@@ -186,12 +184,12 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
             eggs::variant<int, Dtor> v2;
 
             REQUIRE(v1.which() == 1u);
-            REQUIRE(v2.which() == npos);
+            REQUIRE(v2.which() == eggs::variant_npos);
             REQUIRE(Dtor::calls == 0u);
 
             v1.swap(v2);
 
-            CHECK(v1.which() == npos);
+            CHECK(v1.which() == eggs::variant_npos);
             CHECK(v2.which() == 1u);
             CHECK(Dtor::calls == 1u);
         }
@@ -410,16 +408,16 @@ TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
 {
     eggs::variant<> v1;
 
-    REQUIRE(v1.which() == npos);
+    REQUIRE(v1.which() == eggs::variant_npos);
 
     eggs::variant<> v2;
 
-    REQUIRE(v2.which() == npos);
+    REQUIRE(v2.which() == eggs::variant_npos);
 
     v2.swap(v1);
 
-    CHECK(v1.which() == npos);
-    CHECK(v2.which() == npos);
+    CHECK(v1.which() == eggs::variant_npos);
+    CHECK(v2.which() == eggs::variant_npos);
 
 #if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v2.swap(v1)) == true));
