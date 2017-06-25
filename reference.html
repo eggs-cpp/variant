@@ -220,6 +220,15 @@
 }
 <span style="color:blue;">namespace</span> eggs {
 &nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">variant</span>;
+&nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">variant_size</span>;
+&nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">variant_element</span>;
+&nbsp;&nbsp;<span style="color:blue;">constexpr</span> std::<span style="color:#2b91af;">size_t</span> <span style="color:magenta;">variant_npos</span> = std::<span style="color:#2b91af;">size_t</span>(<span style="color:magenta;">-1</span>);
+
+&nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">bad_variant_access</span>;
+
+&nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">get</span>;
+&nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">get_if</span>;
+&nbsp;&nbsp;<span style="color:blue;">using</span> variants::<span style="color:#2b91af;">apply</span>;
 }
 </pre>
             </section>
@@ -885,8 +894,8 @@
                 <a name="eggs-apply-1"></a>
                 <pre class="code"><span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> R, <span style="color:blue;">class</span> F, <span style="color:blue;">class</span> ...Vs&gt;<br /><span style="color:blue;">constexpr</span> <span style="color:#2b91af;">R</span> apply(<span style="color:#2b91af;">F</span>&amp;&amp; f, <span style="color:#2b91af;">Vs</span>&amp;&amp;... vs);</pre>
                 <ul>
-                    <li>Let <em><code>Vi</code></em> be the <em><code>i</code>-th</em> type in <code>Vs...</code>, <em><code>Ui</code></em> be <code>std::decay_t&lt;<em>Vi</em>&gt;</code>, where all indexing is zero-based.</li>
-                    <li><em>Requires:</em> For all <em><code>i</code></em>, <em><code>Ui</code></em> shall be the type <code>variant&lt;<em>Tsi</em>...&gt;</code> where <em><code>Tsi</code></em> is the parameter pack representing the element types in <em><code>Ui</code></em>. <code><em>INVOKE</em>(std::forward&lt;F&gt;(f), get&lt;Is&gt;(std::forward&lt;Vs&gt;(vs))..., R)</code> shall be a valid expression for all <em><code>Is...</code></em> in the range <code>[0u, sizeof... (<em>Tsi</em>))...</code>.</li>
+                    <li>Let <em><code>Vi</code></em> be the <em><code>i</code>-th</em> type in <code>Vs...</code>, where all indexing is zero-based.</li>
+                    <li><em>Requires:</em> For all <em><code>i</code></em>, <em><code>Vi</code></em> shall be either a specialization of <code>variant</code> or publicly and unambiguously derived, directly or indirectly, from one. Let <em><code>Ui</code></em> be the <em><code>i</code>-th</em> <code>variant</code> specialization. <code><em>INVOKE</em>(std::forward&lt;F&gt;(f), get&lt;Is&gt;(std::forward&lt;Vs&gt;(vs))..., R)</code> shall be a valid expression for all <em><code>Is...</code></em> in the range <code>[0u, variant_size_v&lt;<em>Ui</em>&gt;)...</code>.</li>
                     <li><em>Effects:</em> Equivalent to <code><em>INVOKE</em>(std::forward&lt;F&gt;(f), get&lt;Is&gt;(std::forward&lt;Vs&gt;(vs))...), R)</code> where <code>Is...</code> are the zero-based indices of the active members of <code>vs...</code>.</li>
                     <li><em>Throws:</em> <code>bad_variant_access</code> if any of <code>vs...</code> has no active member.</li>
                     <li><em>Remarks:</em> If the selected function is a constant expression, then this function shall be a <code>constexpr</code> function.</li>
