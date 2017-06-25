@@ -9,12 +9,12 @@
 #ifndef EGGS_VARIANT_HPP
 #define EGGS_VARIANT_HPP
 
-#include <eggs/variant/bad_variant_access.hpp>
-#include <eggs/variant/variant.hpp>
+#include "variant/bad_variant_access.hpp"
+#include "variant/variant.hpp"
 
 #include <cstddef>
 
-#include <eggs/variant/detail/config/prefix.hpp>
+#include "variant/detail/config/prefix.hpp"
 
 namespace eggs
 {
@@ -43,6 +43,6 @@ namespace eggs
     using variants::apply;
 }
 
-#include <eggs/variant/detail/config/suffix.hpp>
+#include "variant/detail/config/suffix.hpp"
 
 #endif /*EGGS_VARIANT_HPP*/

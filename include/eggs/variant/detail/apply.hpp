@@ -9,16 +9,16 @@
 #ifndef EGGS_VARIANT_DETAIL_APPLY_HPP
 #define EGGS_VARIANT_DETAIL_APPLY_HPP
 
-#include <eggs/variant/detail/pack.hpp>
-#include <eggs/variant/detail/storage.hpp>
-#include <eggs/variant/detail/utility.hpp>
-#include <eggs/variant/detail/visitor.hpp>
+#include "pack.hpp"
+#include "storage.hpp"
+#include "utility.hpp"
+#include "visitor.hpp"
 
 #include <cstddef>
 #include <type_traits>
 #include <utility>
 
-#include <eggs/variant/detail/config/prefix.hpp>
+#include "config/prefix.hpp"
 
 namespace eggs { namespace variants { namespace detail
 {
@@ -257,6 +257,6 @@ namespace eggs { namespace variants { namespace detail
     {};
 }}}
 
-#include <eggs/variant/detail/config/suffix.hpp>
+#include "config/suffix.hpp"
 
 #endif /*EGGS_VARIANT_DETAIL_APPLY_HPP*/
