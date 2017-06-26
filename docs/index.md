@@ -1,5 +1,5 @@
 
-**Eggs.Variant** is a **C++11/14** generic, type-safe, discriminated union. See the documentation at http://eggs-cpp.github.io/variant/.
+**Eggs.Variant** is a **C++11/14/17** generic, type-safe, discriminated union. See the documentation at http://eggs-cpp.github.io/variant/.
 
 # Contents
 
@@ -10,7 +10,7 @@
 
 # Requirements
 
-The library requires a standard conformant implementation of **C++11**; a few additional features are only available under **C++14**. Some effort was done to support incomplete language or standard library implementations &mdash;see [Config](http://eggs-cpp.github.io/variant/config.html "Config - Eggs.Variant")&mdash;. There are no external dependencies.
+The library requires a standard conformant implementation of **C++11**; a few additional features are only available under **C++14/17**. Some effort was done to support incomplete language or standard library implementations &mdash;see [Config](http://eggs-cpp.github.io/variant/config.html "Config - Eggs.Variant")&mdash;. There are no external dependencies.
 
 The library is continuously tested with the following configurations:
 [![Build Status](https://travis-ci.org/eggs-cpp/variant.svg?branch=master)](https://travis-ci.org/eggs-cpp/variant)
