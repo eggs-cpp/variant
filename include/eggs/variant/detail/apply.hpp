@@ -25,8 +25,7 @@ namespace eggs { namespace variants { namespace detail
     ///////////////////////////////////////////////////////////////////////////
     template <typename F, typename ...Ts>
     EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, Ts&&... vs)
-        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            detail::forward<F>(f)(detail::forward<Ts>(vs)...)))
+        noexcept(noexcept(detail::forward<F>(f)(detail::forward<Ts>(vs)...)))
      -> decltype(detail::forward<F>(f)(detail::forward<Ts>(vs)...))
     {
         return detail::forward<F>(f)(detail::forward<Ts>(vs)...);
@@ -35,8 +34,7 @@ namespace eggs { namespace variants { namespace detail
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     template <typename F, typename T0, typename ...Ts>
     EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0, Ts&&... vs)
-        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            (v0.*f)(detail::forward<Ts>(vs)...)))
+        noexcept(noexcept((v0.*f)(detail::forward<Ts>(vs)...)))
      -> decltype((v0.*f)(detail::forward<Ts>(vs)...))
     {
         return (v0.*f)(detail::forward<Ts>(vs)...);
@@ -44,22 +42,21 @@ namespace eggs { namespace variants { namespace detail
 
     template <typename F, typename T0, typename ...Ts>
     EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0, Ts&&... vs)
-        EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-            ((*v0).*f)(detail::forward<Ts>(vs)...)))
+        noexcept(noexcept(((*v0).*f)(detail::forward<Ts>(vs)...)))
      -> decltype(((*v0).*f)(detail::forward<Ts>(vs)...))
     {
         return ((*v0).*f)(detail::forward<Ts>(vs)...);
     }
 
     template <typename F, typename T0>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0) EGGS_CXX11_NOEXCEPT
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0) noexcept
      -> decltype(v0.*f)
     {
         return v0.*f;
     }
 
     template <typename F, typename T0>
-    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0) EGGS_CXX11_NOEXCEPT
+    EGGS_CXX11_CONSTEXPR auto _invoke(F&& f, T0&& v0) noexcept
      -> decltype((*v0).*f)
     {
         return (*v0).*f;
@@ -72,8 +69,7 @@ namespace eggs { namespace variants { namespace detail
     {
         template <typename ...Ts>
         EGGS_CXX11_CONSTEXPR R operator()(Ts&&... vs) const
-            EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-                detail::_invoke(detail::forward<Ts>(vs)...)))
+            noexcept(noexcept(detail::_invoke(detail::forward<Ts>(vs)...)))
         {
             return detail::_invoke(detail::forward<Ts>(vs)...);
         }
@@ -84,8 +80,7 @@ namespace eggs { namespace variants { namespace detail
     {
         template <typename ...Ts>
         EGGS_CXX14_CONSTEXPR void operator()(Ts&&... vs) const
-            EGGS_CXX11_NOEXCEPT_IF(EGGS_CXX11_NOEXCEPT_EXPR(
-                detail::_invoke(detail::forward<Ts>(vs)...)))
+            noexcept(noexcept(detail::_invoke(detail::forward<Ts>(vs)...)))
         {
             detail::_invoke(detail::forward<Ts>(vs)...);
         }

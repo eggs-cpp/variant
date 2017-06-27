@@ -26,9 +26,7 @@ TEST_CASE("variant<Ts...>::variant()", "[variant.cnstr]")
     CHECK(v.target_type() == typeid(void));
 #endif
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(eggs::variant<int, std::string>()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr
@@ -50,9 +48,7 @@ TEST_CASE("variant<>::variant()", "[variant.cnstr]")
     CHECK(v.target_type() == typeid(void));
 #endif
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(eggs::variant<>()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr

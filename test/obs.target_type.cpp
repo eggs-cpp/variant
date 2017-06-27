@@ -24,9 +24,7 @@ TEST_CASE("variant<Ts...>::target_type()", "[variant.obs]")
 
         CHECK(v.target_type() == typeid(int));
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target_type()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         // constexpr
@@ -43,9 +41,7 @@ TEST_CASE("variant<Ts...>::target_type()", "[variant.obs]")
 
         CHECK(v.target_type() == typeid(void));
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target_type()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR_RTTI
         // constexpr
@@ -63,9 +59,7 @@ TEST_CASE("variant<>::target_type()", "[variant.obs]")
 
     CHECK(v.target_type() == typeid(void));
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v.target_type()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR_RTTI
     // constexpr

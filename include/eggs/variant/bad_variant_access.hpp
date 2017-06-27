@@ -27,13 +27,13 @@ namespace eggs { namespace variants
         //! bad_variant_access() noexcept;
         //!
         //! \effects Constructs a `bad_variant_access` object.
-        bad_variant_access() EGGS_CXX11_NOEXCEPT
+        bad_variant_access() noexcept
         {}
 
         //! char const* what() const noexcept override;
         //!
         //! \returns An implementation-defined NTBS.
-        char const* what() const EGGS_CXX11_NOEXCEPT /*override*/
+        char const* what() const noexcept /*override*/
         {
             return "bad_variant_access";
         }

@@ -62,7 +62,6 @@ struct has_emplace_type
 {};
 #endif
 
-#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
 struct NonAssignable
 {
     NonAssignable() {}
@@ -71,7 +70,6 @@ struct NonAssignable
     ~NonAssignable() {}
 };
 
-#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
 struct NonAssignableTrivial
 {
     NonAssignableTrivial() {}
@@ -79,14 +77,12 @@ struct NonAssignableTrivial
     NonAssignableTrivial& operator=(NonAssignableTrivial const&) = delete;
 };
 
-#    if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+#if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
 namespace eggs { namespace variants { namespace detail
 {
     template <> struct is_trivially_copyable<NonAssignableTrivial> : std::true_type {};
     template <> struct is_trivially_destructible<NonAssignableTrivial> : std::true_type {};
 }}}
-#    endif
-#  endif
 #endif
 
 TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
@@ -267,7 +263,6 @@ TEST_CASE("variant<T, T>::emplace<I>(Args&&...)", "[variant.assign]")
 #endif
 }
 
-#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
 TEST_CASE("variant<NonAssignable>::emplace<I>(Args&&...)", "[variant.assign]")
 {
     eggs::variant<int, NonAssignable> v(42);
@@ -280,7 +275,6 @@ TEST_CASE("variant<NonAssignable>::emplace<I>(Args&&...)", "[variant.assign]")
     CHECK(v.which() == 1u);
     CHECK(v.target<NonAssignable>() == &r);
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
     // trivially_copyable
     {
         eggs::variant<int, NonAssignableTrivial> v(42);
@@ -293,11 +287,8 @@ TEST_CASE("variant<NonAssignable>::emplace<I>(Args&&...)", "[variant.assign]")
         CHECK(v.which() == 1u);
         CHECK(v.target<NonAssignableTrivial>() == &r);
     }
-#endif
 }
-#endif
 
-#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
     // empty target
@@ -447,9 +438,7 @@ TEST_CASE("variant<T, T>::emplace<I>(std::initializer_list<U>, Args&&...)", "[va
     CHECK(v.target_type() == typeid(std::string));
 #endif
 }
-#endif
 
-#if EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 {
     // empty target
@@ -609,7 +598,6 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #endif
 }
 
-#if EGGS_CXX11_HAS_DELETED_FUNCTIONS
 TEST_CASE("variant<NonAssignable>::emplace<T>(Args&&...)", "[variant.assign]")
 {
     eggs::variant<int, NonAssignable> v(42);
@@ -622,7 +610,6 @@ TEST_CASE("variant<NonAssignable>::emplace<T>(Args&&...)", "[variant.assign]")
     CHECK(v.which() == 1u);
     CHECK(v.target<NonAssignable>() == &r);
 
-#if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
     // trivially_copyable
     {
         eggs::variant<int, NonAssignableTrivial> v(42);
@@ -635,11 +622,8 @@ TEST_CASE("variant<NonAssignable>::emplace<T>(Args&&...)", "[variant.assign]")
         CHECK(v.which() == 1u);
         CHECK(v.target<NonAssignableTrivial>() == &r);
     }
-#endif
 }
-#endif
 
-#if EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING
 TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[variant.assign]")
 {
     // empty target
@@ -770,5 +754,3 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
     }
 #endif
 }
-#endif
-#endif

@@ -45,22 +45,12 @@ set(_config_macros
   cxx11_static_constexpr
   cxx14_has_constexpr
   cxx14_constexpr
-  cxx11_has_defaulted_functions
-  cxx11_has_deleted_functions
   cxx98_has_rtti
   cxx11_has_constexpr_rtti
   cxx98_has_exceptions
-  cxx11_has_noexcept
-  cxx11_noexcept
-  cxx11_noexcept_if
-  cxx11_noexcept_expr
   cxx11_noreturn
-  cxx11_has_initializer_list_overloading
-  cxx11_has_template_argument_overloading
   cxx11_has_sfinae_for_expressions
-  cxx11_has_unrestricted_unions
   cxx14_has_variable_templates
-  cxx11_std_has_aligned_union
   cxx17_std_has_constexpr_addressof
   cxx11_std_has_is_nothrow_traits
   cxx17_std_has_swappable_traits

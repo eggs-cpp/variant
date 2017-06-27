@@ -9,22 +9,12 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX11_STATIC_CONSTEXPR`                  | `static constexpr`      | `static const`
 `EGGS_CXX14_HAS_CONSTEXPR`                     | `1`                     | `0`
 `EGGS_CXX14_CONSTEXPR`                         | `constexpr`             | ``
-`EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS`           | `1`                     | `0`
-`EGGS_CXX11_HAS_DELETED_FUNCTIONS`             | `1`                     | `0`
 `EGGS_CXX98_HAS_RTTI`                          | `1`                     | `0`
 `EGGS_CXX11_HAS_CONSTEXPR_RTTI`                | `1`                     | `0`
 `EGGS_CXX98_HAS_EXCEPTIONS`                    | `1`                     | `0`
-`EGGS_CXX11_HAS_NOEXCEPT`                      | `1`                     | `0`
-`EGGS_CXX11_NOEXCEPT`                          | `noexcept`              | ``
-`EGGS_CXX11_NOEXCEPT_IF(...)`                  | `noexcept(__VA_ARGS__)` | ``
-`EGGS_CXX11_NOEXCEPT_EXPR(...)`                | `noexcept(__VA_ARGS__)` | `false`
 `EGGS_CXX11_NORETURN`                          | `[[noreturn]]`          | ``
-`EGGS_CXX11_HAS_INITIALIZER_LIST_OVERLOADING`  | `1`                     | `0`
-`EGGS_CXX11_HAS_TEMPLATE_ARGUMENT_OVERLOADING` | `1`                     | `0`
 `EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS`        | `1`                     | `0`
-`EGGS_CXX11_HAS_UNRESTRICTED_UNIONS`           | `1`                     | `0`
 `EGGS_CXX14_HAS_VARIABLE_TEMPLATES`            | `1`                     | `0`
-`EGGS_CXX11_STD_HAS_ALIGNED_UNION`             | `1`                     | `0`
 `EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF`       | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS`         | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE`     | `1`                     | `0`

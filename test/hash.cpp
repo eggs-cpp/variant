@@ -36,7 +36,6 @@ struct has_hash<
 > : std::true_type
 {};
 
-#  if EGGS_CXX11_HAS_NOEXCEPT
 template <bool NoThrow>
 struct NoThrowHashDefaultConstructible {};
 namespace std
@@ -73,7 +72,6 @@ struct has_nothrow_hash<T, false>
 {
     EGGS_CXX11_STATIC_CONSTEXPR bool value = false;
 };
-#  endif
 #endif
 
 struct NonHashable {};
@@ -96,7 +94,6 @@ TEST_CASE("std::hash<variant<Ts...>>", "[variant.hash]")
     CHECK(variant_hasher(v) == int_hasher(42));
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-#  if EGGS_CXX11_HAS_NOEXCEPT
     // noexcept
     {
         REQUIRE((
@@ -135,7 +132,6 @@ TEST_CASE("std::hash<variant<Ts...>>", "[variant.hash]")
                 eggs::variant<NoThrowHashable<false>>
             >::value));
     }
-#  endif
 
     // sfinae
     {

@@ -22,9 +22,7 @@ TEST_CASE("variant<Ts...>::operator bool()", "[variant.obs]")
 
         CHECK(bool(v) == true);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(bool(v)) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -41,9 +39,7 @@ TEST_CASE("variant<Ts...>::operator bool()", "[variant.obs]")
 
         CHECK(bool(v) == false);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(bool(v)) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -61,9 +57,7 @@ TEST_CASE("variant<>::operator bool()", "[variant.obs]")
 
     CHECK(bool(v) == false);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(bool(v)) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr

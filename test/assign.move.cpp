@@ -30,7 +30,7 @@ struct MovableOnly
     MovableOnly& operator=(MovableOnly&& rhs) { x = ::move(rhs.x); return *this; };
 };
 
-#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
 template <bool NoThrow>
 struct NoThrowMoveAssignable
 {
@@ -48,7 +48,7 @@ struct NoThrowMoveConstructible
 };
 #endif
 
-#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 struct NonCopyAssignable
 {
     NonCopyAssignable() {}
@@ -63,7 +63,6 @@ struct NonCopyConstructible
     NonCopyConstructible& operator=(NonCopyConstructible const&) { return *this; }; // not trivially copyable
 };
 
-#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
 struct NonCopyAssignableTrivial
 {
     NonCopyAssignableTrivial() {}
@@ -71,13 +70,12 @@ struct NonCopyAssignableTrivial
     NonCopyAssignableTrivial& operator=(NonCopyAssignableTrivial const&) = delete;
 };
 
-#    if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
+#  if !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE || !EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE
 namespace eggs { namespace variants { namespace detail
 {
     template <> struct is_trivially_copyable<NonCopyAssignableTrivial> : std::true_type {};
     template <> struct is_trivially_destructible<NonCopyAssignableTrivial> : std::true_type {};
 }}}
-#    endif
 #  endif
 #endif
 
@@ -349,7 +347,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
         CHECK(*v2.target<int>() == 42);
     }
 
-#if EGGS_CXX11_HAS_NOEXCEPT && EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
+#if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
     // noexcept
     {
         REQUIRE((
@@ -392,7 +390,7 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
 
     // sfinae
     {
-#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
         CHECK((
             !std::is_move_assignable<
                 eggs::variant<NonCopyAssignable>
@@ -401,12 +399,10 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...>&&)", "[variant.assign]")
             !std::is_move_assignable<
                 eggs::variant<NonCopyConstructible>
             >::value));
-#  if EGGS_CXX11_HAS_DEFAULTED_FUNCTIONS
         CHECK((
             !std::is_move_assignable<
                 eggs::variant<NonCopyAssignableTrivial>
             >::value));
-#  endif
 #endif
     }
 }
@@ -429,9 +425,7 @@ TEST_CASE("variant<>::operator=(variant<>&&)", "[variant.assign]")
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v2 = ::move(v1)) == true));
-#endif
 
     // list-initialization
     {

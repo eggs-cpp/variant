@@ -63,9 +63,7 @@ TEST_CASE("variant<Ts...>::target()", "[variant.obs]")
 
         CHECK(v.target() != nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -92,9 +90,7 @@ TEST_CASE("variant<Ts...>::target()", "[variant.obs]")
 
         CHECK(v.target() == nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
         // constexpr
@@ -122,9 +118,7 @@ TEST_CASE("variant<>::target()", "[variant.obs]")
 
     CHECK(v.target() == nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v.target()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr
@@ -155,9 +149,7 @@ TEST_CASE("variant<Ts...>::target<T>()", "[variant.obs]")
         CHECK(v.target<float>() == nullptr);
         CHECK(v.target<std::string>() == nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target<int>()) == true));
-#endif
     }
 
     // non-empty, base
@@ -169,9 +161,7 @@ TEST_CASE("variant<Ts...>::target<T>()", "[variant.obs]")
         CHECK(v.target<float>() == nullptr);
         CHECK(v.target<std::string>() == nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target<int>()) == true));
-#endif
     }
 
     // empty
@@ -182,9 +172,7 @@ TEST_CASE("variant<Ts...>::target<T>()", "[variant.obs]")
         CHECK(v.target<float>() == nullptr);
         CHECK(v.target<std::string>() == nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
         CHECK((noexcept(v.target<int>()) == true));
-#endif
     }
 }
 
@@ -196,9 +184,7 @@ TEST_CASE("variant<Ts..., Fundamental>::target<Fundamental>()", "[variant.obs]")
 
     CHECK(v.target<float>() == v.target());
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v.target<float>()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr
@@ -227,9 +213,7 @@ TEST_CASE("variant<Ts..., Class>::target<Class>()", "[variant.obs]")
 
     CHECK(v.target<std::string>() == v.target());
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v.target<std::string>()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr
@@ -310,9 +294,7 @@ TEST_CASE("variant<>::target<T>()", "[variant.obs]")
 
     CHECK(v.target<int>() == nullptr);
 
-#if EGGS_CXX11_HAS_NOEXCEPT
     CHECK((noexcept(v.target<int>()) == true));
-#endif
 
 #if EGGS_CXX11_HAS_CONSTEXPR
     // constexpr

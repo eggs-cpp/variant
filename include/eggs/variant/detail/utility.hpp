@@ -19,14 +19,14 @@ namespace eggs { namespace variants { namespace detail
 {
     template <typename T>
     EGGS_CXX11_CONSTEXPR T&& forward(
-        typename std::remove_reference<T>::type& t) EGGS_CXX11_NOEXCEPT
+        typename std::remove_reference<T>::type& t) noexcept
     {
         return static_cast<T&&>(t);
     }
 
     template <typename T>
     EGGS_CXX11_CONSTEXPR T&& forward(
-        typename std::remove_reference<T>::type&& t) EGGS_CXX11_NOEXCEPT
+        typename std::remove_reference<T>::type&& t) noexcept
     {
         return static_cast<T&&>(t);
     }
@@ -34,7 +34,7 @@ namespace eggs { namespace variants { namespace detail
     ///////////////////////////////////////////////////////////////////////////
     template <typename T>
     EGGS_CXX11_CONSTEXPR typename std::remove_reference<T>::type&& move(
-        T&& t) EGGS_CXX11_NOEXCEPT
+        T&& t) noexcept
     {
         return static_cast<typename std::remove_reference<T>::type&&>(t);
     }
@@ -63,7 +63,7 @@ namespace eggs { namespace variants { namespace detail
     EGGS_CXX11_CONSTEXPR typename std::enable_if<
         !_addressof::has_addressof_operator<T>::value
       , T*
-    >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
+    >::type addressof(T& r) noexcept
     {
         return &r;
     }
@@ -72,7 +72,7 @@ namespace eggs { namespace variants { namespace detail
     typename std::enable_if<
         _addressof::has_addressof_operator<T>::value
       , T*
-    >::type addressof(T& r) EGGS_CXX11_NOEXCEPT
+    >::type addressof(T& r) noexcept
     {
         return std::addressof(r);
     }

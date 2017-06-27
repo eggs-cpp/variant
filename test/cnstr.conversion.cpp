@@ -30,7 +30,7 @@ struct Explicit
     explicit Explicit(U&& x) : x(std::forward<U>(x)) {}
 };
 
-#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 struct AnyConstructible
 {
     template <typename T>
@@ -151,7 +151,7 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
             !std::is_constructible<
                 eggs::variant<int, int, Explicit<long>>, long
             >::value));
-#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS && EGGS_CXX11_HAS_DELETED_FUNCTIONS
+#if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
         CHECK((
             !std::is_constructible<
                 eggs::variant<NoneConstructible, AnyConstructible>,
