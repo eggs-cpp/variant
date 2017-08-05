@@ -110,31 +110,26 @@ namespace eggs { namespace variants
             struct _fallback {};
             struct _ambiguous {};
 
-            template <typename Ts, std::size_t I = 0>
-            struct overloads
-            {
-                using fun_ptr = _fallback(*)(...);
-                operator fun_ptr();
-            };
-
-            template <typename T, typename ...Ts, std::size_t I>
-            struct overloads<pack<T, Ts...>, I>
-              : overloads<pack<Ts...>, I + 1>
+            template <std::size_t I, typename T>
+            struct _overload
             {
                 using fun_ptr = index<I>(*)(T);
                 operator fun_ptr();
             };
 
-            template <typename Ts, typename U, std::size_t I = 0>
-            struct explicit_overloads
+            template <typename Ts, typename Is = index_pack<Ts>>
+            struct overloads;
+
+            template <typename ...Ts, std::size_t ...Is>
+            struct overloads<pack<Ts...>, pack_c<std::size_t, Is...>>
+              : _overload<Is, Ts>...
             {
                 using fun_ptr = _fallback(*)(...);
                 operator fun_ptr();
             };
 
-            template <typename T, typename ...Ts, typename U, std::size_t I>
-            struct explicit_overloads<pack<T, Ts...>, U, I>
-              : explicit_overloads<pack<Ts...>, U, I + 1>
+            template <std::size_t I, typename T, typename U>
+            struct _explicit_overload
             {
                 using explicit_fun_ptr = typename std::conditional<
                     std::is_constructible<T, U>::value &&
@@ -142,6 +137,17 @@ namespace eggs { namespace variants
                     index<I>(*)(U&&), void
                 >::type;
                 operator explicit_fun_ptr();
+            };
+
+            template <typename Ts, typename U, typename Is = index_pack<Ts>>
+            struct explicit_overloads;
+
+            template <typename ...Ts, typename U, std::size_t ...Is>
+            struct explicit_overloads<pack<Ts...>, U, pack_c<std::size_t, Is...>>
+              : _explicit_overload<Is, Ts, U>...
+            {
+                using fun_ptr = _fallback(*)(...);
+                operator fun_ptr();
             };
 
             template <typename F, typename T>
