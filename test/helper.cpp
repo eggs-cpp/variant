@@ -69,13 +69,13 @@ TEST_CASE("variant_element<I, T>", "[variant.helper]")
             1, eggs::variant<int, std::string>
         >::type;
 
-    CHECK((std::is_same<variant_element_int, int>::value));
-    CHECK((std::is_same<variant_element_string, std::string>::value));
+    CHECK(std::is_same<variant_element_int, int>::value);
+    CHECK(std::is_same<variant_element_string, std::string>::value);
 
     using const_variant_element_int =
         eggs::variants::variant_element<
             0, eggs::variant<int, std::string> const
         >::type;
 
-    CHECK((std::is_same<const_variant_element_int, int const>::value));
+    CHECK(std::is_same<const_variant_element_int, int const>::value);
 }

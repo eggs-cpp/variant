@@ -356,22 +356,22 @@ TEST_CASE("variant<Ts...>::operator=(variant<Ts...> const&)", "[variant.assign]"
         CHECK(v3.target<Maleficent>()->x == 42);
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-        CHECK((
+        CHECK(
             !std::is_copy_assignable<
                 eggs::variant<MovableOnly>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_copy_assignable<
                 eggs::variant<NonCopyAssignable>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_copy_assignable<
                 eggs::variant<NonCopyConstructible>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_copy_assignable<
                 eggs::variant<NonCopyAssignableTrivial>
-            >::value));
+            >::value);
 #endif
     }
 }

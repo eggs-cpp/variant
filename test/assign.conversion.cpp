@@ -201,29 +201,29 @@ TEST_CASE("variant<Ts...>::operator=(T&&)", "[variant.assign]")
 
     // sfinae
     {
-        CHECK((
+        CHECK(
             !std::is_assignable<
                 eggs::variant<int>&, std::string
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_assignable<
                 eggs::variant<int, int>&, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_assignable<
                 eggs::variant<int, int const>&, int
-            >::value));
+            >::value);
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
 #  if !defined(_MSC_FULL_VER) || _MSC_FULL_VER >= 191025206
-        CHECK((
+        CHECK(
             !std::is_assignable<
                 eggs::variant<WeirdAssignment>&, long
-            >::value));
+            >::value);
 #  endif
-        CHECK((
+        CHECK(
             !std::is_assignable<
                 eggs::variant<WeirdConstructor>&, long
-            >::value));
+            >::value);
 #endif
     }
 }

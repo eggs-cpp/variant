@@ -134,18 +134,18 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...> const&)", "[variant.cnstr]")
         CHECK(v3.target<Maleficent>()->x == 42);
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-        CHECK((
+        CHECK(
             !std::is_copy_constructible<
                 eggs::variant<MovableOnly>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_copy_constructible<
                 eggs::variant<NonCopyConstructible>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_copy_constructible<
                 eggs::variant<NonCopyConstructibleTrivial>
-            >::value));
+            >::value);
 #endif
     }
 }

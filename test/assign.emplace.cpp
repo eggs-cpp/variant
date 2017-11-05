@@ -235,11 +235,11 @@ TEST_CASE("variant<Ts...>::emplace<I>(Args&&...)", "[variant.assign]")
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_emplace_index<
                 eggs::variant<int>,
                 0, std::string
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -411,11 +411,11 @@ TEST_CASE("variant<Ts...>::emplace<I>(std::initializer_list<U>, Args&&...)", "[v
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_emplace_index<
                 eggs::variant<std::string>,
                 0, std::initializer_list<int>
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -589,11 +589,11 @@ TEST_CASE("variant<Ts...>::emplace<T>(Args&&...)", "[variant.assign]")
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_emplace_type<
                 eggs::variant<int>,
                 int, std::string
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -746,11 +746,11 @@ TEST_CASE("variant<Ts...>::emplace<T>(std::initializer_list<U>, Args&&...)", "[v
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_emplace_type<
                 eggs::variant<std::string>,
                 std::string, std::initializer_list<int>
-            >::value));
+            >::value);
     }
 #endif
 }

@@ -123,64 +123,64 @@ TEST_CASE("variant<Ts...>::variant(T&&)", "[variant.cnstr]")
 
     // sfinae
     {
-        CHECK((
+        CHECK(
             !std::is_constructible<
                 eggs::variant<int>, std::string
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<int, int>, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<int, int const>, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<Explicit<int>, Explicit<int>>, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<Explicit<int>, Explicit<int const>>, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<int, int, Explicit<int>>, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<int, int, Explicit<long>>, long
-            >::value));
+            >::value);
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-        CHECK((
+        CHECK(
             !std::is_constructible<
                 eggs::variant<NoneConstructible, AnyConstructible>,
                 eggs::variants::in_place_index_t<0>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<NoneConstructible, AnyConstructible>,
                 eggs::variants::in_place_type_t<NoneConstructible>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<NoneConstructible, Explicit<AnyConstructible>>,
                 eggs::variants::in_place_index_t<0>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<NoneConstructible, Explicit<AnyConstructible>>,
                 eggs::variants::in_place_type_t<NoneConstructible>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_constructible<
                 eggs::variant<WeirdConstructor>, long
-            >::value));
+            >::value);
 #endif
 
-        CHECK((
+        CHECK(
             !std::is_convertible<
                 int, eggs::variant<Explicit<int>>
-            >::value));
+            >::value);
     }
 }

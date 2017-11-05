@@ -62,24 +62,24 @@ TEST_CASE("in_place_index_t<I>", "[variant.in_place]")
     // triggers https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81059
     eggs::variants::in_place_index_t<0> tag = eggs::variants::in_place<0>;
 
-    CHECK((tag == eggs::variants::in_place<0>));
+    CHECK(tag == eggs::variants::in_place<0>);
 
     tag = fun_index{}(eggs::variants::in_place<0>);
 
-    CHECK((tag == eggs::variants::in_place<0>));
+    CHECK(tag == eggs::variants::in_place<0>);
 #endif
 
     using decayed_tag = std::decay<eggs::variants::in_place_index_t<0>>::type;
 
-    CHECK((std::is_same<decayed_tag, eggs::variants::in_place_index_t<0>>::value));
+    CHECK(std::is_same<decayed_tag, eggs::variants::in_place_index_t<0>>::value);
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // nullptr
     {
-        CHECK((
+        CHECK(
             !is_callable<
                 fun_index, std::nullptr_t
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -90,24 +90,24 @@ TEST_CASE("in_place_type_t<T>", "[variant.in_place]")
     // triggers https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81059
     eggs::variants::in_place_type_t<int> tag = eggs::variants::in_place<int>;
 
-    CHECK((tag == eggs::variants::in_place<int>));
+    CHECK(tag == eggs::variants::in_place<int>);
 
     tag = fun_type{}(eggs::variants::in_place<int>);
 
-    CHECK((tag == eggs::variants::in_place<int>));
+    CHECK(tag == eggs::variants::in_place<int>);
 #endif
 
     using decayed_tag = std::decay<eggs::variants::in_place_type_t<int>>::type;
 
-    CHECK((std::is_same<decayed_tag, eggs::variants::in_place_type_t<int>>::value));
+    CHECK(std::is_same<decayed_tag, eggs::variants::in_place_type_t<int>>::value);
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // nullptr
     {
-        CHECK((
+        CHECK(
             !is_callable<
                 fun_type, std::nullptr_t
-            >::value));
+            >::value);
     }
 #endif
 }

@@ -315,51 +315,51 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
     // noexcept
     {
-        REQUIRE((
+        REQUIRE(
             std::is_swappable<
                 eggs::variant<int, NoThrowMoveConstructible<true>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             std::is_nothrow_swappable<
                 eggs::variant<int, NoThrowMoveConstructible<true>>
-            >::value));
+            >::value);
 
-        REQUIRE((
+        REQUIRE(
             std::is_swappable<
                 eggs::variant<int, NoThrowMoveConstructible<false>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_nothrow_swappable<
                 eggs::variant<int, NoThrowMoveConstructible<false>>
-            >::value));
+            >::value);
 
-        REQUIRE((
+        REQUIRE(
             std::is_swappable<
                 eggs::variant<int, NoThrowMoveSwappable<true>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             std::is_nothrow_swappable<
                 eggs::variant<int, NoThrowMoveSwappable<true>>
-            >::value));
+            >::value);
 
-        REQUIRE((
+        REQUIRE(
             std::is_swappable<
                 eggs::variant<int, NoThrowMoveSwappable<false>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_nothrow_swappable<
                 eggs::variant<int, NoThrowMoveSwappable<false>>
-            >::value));
+            >::value);
     }
 #endif
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_swap<
                 eggs::variant<NonSwappable>
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -411,7 +411,7 @@ TEST_CASE("variant<>::swap(variant<>&)", "[variant.swap]")
     CHECK(v1.which() == eggs::variant_npos);
     CHECK(v2.which() == eggs::variant_npos);
 
-    CHECK((noexcept(v2.swap(v1)) == true));
+    CHECK(noexcept(v2.swap(v1)) == true);
 
 #if EGGS_CXX14_HAS_CONSTEXPR
     // constexpr

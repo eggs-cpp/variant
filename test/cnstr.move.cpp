@@ -129,37 +129,37 @@ TEST_CASE("variant<Ts...>::variant(variant<Ts...>&&)", "[variant.cnstr]")
 #if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
     // noexcept
     {
-        REQUIRE((
+        REQUIRE(
             std::is_move_constructible<
                 eggs::variant<int, NoThrowMoveConstructible<true>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             std::is_nothrow_move_constructible<
                 eggs::variant<int, NoThrowMoveConstructible<true>>
-            >::value));
+            >::value);
 
-        REQUIRE((
+        REQUIRE(
             std::is_move_constructible<
                 eggs::variant<int, NoThrowMoveConstructible<false>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_nothrow_move_constructible<
                 eggs::variant<int, NoThrowMoveConstructible<false>>
-            >::value));
+            >::value);
     }
 #endif
 
     // sfinae
     {
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
-        CHECK((
+        CHECK(
             !std::is_move_constructible<
                 eggs::variant<NonCopyConstructible>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !std::is_move_constructible<
                 eggs::variant<NonCopyConstructibleTrivial>
-            >::value));
+            >::value);
 #endif
     }
 }
@@ -177,7 +177,7 @@ TEST_CASE("variant<>::variant(variant<>&&)", "[variant.cnstr]")
     CHECK(bool(v2) == false);
     CHECK(v2.which() == v1.which());
 
-    CHECK((noexcept(eggs::variant<>(::move(v1))) == true));
+    CHECK(noexcept(eggs::variant<>(::move(v1))) == true);
 
     // list-initialization
     {

@@ -149,14 +149,14 @@ TEST_CASE("operator==(variant<Ts...> const&, variant<Ts...> const&)", "[variant.
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_equal<
                 eggs::variant<NonComparable<int>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !has_not_equal<
                 eggs::variant<NonComparable<int>>
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -246,23 +246,23 @@ TEST_CASE("operator==(variant<Ts...> const&, T const&)", "[variant.rel]")
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_equal<
                 eggs::variant<int>, std::string
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !has_not_equal<
                 eggs::variant<int>, std::string
-            >::value));
+            >::value);
 
-        CHECK((
+        CHECK(
             !has_equal<
                 eggs::variant<NonComparable<int>>, int
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !has_not_equal<
                 eggs::variant<NonComparable<int>>, int
-            >::value));
+            >::value);
     }
 #endif
 }
@@ -352,23 +352,23 @@ TEST_CASE("operator==(T const&, variant<Ts...> const&)", "[variant.rel]")
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
-        CHECK((
+        CHECK(
             !has_equal<
                 std::string, eggs::variant<int>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !has_not_equal<
                 std::string, eggs::variant<int>
-            >::value));
+            >::value);
 
-        CHECK((
+        CHECK(
             !has_equal<
                 int, eggs::variant<NonComparable<int>>
-            >::value));
-        CHECK((
+            >::value);
+        CHECK(
             !has_not_equal<
                 int, eggs::variant<NonComparable<int>>
-            >::value));
+            >::value);
     }
 #endif
 }
