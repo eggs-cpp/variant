@@ -10,40 +10,6 @@ sudo: false
 
 matrix:
   include:
-    # clang-3.8
-    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
-      os: linux
-      addons: &clang38
-        apt:
-          packages:
-            - cmake
-            - cmake-data
-            - clang-3.8
-          sources:
-            - george-edison55-precise-backports
-            - ubuntu-toolchain-r-test
-            - llvm-toolchain-precise-3.8
-
-    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
-      os: linux
-      addons: *clang38
-
-    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
-      os: linux
-      addons: *clang38
-
-    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
-      os: linux
-      addons: *clang38
-
-    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
-      os: linux
-      addons: *clang38
-
-    - env: CLANG_VERSION=3.8 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
-      os: linux
-      addons: *clang38
-
     # clang-3.9
     - env: CLANG_VERSION=3.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
@@ -53,6 +19,7 @@ matrix:
             - cmake
             - cmake-data
             - clang-3.9
+            - libstdc++-4.9-dev
           sources:
             - george-edison55-precise-backports
             - ubuntu-toolchain-r-test
@@ -113,30 +80,40 @@ matrix:
       os: linux
       addons: *clang4
 
-    # gcc-4.9
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+    # clang-5
+    - env: CLANG_VERSION=5.0 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
       os: linux
-      addons: &gcc49
+      dist: trusty
+      addons: &clang5
         apt:
           packages:
             - cmake
             - cmake-data
-            - g++-4.9
+            - clang-5.0
           sources:
             - george-edison55-precise-backports
             - ubuntu-toolchain-r-test
+            - llvm-toolchain-trusty-5.0
 
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+    - env: CLANG_VERSION=5.0 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
       os: linux
-      addons: *gcc49
+      addons: *clang5
 
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++1y" BUILD_TYPE=Debug
+    - env: CLANG_VERSION=5.0 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
       os: linux
-      addons: *gcc49
+      addons: *clang5
 
-    - env: GCC_VERSION=4.9 CXXFLAGS="-std=c++1y" BUILD_TYPE=Release
+    - env: CLANG_VERSION=5.0 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
       os: linux
-      addons: *gcc49
+      addons: *clang5
+
+    - env: CLANG_VERSION=5.0 CXXFLAGS="-std=c++17" BUILD_TYPE=Debug
+      os: linux
+      addons: *clang5
+
+    - env: CLANG_VERSION=5.0 CXXFLAGS="-std=c++17" BUILD_TYPE=Release
+      os: linux
+      addons: *clang5
 
     # gcc-5
     - env: GCC_VERSION=5 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
@@ -203,6 +180,39 @@ matrix:
     - env: GCC_VERSION=6 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
       os: linux
       addons: *gcc6
+
+    # gcc-7
+    - env: GCC_VERSION=7 CXXFLAGS="-std=c++11" BUILD_TYPE=Debug
+      os: linux
+      addons: &gcc7
+        apt:
+          packages:
+            - cmake
+            - cmake-data
+            - g++-7
+          sources:
+            - george-edison55-precise-backports
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=7 CXXFLAGS="-std=c++11" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc7
+
+    - env: GCC_VERSION=7 CXXFLAGS="-std=c++14" BUILD_TYPE=Debug
+      os: linux
+      addons: *gcc7
+
+    - env: GCC_VERSION=7 CXXFLAGS="-std=c++14" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc7
+
+    - env: GCC_VERSION=7 CXXFLAGS="-std=c++1z" BUILD_TYPE=Debug
+      os: linux
+      addons: *gcc7
+
+    - env: GCC_VERSION=7 CXXFLAGS="-std=c++1z" BUILD_TYPE=Release
+      os: linux
+      addons: *gcc7
 
     # Xcode 7.3
     - env: CXXFLAGS="-std=c++11" BUILD_TYPE=Debug

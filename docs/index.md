@@ -16,8 +16,8 @@ The library is continuously tested with the following configurations:
 [![Build Status](https://travis-ci.org/eggs-cpp/variant.svg?branch=master)](https://travis-ci.org/eggs-cpp/variant)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/eggs-cpp/variant?branch=master&svg=true)](https://ci.appveyor.com/project/K-ballo/variant)
 
- - _Clang_ 3.8, 3.9, 4
- - _GCC_ 4.9, 5, 6
+ - _Clang_ 3.9, 4, 5
+ - _GCC_ 5, 6, 7
  - _Apple LLVM_ 7.3, 8.3
  - _MSVC_ 2015, 2017
 

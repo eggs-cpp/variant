@@ -172,7 +172,7 @@
 #    else
 #      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
 #    endif
-#  elif __cplusplus < 201703L
+#  elif __cplusplus < 201703L || defined(__GLIBCXX__)
 #    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
 #  else
 #    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
@@ -200,7 +200,7 @@
 #    else
 #      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
 #    endif
-#  elif __cplusplus < 201703L
+#  elif __cplusplus < 201703L || defined(__GLIBCXX__)
 #    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
 #  else
 #    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
