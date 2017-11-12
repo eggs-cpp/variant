@@ -26,20 +26,36 @@
 namespace eggs { namespace variants { namespace detail
 {
     ///////////////////////////////////////////////////////////////////////////
+    template <typename F, typename Sig, typename ...Ts>
+    struct visitor_table;
+
+    template <typename F, typename R, typename ...Args, typename ...Ts>
+    struct visitor_table<F, R(Args...), Ts...>
+    {
+        using type = R (*[pack<Ts...>::size])(Args...);
+
+#if !EGGS_CXX14_HAS_VARIABLE_TEMPLATES
+        static EGGS_CXX11_CONSTEXPR type value = {&F::template call<Ts>...};
+#endif
+    };
+
+#if EGGS_CXX14_HAS_VARIABLE_TEMPLATES
+    template <typename F, typename Sig, typename ...Ts>
+    EGGS_CXX11_CONSTEXPR typename visitor_table<F, Sig, Ts...>::type
+        visitor_table_v = {&F::template call<Ts>...};
+#else
+    template <typename F, typename R, typename ...Args, typename ...Ts>
+    EGGS_CXX11_CONSTEXPR typename visitor_table<F, R(Args...), Ts...>::type
+        visitor_table<F, R(Args...), Ts...>::value;
+#endif
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename F, typename Sig>
     struct visitor;
 
     template <typename F, typename R, typename ...Args>
     struct visitor<F, R(Args...)>
     {
-        template <typename ...Ts>
-        struct _table
-        {
-            static EGGS_CXX17_INLINE EGGS_CXX11_CONSTEXPR
-                R (*value[pack<Ts...>::size])(Args...)
-                    = {&F::template call<Ts>...};
-        };
-
 #if defined(NDEBUG)
         static EGGS_CXX11_CONSTEXPR int _assert_in_range(
             std::size_t /*index*/, std::size_t /*size*/)
@@ -65,7 +81,12 @@ namespace eggs { namespace variants { namespace detail
             Args&&... args) const
         {
             return _assert_in_range(which, sizeof...(Ts)),
-                _table<Ts...>::value[which](detail::forward<Args>(args)...);
+#if EGGS_CXX14_HAS_VARIABLE_TEMPLATES
+                visitor_table_v<F, R(Args...), Ts...>
+#else
+                visitor_table<F, R(Args...), Ts...>::value
+#endif
+                    [which](detail::forward<Args>(args)...);
         }
 
         EGGS_CXX11_NORETURN R operator()(pack<>, std::size_t, Args&&...) const
@@ -73,13 +94,6 @@ namespace eggs { namespace variants { namespace detail
             std::terminate();
         }
     };
-
-#if !EGGS_CXX17_HAS_INLINE_VARIABLES
-    template <typename F, typename R, typename ...Args>
-    template <typename ...Ts>
-    EGGS_CXX11_CONSTEXPR R (*visitor<F, R(Args...)>::_table<Ts...>::
-        value[pack<Ts...>::size])(Args...);
-#endif
 
     ///////////////////////////////////////////////////////////////////////////
     struct copy_construct

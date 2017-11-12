@@ -104,6 +104,7 @@ branches:
   only:
     - master
     - develop
+    - table14
 
 install:
   - |
