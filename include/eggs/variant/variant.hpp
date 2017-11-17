@@ -343,17 +343,7 @@ namespace eggs { namespace variants
         {
             struct _fallback {};
 
-            template <typename T>
-            static typename std::enable_if<
-                std::is_move_constructible<T>::value
-             && std::is_move_assignable<T>::value
-            >::type swap(T&, T&)
-#  if EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS
-                noexcept(
-                    std::is_nothrow_move_constructible<T>::value
-                 && std::is_nothrow_move_assignable<T>::value)
-#  endif
-                ;
+            using std::swap;
 
             template <typename T>
             static auto check_swap(int)

@@ -92,6 +92,8 @@ struct NonSwappable
 };
 void swap(NonSwappable&, NonSwappable&) = delete;
 
+struct StdAssociateSwappable : std::true_type {};
+
 #if !EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
 namespace std
 {
@@ -356,6 +358,9 @@ TEST_CASE("variant<Ts...>::swap(variant<Ts...>&)", "[variant.swap]")
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS
     // sfinae
     {
+        eggs::variant<StdAssociateSwappable> v1, v2;
+        eggs::variants::swap(v1, v2);
+
         CHECK(
             !has_swap<
                 eggs::variant<NonSwappable>
