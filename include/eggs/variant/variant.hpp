@@ -110,6 +110,8 @@ namespace eggs { namespace variants
             struct _fallback {};
             struct _ambiguous {};
 
+            using _fallback_fun_ptr = _fallback(*)(...);
+
             template <std::size_t I, typename T>
             struct _overload
             {
@@ -124,8 +126,7 @@ namespace eggs { namespace variants
             struct overloads<pack<Ts...>, pack_c<std::size_t, Is...>>
               : _overload<Is, Ts>...
             {
-                using fun_ptr = _fallback(*)(...);
-                operator fun_ptr();
+                operator _fallback_fun_ptr();
             };
 
             template <std::size_t I, typename T, typename U>
@@ -146,8 +147,7 @@ namespace eggs { namespace variants
             struct explicit_overloads<pack<Ts...>, U, pack_c<std::size_t, Is...>>
               : _explicit_overload<Is, Ts, U>...
             {
-                using fun_ptr = _fallback(*)(...);
-                operator fun_ptr();
+                operator _fallback_fun_ptr();
             };
 
             template <typename F, typename T>
