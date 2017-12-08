@@ -45,6 +45,7 @@ branches:
   only:
     - master
     - develop
+    - table11
 
 init:
   - ps: |
