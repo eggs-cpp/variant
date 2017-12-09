@@ -94,6 +94,12 @@ matrix:
       os: osx
       osx_image: xcode8.3
 
+    # Xcode 9.1
+    - env: CXX_VERSIONS="11;14;1z"
+      compiler: clang
+      os: osx
+      osx_image: xcode9.1
+
 branches:
   only:
     - master
