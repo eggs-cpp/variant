@@ -50,10 +50,6 @@ environment:
       CXXFLAGS: -std=c++1z
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-configuration:
-  - Debug
-  - Release
-
 branches:
   only:
     - master
@@ -68,16 +64,35 @@ init:
       }
 
 build_script:
-  - mkdir build
-  - cd build
   - echo cmake -G "%GENERATOR%" -T "%TOOLSET%"
   - ps: |
-      if (Test-Path env:TOOLSET) {
-        cmake -G "$env:GENERATOR" -T "$env:TOOLSET" ..
+      if ($env:GENERATOR -eq "MinGW Makefiles") {
+        $env:CXXFLAGS = $env:CXXFLAGS + ' -Wall -Wextra -Werror -pedantic-errors'
+
+        mkdir build-debug
+        cd build-debug
+        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE=Debug ..
+        cmake --build . -- -k
+        ctest --output-on-failure
+
+        cd ..
+        mkdir build-release
+        cd build-release
+        cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE=Release ..
+        cmake --build . -- -k
+        ctest --output-on-failure
       } else {
-        cmake -G "$env:GENERATOR" ..
+        $env:CXXFLAGS = $env:CXXFLAGS + ' /W4'
+
+        mkdir build
+        cd build
+        if (Test-Path env:TOOLSET) {
+          cmake -G "$env:GENERATOR" -T "$env:TOOLSET" ..
+        } else {
+          cmake -G "$env:GENERATOR" ..
+        }
+        cmake --build . --config Debug
+        ctest --output-on-failure --build-config Debug
+        cmake --build . --config Release
+        ctest --output-on-failure --build-config Release
       }
-  - echo cmake --build . --config %CONFIGURATION%
-  - cmake --build . --config %CONFIGURATION%
-  - echo ctest -V --build-config %CONFIGURATION%
-  - ctest -V --build-config %CONFIGURATION%
