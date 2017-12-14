@@ -22,15 +22,6 @@ environment:
       CXXFLAGS: /std:c++latest /permissive-
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
 
-    # Clang/C2
-    - GENERATOR: Visual Studio 14 2015 Win64
-      TOOLSET: v140_clang_c2
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-
-    - GENERATOR: Visual Studio 15 2017 Win64
-      TOOLSET: v141_clang_c2
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-
     # LLVM
     - GENERATOR: Visual Studio 14 2015 Win64
       TOOLSET: LLVM-vs2014
