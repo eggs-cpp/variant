@@ -105,7 +105,7 @@ branches:
     - master
     - develop
 
-before_install:
+install:
   - |
     if [ -n "${VERSION}" ]; then
       export CC="${CC}-${VERSION}"
@@ -115,36 +115,27 @@ before_install:
   - CXX_VERSIONS=(${CXX_VERSIONS//;/ })
   - BUILD_TYPES=(Debug Release)
 
-install:
-  - |
-    for CXX_VERSION in "${CXX_VERSIONS[@]}"; do
-      for BUILD_TYPE in "${BUILD_TYPES[@]}"; do
-        BUILD_DIR="build-${CXX_VERSION}-${BUILD_TYPE}"
-        mkdir "${BUILD_DIR}"
-        pushd "${BUILD_DIR}"
-        (
-          set -ex
-          export CXXFLAGS="${CXXFLAGS} -std=c++${CXX_VERSION}"
-          cmake -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" ..
-        )
-        popd
-      done
-    done
-
 script:
   - |
+    (( STATUS = 0 ))
     for CXX_VERSION in "${CXX_VERSIONS[@]}"; do
       for BUILD_TYPE in "${BUILD_TYPES[@]}"; do
         BUILD_DIR="build-${CXX_VERSION}-${BUILD_TYPE}"
-        pushd "${BUILD_DIR}"
         (
-          set -ex
+          set -x
+          mkdir "${BUILD_DIR}"
+          cd "${BUILD_DIR}"
+          export CXXFLAGS="${CXXFLAGS} -std=c++${CXX_VERSION}"
+          set -e
+          cmake -DCMAKE_BUILD_TYPE="${BUILD_TYPE}" ..
+          set +e
           cmake --build . -- -j 2 -k
           ctest --output-on-failure
         )
-        popd
+        (( STATUS = STATUS || $? ))
       done
     done
+    ( exit ${STATUS} )
 
 notifications:
   email: false
