@@ -139,7 +139,7 @@ script:
         pushd "${BUILD_DIR}"
         (
           set -ex
-          cmake --build . -- -k
+          cmake --build . -- -j 2 -k
           ctest --output-on-failure
         )
         popd

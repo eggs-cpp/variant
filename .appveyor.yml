@@ -72,14 +72,14 @@ build_script:
         mkdir build-debug
         cd build-debug
         cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE=Debug ..
-        cmake --build . -- -k
+        cmake --build . -- -j 2 -k
         ctest --output-on-failure
 
         cd ..
         mkdir build-release
         cd build-release
         cmake -G "$env:GENERATOR" -DCMAKE_BUILD_TYPE=Release ..
-        cmake --build . -- -k
+        cmake --build . -- -j 2 -k
         ctest --output-on-failure
       } else {
         $env:CXXFLAGS = $env:CXXFLAGS + ' /W4'
