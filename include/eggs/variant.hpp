@@ -23,9 +23,15 @@ namespace eggs
 
     //! using variants::variant_size;
     using variants::variant_size;
+#if EGGS_CXX14_HAS_VARIABLE_TEMPLATES
+    //! using variants::variant_size_v;
+    using variants::variant_size_v;
+#endif
 
     //! using variants::variant_element;
     using variants::variant_element;
+    //! using variants::variant_element_t;
+    using variants::variant_element_t;
 
     //! constexpr std::size_t variant_npos = std::size_t(-1);
     EGGS_CXX11_CONSTEXPR std::size_t const variant_npos = std::size_t(-1);
