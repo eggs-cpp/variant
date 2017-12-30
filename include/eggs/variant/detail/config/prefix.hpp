@@ -160,24 +160,31 @@
 #  define EGGS_CXX14_HAS_VARIABLE_TEMPLATES_DEFINED
 #endif
 
-/// constexpr std::addressof support
-#ifndef EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF
-#  if EGGS_CXX11_HAS_CONSTEXPR == 0
-#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
-#  elif __cpp_lib_addressof_constexpr >= 201603L
-#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+/// inline variables support
+#ifndef EGGS_CXX17_HAS_INLINE_VARIABLES
+#  if __cpp_inline_variables >= 201606L
+#    define EGGS_CXX17_HAS_INLINE_VARIABLES 1
 #  elif defined(_MSC_VER)
-#    if _MSC_VER < 1910
-#      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#    if _MSC_VER < 1912 || !_HAS_CXX17
+#      define EGGS_CXX17_HAS_INLINE_VARIABLES 0
 #    else
-#      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#      define EGGS_CXX17_HAS_INLINE_VARIABLES 1
 #    endif
-#  elif __cplusplus < 201703L || defined(__GLIBCXX__)
-#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#  elif __cplusplus < 201703L
+#    define EGGS_CXX17_HAS_INLINE_VARIABLES 0
 #  else
-#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#    define EGGS_CXX17_HAS_INLINE_VARIABLES 1
 #  endif
-#  define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF_DEFINED
+#  define EGGS_CXX17_HAS_INLINE_VARIABLES_DEFINED
+#endif
+
+#ifndef EGGS_CXX17_INLINE
+#  if EGGS_CXX17_HAS_INLINE_VARIABLES == 0
+#    define EGGS_CXX17_INLINE
+#  else
+#    define EGGS_CXX17_INLINE inline
+#  endif
+#  define EGGS_CXX17_INLINE_DEFINED
 #endif
 
 /// std::is_nothrow_* support
@@ -188,24 +195,6 @@
 #    define EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS 1
 #  endif
 #  define EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS_DEFINED
-#endif
-
-/// std::is_[nothrow_]swappable support
-#ifndef EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
-#  if __cpp_lib_is_swappable >= 201603L
-#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
-#  elif defined(_MSC_VER)
-#    if _MSC_VER < 1910 || !_HAS_CXX17
-#      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
-#    else
-#      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
-#    endif
-#  elif __cplusplus < 201703L || defined(__GLIBCXX__)
-#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
-#  else
-#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
-#  endif
-#  define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS_DEFINED
 #endif
 
 /// std::is_trivially_copyable support
@@ -236,6 +225,44 @@
 #    define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE 1
 #  endif
 #  define EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE_DEFINED
+#endif
+
+/// constexpr std::addressof support
+#ifndef EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF
+#  if EGGS_CXX11_HAS_CONSTEXPR == 0
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#  elif __cpp_lib_addressof_constexpr >= 201603L
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#  elif defined(_MSC_VER)
+#    if _MSC_VER < 1910
+#      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#    else
+#      define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#    endif
+#  elif __cplusplus < 201703L || defined(__GLIBCXX__)
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 0
+#  else
+#    define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF 1
+#  endif
+#  define EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF_DEFINED
+#endif
+
+/// std::is_[nothrow_]swappable support
+#ifndef EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS
+#  if __cpp_lib_is_swappable >= 201603L
+#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
+#  elif defined(_MSC_VER)
+#    if _MSC_VER < 1910 || !_HAS_CXX17
+#      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
+#    else
+#      define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
+#    endif
+#  elif __cplusplus < 201703L || defined(__GLIBCXX__)
+#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 0
+#  else
+#    define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS 1
+#  endif
+#  define EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS_DEFINED
 #endif
 
 #if defined(_MSC_VER)

@@ -51,6 +51,8 @@ set(_config_macros
   cxx11_noreturn
   cxx11_has_sfinae_for_expressions
   cxx14_has_variable_templates
+  cxx17_has_inline_variables
+  cxx17_inline
   cxx17_std_has_constexpr_addressof
   cxx11_std_has_is_nothrow_traits
   cxx17_std_has_swappable_traits

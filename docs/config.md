@@ -15,10 +15,12 @@ Macro                                          | Replacement             | Fallb
 `EGGS_CXX11_NORETURN`                          | `[[noreturn]]`          | ``
 `EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS`        | `1`                     | `0`
 `EGGS_CXX14_HAS_VARIABLE_TEMPLATES`            | `1`                     | `0`
-`EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF`       | `1`                     | `0`
+`EGGS_CXX17_HAS_INLINE_VARIABLES`              | `1`                     | `0`
+`EGGS_CXX17_INLINE`                            | `inline`                | ``
 `EGGS_CXX11_STD_HAS_IS_NOTHROW_TRAITS`         | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_TRIVIALLY_COPYABLE`     | `1`                     | `0`
 `EGGS_CXX11_STD_HAS_IS_TRIVIALLY_DESTRUCTIBLE` | `1`                     | `0`
+`EGGS_CXX17_STD_HAS_CONSTEXPR_ADDRESSOF`       | `1`                     | `0`
 `EGGS_CXX17_STD_HAS_SWAPPABLE_TRAITS`          | `1`                     | `0`
 
 The macros are defined to their corresponding _replacement_, except for known incomplete implementations where they are defined to their corresponding _fallback_ instead. These macros can be overriden by the user by defining them before including any library header.

@@ -1333,9 +1333,10 @@ namespace eggs { namespace variants
 
 #if EGGS_CXX14_HAS_VARIABLE_TEMPLATES
     //! template <class T>
-    //! constexpr std::size_t variant_size_v = variant_size<T>::value;
+    //! inline constexpr std::size_t variant_size_v = variant_size<T>::value;
     template <typename T>
-    EGGS_CXX11_CONSTEXPR std::size_t variant_size_v = variant_size<T>::value;
+    EGGS_CXX17_INLINE EGGS_CXX11_CONSTEXPR std::size_t variant_size_v =
+        variant_size<T>::value;
 #endif
 
     //! template <std::size_t I, class T>

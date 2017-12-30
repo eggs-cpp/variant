@@ -35,12 +35,9 @@ namespace eggs { namespace variants { namespace detail
         template <typename ...Ts>
         struct _table
         {
-            static EGGS_CXX11_CONSTEXPR R (*value[pack<Ts...>::size])(Args...)
-#if EGGS_CXX11_HAS_CONSTEXPR
-                = {&F::template call<Ts>...};
-#else
-                ;
-#endif
+            static EGGS_CXX17_INLINE EGGS_CXX11_CONSTEXPR
+                R (*value[pack<Ts...>::size])(Args...)
+                    = {&F::template call<Ts>...};
         };
 
 #if defined(NDEBUG)
@@ -77,14 +74,11 @@ namespace eggs { namespace variants { namespace detail
         }
     };
 
+#if !EGGS_CXX17_HAS_INLINE_VARIABLES
     template <typename F, typename R, typename ...Args>
     template <typename ...Ts>
     EGGS_CXX11_CONSTEXPR R (*visitor<F, R(Args...)>::_table<Ts...>::
-        value[pack<Ts...>::size])(Args...)
-#if EGGS_CXX11_HAS_CONSTEXPR
-        ;
-#else
-        = {&F::template call<Ts>...};
+        value[pack<Ts...>::size])(Args...);
 #endif
 
     ///////////////////////////////////////////////////////////////////////////
