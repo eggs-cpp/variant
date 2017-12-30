@@ -124,7 +124,7 @@
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-3"><span style="color:#2b91af;">variant_size</span></a>&lt;<span style="color:#2b91af;">T</span> <span style="color:blue;">const</span>&gt;;
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;<span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
-&nbsp;&nbsp;<span style="color:blue;">constexpr</span> std::<span style="color:#2b91af;">size_t</span> variant_size_v = <span style="color:#2b91af;">variant_size</span>&lt;T&gt;::value;
+&nbsp;&nbsp;<span style="color:blue;">inline</span> <span style="color:blue;">constexpr</span> std::<span style="color:#2b91af;">size_t</span> variant_size_v = <span style="color:#2b91af;">variant_size</span>&lt;T&gt;::value;
 
 &nbsp;&nbsp;<span style="color:blue;">template</span> &lt;std::<span style="color:#2b91af;">size_t</span> I, <span style="color:blue;">class</span> <span style="color:#2b91af;">T</span>&gt;
 &nbsp;&nbsp;<span style="color:blue;">struct</span> <a href="#eggs-helper-4"><span style="color:#2b91af;">variant_element</span></a>; <span style="color:green;">// undefined</span>
