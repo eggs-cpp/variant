@@ -14,7 +14,6 @@
 
 using eggs::variants::detail::move;
 
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 #include "constexpr.hpp"
 

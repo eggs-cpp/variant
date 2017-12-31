@@ -13,7 +13,6 @@
 
 #include <eggs/variant/detail/config/prefix.hpp>
 
-#define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
 #if EGGS_CXX11_HAS_SFINAE_FOR_EXPRESSIONS

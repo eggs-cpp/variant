@@ -5,6 +5,8 @@
 # Distributed under the Boost Software License, Version 1.0. (See accompanying
 # file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
 
+add_library(Catch2 OBJECT catch.cpp)
+
 set(_tests
   apply
   assign.conversion
@@ -30,7 +32,7 @@ set(_tests
   rel.order
   swap)
 foreach (_test ${_tests})
-  add_executable(test.${_test} ${_test}.cpp)
+  add_executable(test.${_test} ${_test}.cpp $<TARGET_OBJECTS:Catch2>)
   target_link_libraries(test.${_test} Eggs::Variant)
 
   add_test(NAME test.${_test} COMMAND test.${_test})
