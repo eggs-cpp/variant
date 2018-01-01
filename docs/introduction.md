@@ -70,7 +70,7 @@ An instance of `eggs::variant<Ts...>` is a _discriminated `union`_ with members 
 
 ---
 
-> Copyright _Agustín Bergé_, _Fusion Fenix_ 2014-2017
+> Copyright _Agustín Bergé_, _Fusion Fenix_ 2014-2018
 > 
 > Distributed under the Boost Software License, Version 1.0. (See accompanying
 > file LICENSE.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
