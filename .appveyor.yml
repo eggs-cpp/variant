@@ -45,6 +45,7 @@ branches:
   only:
     - master
     - develop
+    - unreferenced-formal-parameter
 
 init:
   - ps: |

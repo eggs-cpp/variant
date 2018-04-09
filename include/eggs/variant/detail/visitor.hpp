@@ -129,6 +129,7 @@ namespace eggs { namespace variants { namespace detail
         static void call(void* ptr)
         {
             static_cast<T*>(ptr)->~T();
+            (void)ptr; // silence bogus unreferenced formal parameter warning
         }
     };
 
