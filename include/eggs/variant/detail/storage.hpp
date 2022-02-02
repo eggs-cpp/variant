@@ -287,7 +287,7 @@ namespace eggs { namespace variants { namespace detail
             /*is_copy_assignable<Ts...>=*/std::false_type
           , index<I> /*which*/, Args&&... args)
         {
-            T* ptr = ::new (target()) T(detail::forward<Args>(args)...);
+            T* ptr = std::launder(::new (target()) T(detail::forward<Args>(args)...));
             _which = I;
             return *ptr;
         }
